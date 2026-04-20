@@ -158,7 +158,7 @@ class E621BacklogTaggingSource(hallo.modules.subscriptions.source_e621_tagging.E
             resp = event.create_response(
                 f"Okay, will send {self.batch_size} more \"{self.search}\" updates. There are about {remaining_count} posts left."
             )
-        event.reply(resp)
+        event.reply_sync(resp)
         return True
 
     @classmethod

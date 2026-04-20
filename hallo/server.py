@@ -130,7 +130,7 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def reply(
+    async def reply(
             self,
             old_event: 'ChannelUserTextEvent',
             new_event: 'ChannelUserTextEvent'
@@ -138,9 +138,7 @@ class Server(metaclass=ABCMeta):
         """
         Sends a message as a reply to another message, such as a response to a function call
         :param old_event: The event which was received, to reply to
-        :type old_event: events.ChannelUserTextEvent
         :param new_event: The event to be sent
-        :type new_event: events.ChannelUserTextEvent
         """
         # This method will just do some checks, implementations will have to actually send events
         if not old_event.is_inbound or new_event.is_inbound:

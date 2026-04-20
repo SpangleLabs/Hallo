@@ -145,7 +145,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
                     return self.process_mood_response(
                         evt, input_split[-1], unanswered_requests[-1].mood_time, mood_day
                     )
-                return evt.reply(evt.create_response(
+                return evt.reply_sync(evt.create_response(
                     "Is this a mood measurement, because I can't find a mood query."
                 ))
             # Check if it's a more complicated message
@@ -160,11 +160,11 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
                     try:
                         time_val = MoodTime(time(int(input_time[:2]), int(input_time[-2:])))
                     except ValueError:
-                        return evt.reply(evt.create_response(
+                        return evt.reply_sync(evt.create_response(
                             "Could not parse the time in that mood measurement."
                         ))
                 if not self.time_list.contains_time(time_val):
-                    return evt.reply(evt.create_response(
+                    return evt.reply_sync(evt.create_response(
                         "That time value is not being tracked for mood measurements."
                     ))
                 return self.process_mood_response(evt, input_split[-1], time_val, mood_day)
@@ -193,7 +193,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
 
     def process_mood_response(self, evt: EventMessage, mood_str: str, time_val: MoodTime, mood_day: MoodDay) -> None:
         if len(mood_str) != len(self.moods):
-            return evt.reply(evt.create_response(
+            return evt.reply_sync(evt.create_response(
                 "This mood measurement doesn't seem to have the right number of datapoints"
             ))
         with self.lock:
@@ -202,7 +202,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             }
             mood_day.set_measurement(time_val, measurement_data)
             self.save_day(mood_day)
-        return evt.reply(evt.create_response(
+        return evt.reply_sync(evt.create_response(
             f"Added mood stat {mood_str} for time: {time_val} and date: {mood_day.mood_date.isoformat()}"
         ))
 

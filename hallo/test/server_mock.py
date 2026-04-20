@@ -40,9 +40,9 @@ class ServerMock(Server):
         if after_sent_callback:
             after_sent_callback(event)
 
-    def reply(self, old_event, new_event):
-        super().reply(old_event, new_event)
-        self.send(new_event)
+    async def reply(self, old_event, new_event):
+        await super().reply(old_event, new_event)
+        await self.send(new_event)
 
     def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
         self.send(new_event)

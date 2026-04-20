@@ -128,7 +128,7 @@ class FunctionDispatcher(object):
         # If function isn't found, output a not found message
         if function_class_test is None:
             if EventMessage.FLAG_HIDE_ERRORS not in flag_list:
-                event.reply(
+                event.reply_sync(
                     event.create_response("Error, this is not a recognised function.")
                 )
                 error = FunctionNotFoundError(self, event)
@@ -141,7 +141,7 @@ class FunctionDispatcher(object):
         if not self.check_function_permissions(
             function_class, event.server, event.user, event.channel
         ):
-            event.reply(
+            event.reply_sync(
                 event.create_response(
                     "You do not have permission to use this function."
                 )
@@ -157,14 +157,14 @@ class FunctionDispatcher(object):
         try:
             response = function_obj.run(event)
             if response is not None:
-                event.reply(response)
+                event.reply_sync(response)
             else:
-                event.reply(event.create_response("The function returned no value."))
+                event.reply_sync(event.create_response("The function returned no value."))
             return
         except Exception as e:
             error = FunctionError(e, self, function_obj, event)
             e_str = (str(e)[:250] + "..") if len(str(e)) > 250 else str(e)
-            event.reply(
+            event.reply_sync(
                 event.create_response(
                     "Function failed with error message: {}".format(e_str)
                 )
@@ -206,7 +206,7 @@ class FunctionDispatcher(object):
                     passive_responses.labels(function_class=function_class.__name__).inc()
                     if isinstance(response, ChannelUserTextEvent):
                         if isinstance(event, ChannelUserTextEvent):
-                            event.reply(response)
+                            await event.reply(response)
                         else:
                             await response.server.send(response)
                 continue

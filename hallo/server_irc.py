@@ -392,10 +392,10 @@ class ServerIRC(Server):
             after_sent_callback(event)
         return
 
-    def reply(self, old_event, new_event):
-        super().reply(old_event, new_event)
+    async def reply(self, old_event, new_event):
+        await super().reply(old_event, new_event)
         # We can't do any fancy reply mechanics on IRC, so just send the event.
-        self.send_sync(new_event)
+        await self.send(new_event)
 
     def edit(self, old_event: EventMessage, new_event: EventMessage):
         super().edit(old_event, new_event)
@@ -608,7 +608,7 @@ class ServerIRC(Server):
         ).inc()
         # Reply to certain types of CTCP command
         if message_ctcp_command.lower() == "version":
-            ctcp_evt.reply(
+            await ctcp_evt.reply(
                 ctcp_evt.create_response(
                     "\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01",
                     event_class=EventNotice,
@@ -621,9 +621,9 @@ class ServerIRC(Server):
                 now.minute + 20,
                 now.second,
             )
-            ctcp_evt.reply(ctcp_evt.create_response(time_text, event_class=EventNotice))
+            await ctcp_evt.reply(ctcp_evt.create_response(time_text, event_class=EventNotice))
         elif message_ctcp_command.lower() == "ping":
-            ctcp_evt.reply(
+            await ctcp_evt.reply(
                 ctcp_evt.create_response(
                     f"\x01PING {message_ctcp_arguments}\x01",
                     event_class=EventNotice,
@@ -635,11 +635,11 @@ class ServerIRC(Server):
                 " mostly roll numbers and choose things,"
                 " dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01"
             )
-            ctcp_evt.reply(
+            await ctcp_evt.reply(
                 ctcp_evt.create_response(hallo_info, event_class=EventNotice)
             )
         elif message_ctcp_command.lower() == "clientinfo":
-            ctcp_evt.reply(
+            await ctcp_evt.reply(
                 ctcp_evt.create_response(
                     "\x01VERSION, NOTICE, TIME, USERINFO and obviously "
                     "CLIENTINFO are supported.\x01",

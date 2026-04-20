@@ -457,7 +457,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             return None
         reply_answer.add_answer(answer)
         self.data.save_answer(reply_answer)
-        return evt.reply(evt.create_response(
+        return evt.reply_sync(evt.create_response(
             f"Answer saved for question ID \"{reply_answer.question_id}\", at {reply_answer.asked_time.isoformat()}"
         ))
 
@@ -470,12 +470,12 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
                 answer=answer
             )
             self.data.save_answer(new_answer)
-            return evt.reply(evt.create_response(
+            return evt.reply_sync(evt.create_response(
                 f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
             ))
         current_answer.add_answer(answer)
         self.data.save_answer(current_answer)
-        return evt.reply(evt.create_response(
+        return evt.reply_sync(evt.create_response(
             f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
         ))
 
@@ -483,14 +483,14 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         cache = AnswerCache(self.data)
         questions = cache.list_unanswered_questions(self.questions)
         if not questions:
-            return evt.reply(evt.create_response(
+            return evt.reply_sync(evt.create_response(
                 "There are no unanswered questions here at the moment."
             ))
         questions_str = "\n".join(f"---\nid={q.id}:\n{q.question}" for q in questions)
         header_str = f"There are {len(questions)} unanswered questions:"
         if len(questions) == 1:
             header_str = "There is 1 unanswered question:"
-        return evt.reply(evt.create_response(
+        return evt.reply_sync(evt.create_response(
             f"{header_str}\n{questions_str}"
         ))
 

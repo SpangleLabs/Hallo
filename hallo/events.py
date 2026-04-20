@@ -1,3 +1,4 @@
+import asyncio
 import enum
 import logging
 from abc import ABCMeta
@@ -446,11 +447,20 @@ class ChannelUserTextEvent(ChannelUserEvent, metaclass=ABCMeta):
         resp = event_class(self.server, self.channel, self.user, text, inbound=False)
         return resp
 
-    def reply(self, event: 'ChannelUserTextEvent') -> None:
+    def reply_sync(self, event: 'ChannelUserTextEvent') -> None:
+        # TODO: temporary replacement for methods to avoid asyncing them all at once. Remove where possible!
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            asyncio.run(self.reply(event))
+        else:
+            asyncio.create_task(self.reply(event))
+
+    async def reply(self, event: 'ChannelUserTextEvent') -> None:
         """
         Shorthand for server.reply(event, event)
         """
-        self.server.reply(self, event)
+        await self.server.reply(self, event)
 
     def to_json(self) -> dict:
         return {
