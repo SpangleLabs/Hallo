@@ -1175,7 +1175,7 @@ class ServerIRC(Server):
                     response = self._check_usersonline_online_list
                     return response
                 # sleep 0.5 seconds
-                asyncio.sleep(0.5)
+                await asyncio.sleep(0.5)
             # return empty list
             return []
         finally:
@@ -1218,7 +1218,7 @@ class ServerIRC(Server):
                     response = self._check_useridentity_result
                     return response
                 # sleep 0.5
-                asyncio.sleep(0.5)
+                await asyncio.sleep(0.5)
             # return false
             return False
         finally:
