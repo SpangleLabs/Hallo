@@ -205,12 +205,11 @@ class FunctionDispatcher(object):
                 logger.debug("Got passive function response: %s", response)
                 if response is not None:
                     passive_responses.labels(function_class=function_class.__name__).inc()
-                    if isinstance(response, ChannelUserTextEvent) and isinstance(
-                        event, ChannelUserTextEvent
-                    ):
-                        event.reply(response)
-                    else:
-                        event.server.send_sync(response)
+                    if isinstance(response, ChannelUserTextEvent):
+                        if isinstance(event, ChannelUserTextEvent):
+                            event.reply(response)
+                        else:
+                            response.server.send_sync(response)
                 continue
             except Exception as e:
                 error = PassiveFunctionError(e, self, function_obj, event)
