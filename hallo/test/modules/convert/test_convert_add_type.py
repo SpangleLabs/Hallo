@@ -5,9 +5,9 @@ from hallo.test.modules.convert.convert_function_test_base import ConvertFunctio
 
 
 class ConvertAddTypeTest(ConvertFunctionTestBase, unittest.TestCase):
-    def test_duplicate_type_name(self):
+    async def test_duplicate_type_name(self):
         num_types = len(self.test_repo.type_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -21,9 +21,9 @@ class ConvertAddTypeTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_repo.type_list) == num_types
         ), "Shouldn't have added a new type"
 
-    def test_no_base_unit(self):
+    async def test_no_base_unit(self):
         num_types = len(self.test_repo.type_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(self.server, None, self.test_user, "convert add type new_type")
         )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
@@ -37,9 +37,9 @@ class ConvertAddTypeTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_repo.type_list) == num_types
         ), "Shouldn't have added a new type"
 
-    def test_create_new_type(self):
+    async def test_create_new_type(self):
         num_types = len(self.test_repo.type_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -64,9 +64,9 @@ class ConvertAddTypeTest(ConvertFunctionTestBase, unittest.TestCase):
         ), "Name should be in base unit name list"
         assert new_type.base_unit.value == 1, "Base unit should have value 1"
 
-    def test_create_new_type_with_decimals(self):
+    async def test_create_new_type_with_decimals(self):
         num_types = len(self.test_repo.type_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,

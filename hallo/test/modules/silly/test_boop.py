@@ -1,9 +1,9 @@
 from hallo.events import EventMessage, EventCTCP
 
 
-def test_boop_blank(hallo_getter):
+async def test_boop_blank(hallo_getter):
     test_hallo = hallo_getter({"silly"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "boop")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -12,38 +12,38 @@ def test_boop_blank(hallo_getter):
     ), "Boop function should return error if no arguments given."
 
 
-def test_boop_user_offline(hallo_getter):
+async def test_boop_user_offline(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = False
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan.add_user(test_hallo.test_user2)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_user")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
     assert "error" in data[0].text.lower()
 
 
-def test_boop_user_not_in_channel(hallo_getter):
+async def test_boop_user_not_in_channel(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = True
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_user")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
     assert "error" in data[0].text.lower()
 
 
-def test_boop_user(hallo_getter):
+async def test_boop_user(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = True
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan.add_user(test_hallo.test_user2)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_user")
     )
     data = test_hallo.test_server.get_send_data(2, test_hallo.test_chan)
@@ -58,7 +58,7 @@ def test_boop_user(hallo_getter):
     ), "Boop did not tell original user it was done."
 
 
-def test_boop_user_chan_offline(hallo_getter):
+async def test_boop_user_chan_offline(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
@@ -68,7 +68,7 @@ def test_boop_user_chan_offline(hallo_getter):
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = False
     test_hallo.test_chan2.add_user(test_hallo.test_user2)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_user another_chan"
         )
@@ -77,7 +77,7 @@ def test_boop_user_chan_offline(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_boop_user_chan_not_in_channel(hallo_getter):
+async def test_boop_user_chan_not_in_channel(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
@@ -86,7 +86,7 @@ def test_boop_user_chan_not_in_channel(hallo_getter):
     test_hallo.test_chan2.in_channel = True
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = True
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_user another_chan"
         )
@@ -95,7 +95,7 @@ def test_boop_user_chan_not_in_channel(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_boop_user_chan_hallo_not_in_channel(hallo_getter):
+async def test_boop_user_chan_hallo_not_in_channel(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
@@ -104,7 +104,7 @@ def test_boop_user_chan_hallo_not_in_channel(hallo_getter):
     test_hallo.test_chan2.in_channel = False
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = True
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_user another_chan"
         )
@@ -113,7 +113,7 @@ def test_boop_user_chan_hallo_not_in_channel(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_boop_user_chan_privmsg(hallo_getter):
+async def test_boop_user_chan_privmsg(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
@@ -123,7 +123,7 @@ def test_boop_user_chan_privmsg(hallo_getter):
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = True
     test_hallo.test_chan2.add_user(test_hallo.test_user2)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "boop another_user another_chan")
     )
     data = test_hallo.test_server.get_send_data(2)
@@ -140,7 +140,7 @@ def test_boop_user_chan_privmsg(hallo_getter):
     ), "Boop did not tell original user it was done."
 
 
-def test_boop_user_chan(hallo_getter):
+async def test_boop_user_chan(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
@@ -150,7 +150,7 @@ def test_boop_user_chan(hallo_getter):
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = True
     test_hallo.test_chan2.add_user(test_hallo.test_user2)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_user another_chan"
         )
@@ -171,7 +171,7 @@ def test_boop_user_chan(hallo_getter):
     ), "Boop did not tell original user it was done."
 
 
-def test_boop_chan_user_offline(hallo_getter):
+async def test_boop_chan_user_offline(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
@@ -181,7 +181,7 @@ def test_boop_chan_user_offline(hallo_getter):
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = False
     test_hallo.test_chan2.add_user(test_hallo.test_user2)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_chan another_user"
         )
@@ -190,7 +190,7 @@ def test_boop_chan_user_offline(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_boop_chan_user_not_in_channel(hallo_getter):
+async def test_boop_chan_user_not_in_channel(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
@@ -199,7 +199,7 @@ def test_boop_chan_user_not_in_channel(hallo_getter):
     test_hallo.test_chan2.in_channel = True
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = True
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_chan another_user"
         )
@@ -208,7 +208,7 @@ def test_boop_chan_user_not_in_channel(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_boop_chan_user_hallo_not_in_channel(hallo_getter):
+async def test_boop_chan_user_hallo_not_in_channel(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
@@ -217,7 +217,7 @@ def test_boop_chan_user_hallo_not_in_channel(hallo_getter):
     test_hallo.test_chan2.in_channel = False
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = True
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_chan another_user"
         )
@@ -226,7 +226,7 @@ def test_boop_chan_user_hallo_not_in_channel(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_boop_chan_user_privmsg(hallo_getter):
+async def test_boop_chan_user_privmsg(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
@@ -236,7 +236,7 @@ def test_boop_chan_user_privmsg(hallo_getter):
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = True
     test_hallo.test_chan2.add_user(test_hallo.test_user2)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "boop another_chan another_user")
     )
     data = test_hallo.test_server.get_send_data(2)
@@ -253,7 +253,7 @@ def test_boop_chan_user_privmsg(hallo_getter):
     ), "Boop did not tell original user it was done."
 
 
-def test_boop_chan_user(hallo_getter):
+async def test_boop_chan_user(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
@@ -263,7 +263,7 @@ def test_boop_chan_user(hallo_getter):
     test_hallo.test_user2 = test_hallo.test_server.get_user_by_address("another_user", "another_user")
     test_hallo.test_user2.online = True
     test_hallo.test_chan2.add_user(test_hallo.test_user2)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "boop another_chan another_user"
         )

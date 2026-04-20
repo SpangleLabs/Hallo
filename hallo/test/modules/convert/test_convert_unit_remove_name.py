@@ -5,9 +5,9 @@ from hallo.test.modules.convert.convert_function_test_base import ConvertFunctio
 
 
 class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
-    def test_invalid_type_specified(self):
+    async def test_invalid_type_specified(self):
         names1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -19,9 +19,9 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert "invalid type specified" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names1a
 
-    def test_no_units_match_specified_unit_and_specified_del_name_1(self):
+    async def test_no_units_match_specified_unit_and_specified_del_name_1(self):
         names1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -33,10 +33,10 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert "there are no units matching that description" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names1a
 
-    def test_no_units_match_specified_unit_and_specified_del_name_2(self):
+    async def test_no_units_match_specified_unit_and_specified_del_name_2(self):
         self.test_unit1a.add_name("added_name")
         names1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -48,9 +48,9 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert "there are no units matching that description" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names1a
 
-    def test_no_units_match_specified_unit_and_specified_del_name_3(self):
+    async def test_no_units_match_specified_unit_and_specified_del_name_3(self):
         names1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -62,8 +62,8 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert "there are no units matching that description" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names1a
 
-    def test_no_units_match_specified_del_name(self):
-        self.function_dispatcher.dispatch(
+    async def test_no_units_match_specified_del_name(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -74,9 +74,9 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         data = self.server.get_send_data(1, self.test_user, EventMessage)
         assert "there are no units matching that description" in data[0].text.lower()
 
-    def test_no_units_match_specified_unit_and_del_name_1(self):
+    async def test_no_units_match_specified_unit_and_del_name_1(self):
         names1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -88,10 +88,10 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert "there are no units matching that description" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names1a
 
-    def test_no_units_match_specified_unit_and_del_name_2(self):
+    async def test_no_units_match_specified_unit_and_del_name_2(self):
         self.test_unit1a.add_name("added_name")
         names1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -103,9 +103,9 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert "there are no units matching that description" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names1a
 
-    def test_no_units_match_specified_unit_and_del_name_3(self):
+    async def test_no_units_match_specified_unit_and_del_name_3(self):
         names1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -117,10 +117,10 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert "there are no units matching that description" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == names1a
 
-    def test_multiple_units_match_name(self):
+    async def test_multiple_units_match_name(self):
         names1b = len(self.test_unit1b.name_list)
         names2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -133,9 +133,9 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert len(self.test_unit1b.name_list) == names1b
         assert len(self.test_unit2b.name_list) == names2b
 
-    def test_cant_remove_last_name(self):
+    async def test_cant_remove_last_name(self):
         assert len(self.test_unit1a.name_list) == 1
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit remove name del=unit1a"
             )
@@ -145,10 +145,10 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert "cannot remove its last name" in data[0].text.lower()
         assert len(self.test_unit1a.name_list) == 1
 
-    def test_remove_by_just_del_name_1(self):
+    async def test_remove_by_just_del_name_1(self):
         names1b = len(self.test_unit1b.name_list)
         fallback_name = self.test_unit1b.name_list[1]
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit remove name del=unit1b"
             )
@@ -158,10 +158,10 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'from "{}" unit'.format(fallback_name) in data[0].text.lower()
         assert len(self.test_unit1b.name_list) == names1b - 1
 
-    def test_remove_by_just_del_name_2(self):
+    async def test_remove_by_just_del_name_2(self):
         names1b = len(self.test_unit1b.name_list)
         fallback_name = self.test_unit1b.name_list[1]
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit remove name unit1b"
             )
@@ -171,10 +171,10 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'from "{}" unit'.format(fallback_name) in data[0].text.lower()
         assert len(self.test_unit1b.name_list) == names1b - 1
 
-    def test_remove_by_unit_and_del_name_1(self):
+    async def test_remove_by_unit_and_del_name_1(self):
         self.test_unit1b.add_name("added_name")
         names1b = len(self.test_unit1b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -187,10 +187,10 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'from "unit1b" unit' in data[0].text.lower()
         assert len(self.test_unit1b.name_list) == names1b - 1
 
-    def test_remove_by_unit_and_del_name_2(self):
+    async def test_remove_by_unit_and_del_name_2(self):
         self.test_unit1b.add_name("added_name")
         names1b = len(self.test_unit1b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -203,10 +203,10 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'from "unit1b" unit' in data[0].text.lower()
         assert len(self.test_unit1b.name_list) == names1b - 1
 
-    def test_remove_by_unit_and_del_name_3(self):
+    async def test_remove_by_unit_and_del_name_3(self):
         self.test_unit1b.add_name("added_name")
         names1b = len(self.test_unit1b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -219,12 +219,12 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'from "unit1b" unit' in data[0].text.lower()
         assert len(self.test_unit1b.name_list) == names1b - 1
 
-    def test_remove_by_unit_and_del_name_specifying_type(self):
+    async def test_remove_by_unit_and_del_name_specifying_type(self):
         self.test_unit1b.add_name("added_name")
         self.test_unit2b.add_name("added_name")
         names1b = len(self.test_unit1b.name_list)
         names2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -236,7 +236,7 @@ class ConvertUnitRemoveNameTest(ConvertFunctionTestBase, unittest.TestCase):
         assert "it is ambiguous which unit you refer to" in data[0].text.lower()
         assert len(self.test_unit1b.name_list) == names1b
         assert len(self.test_unit2b.name_list) == names2b
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,

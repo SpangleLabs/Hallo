@@ -1,18 +1,18 @@
 from hallo.events import EventMessage
 
 
-def test_avg_simple(hallo_getter):
+async def test_avg_simple(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "average 2 4")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert float(data[0].text.split()[-1][:-1]) == 3, "average of 2 and 4 should be 3"
 
 
-def test_avg_same(hallo_getter):
+async def test_avg_same(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "average 2 2 2 2 2")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -21,9 +21,9 @@ def test_avg_same(hallo_getter):
     ), "average of the same number should be the same number"
 
 
-def test_avg_many(hallo_getter):
+async def test_avg_many(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, None, test_hallo.test_user, "average 2 7 4 6 32 4 1 17 12 12 100"
         )
@@ -34,9 +34,9 @@ def test_avg_many(hallo_getter):
     ), "average of many numbers calculated incorrectly"
 
 
-def test_avg_floats(hallo_getter):
+async def test_avg_floats(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "average 2.4 3.2 6.6 1.2")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -45,9 +45,9 @@ def test_avg_floats(hallo_getter):
     ), "average of floats incorrect"
 
 
-def test_avg_negative(hallo_getter):
+async def test_avg_negative(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "average -5 5 -10 10 -14 -16 13 17")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -56,10 +56,10 @@ def test_avg_negative(hallo_getter):
     ), "average including negatives was incorrect"
 
 
-def test_avg_fail(hallo_getter):
+async def test_avg_fail(hallo_getter):
     test_hallo = hallo_getter({"math"})
     # Test that words fail
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, None, test_hallo.test_user, "average -5 5 hello 10 -14 -16 13 17"
         )
@@ -67,7 +67,7 @@ def test_avg_fail(hallo_getter):
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert "error" in data[0].text.lower(), "average of words should throw error"
     # Test that invalid numbers fail
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, None, test_hallo.test_user, "average -5 5 -10 10.0.0 -14 -16 13 17"
         )

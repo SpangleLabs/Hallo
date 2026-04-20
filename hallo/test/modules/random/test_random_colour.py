@@ -4,12 +4,12 @@ from hallo.events import EventMessage
 
 
 @pytest.mark.external_integration
-def test_black(mock_roller, hallo_getter):
+async def test_black(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 0
     # Check
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "random colour")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -29,12 +29,12 @@ def test_black(mock_roller, hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_white(mock_roller, hallo_getter):
+async def test_white(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 255
     # Check
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "random colour")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -56,12 +56,12 @@ def test_white(mock_roller, hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_grey(mock_roller, hallo_getter):
+async def test_grey(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 127
     # Check
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "random colour")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -83,12 +83,12 @@ def test_grey(mock_roller, hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_red(mock_roller, hallo_getter):
+async def test_red(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = [255, 0, 0]
     # Check
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "random colour")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -108,12 +108,12 @@ def test_red(mock_roller, hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_green(mock_roller, hallo_getter):
+async def test_green(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = [0, 255, 0]
     # Check
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "random colour")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -133,12 +133,12 @@ def test_green(mock_roller, hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_blue(mock_roller, hallo_getter):
+async def test_blue(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = [0, 0, 255]
     # Check
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "random colour")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)

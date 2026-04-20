@@ -3,10 +3,10 @@ from hallo.server import Server
 from hallo.test.server_mock import ServerMock
 
 
-def test_no_servers(hallo_getter):
+async def test_no_servers(hallo_getter):
     test_hallo = hallo_getter({"server_control"}, disconnect_servers=True)
     # Send command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "list servers")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -15,7 +15,7 @@ def test_no_servers(hallo_getter):
     assert ":" not in data[0].text
 
 
-def test_one_server(hallo_getter):
+async def test_one_server(hallo_getter):
     test_hallo = hallo_getter({"server_control"}, disconnect_servers=True)
     # Add one server
     serv1 = ServerMock(test_hallo)
@@ -23,7 +23,7 @@ def test_one_server(hallo_getter):
     serv1.name = "server_list_test"
     test_hallo.add_server(serv1)
     # Send command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "list servers")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -38,7 +38,7 @@ def test_one_server(hallo_getter):
     assert "auto_connect=" + str(serv1.auto_connect) in server_list[0]
 
 
-def test_two_mock_servers(hallo_getter):
+async def test_two_mock_servers(hallo_getter):
     test_hallo = hallo_getter({"server_control"}, disconnect_servers=True)
     # Add two servers
     serv1 = ServerMock(test_hallo)
@@ -54,7 +54,7 @@ def test_two_mock_servers(hallo_getter):
     serv2.start()
     test_hallo.add_server(serv2)
     # Send command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "list servers")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -80,7 +80,7 @@ def test_two_mock_servers(hallo_getter):
     assert "auto_connect=" + str(serv2.auto_connect) in server_text2
 
 
-def test_irc_server(hallo_getter):
+async def test_irc_server(hallo_getter):
     test_hallo = hallo_getter({"server_control"}, disconnect_servers=True)
     # Add one server
     serv1 = ServerMock(test_hallo)
@@ -90,7 +90,7 @@ def test_irc_server(hallo_getter):
     serv1.name = "irc_server_list_test"
     test_hallo.add_server(serv1)
     # Send command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "list servers")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)

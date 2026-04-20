@@ -1,9 +1,9 @@
 from hallo.events import EventMessage
 
 
-def test_invalid_dice(hallo_getter):
+async def test_invalid_dice(hallo_getter):
     test_hallo = hallo_getter({"random"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll fd6")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -12,7 +12,7 @@ def test_invalid_dice(hallo_getter):
     ), "Should ask for correct format."
     assert "x-y" in data[0].text.lower(), "Should offer range format."
     assert "xdy" in data[0].text.lower(), "Should offer dice format."
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 6df")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -23,9 +23,9 @@ def test_invalid_dice(hallo_getter):
     assert "xdy" in data[0].text.lower(), "Should offer dice format."
 
 
-def test_invalid_range(hallo_getter):
+async def test_invalid_range(hallo_getter):
     test_hallo = hallo_getter({"random"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 1-f")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -34,7 +34,7 @@ def test_invalid_range(hallo_getter):
     ), "Should ask for correct format."
     assert "x-y" in data[0].text.lower(), "Should offer range format."
     assert "xdy" in data[0].text.lower(), "Should offer dice format."
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll b-16")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -45,9 +45,9 @@ def test_invalid_range(hallo_getter):
     assert "xdy" in data[0].text.lower(), "Should offer dice format."
 
 
-def test_zero_dice(hallo_getter):
+async def test_zero_dice(hallo_getter):
     test_hallo = hallo_getter({"random"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 0d6")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -56,9 +56,9 @@ def test_zero_dice(hallo_getter):
     ), "Should say dice number is wrong."
 
 
-def test_too_many_dice(hallo_getter):
+async def test_too_many_dice(hallo_getter):
     test_hallo = hallo_getter({"random"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 100000d6")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -67,9 +67,9 @@ def test_too_many_dice(hallo_getter):
     ), "Should say dice number is wrong."
 
 
-def test_zero_sides(hallo_getter):
+async def test_zero_sides(hallo_getter):
     test_hallo = hallo_getter({"random"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 4d0")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -78,9 +78,9 @@ def test_zero_sides(hallo_getter):
     ), "Should say side number is wrong."
 
 
-def test_too_many_sides(hallo_getter):
+async def test_too_many_sides(hallo_getter):
     test_hallo = hallo_getter({"random"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 4d99999999")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -89,12 +89,12 @@ def test_too_many_sides(hallo_getter):
     ), "Should say side number is wrong."
 
 
-def test_one_die(mock_roller, hallo_getter):
+async def test_one_die(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 4
     # Check function
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 1d6")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -108,12 +108,12 @@ def test_one_die(mock_roller, hallo_getter):
     assert mock_roller.last_count == 1, "Should have only rolled 1 die."
 
 
-def test_many_dice(mock_roller, hallo_getter):
+async def test_many_dice(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = [1, 2, 6]
     # Check function
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 3d10")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -132,12 +132,12 @@ def test_many_dice(mock_roller, hallo_getter):
     assert mock_roller.last_count == 3, "Should have rolled 3 dice."
 
 
-def test_roll_range(mock_roller, hallo_getter):
+async def test_roll_range(mock_roller, hallo_getter):
     test_hallo = hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 47
     # Check function
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 10-108")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)

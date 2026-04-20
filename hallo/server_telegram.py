@@ -151,7 +151,7 @@ class ServerTelegram(Server):
     def reconnect(self) -> None:
         super().reconnect()
 
-    def parse_private_message(self, update: Update, context: CallbackContext) -> None:
+    async def parse_private_message(self, update: Update, context: CallbackContext) -> None:
         """
         Handles a new private message
         :param update: Update object from telegram API
@@ -188,7 +188,7 @@ class ServerTelegram(Server):
             server_type=self.__class__.__name__,
             event_type=message_evt.__class__.__name__
         ).inc()
-        self.hallo.function_dispatcher.dispatch(message_evt)
+        await self.hallo.function_dispatcher.dispatch(message_evt)
 
     async def parse_group_message(self, update: Update, context: CallbackContext) -> None:
         """
@@ -234,9 +234,9 @@ class ServerTelegram(Server):
         function_dispatcher = self.hallo.function_dispatcher
         if message_evt.is_prefixed:
             if message_evt.is_prefixed is True:
-                function_dispatcher.dispatch(message_evt)
+                await function_dispatcher.dispatch(message_evt)
             else:
-                function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
+                await function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
         else:
             await function_dispatcher.dispatch_passive(message_evt)
 

@@ -2,9 +2,9 @@ from hallo.events import EventMessage
 from hallo.test.server_mock import ServerMock
 
 
-def test_no_args(hallo_getter):
+async def test_no_args(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "leave")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -14,9 +14,9 @@ def test_no_args(hallo_getter):
     assert test_hallo.test_chan.name in data[0].text.lower()
 
 
-def test_channel_name(hallo_getter):
+async def test_channel_name(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "leave " + test_hallo.test_chan.name)
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -26,9 +26,9 @@ def test_channel_name(hallo_getter):
     assert test_hallo.test_chan.name in data[0].text.lower()
 
 
-def test_no_args_privmsg(hallo_getter):
+async def test_no_args_privmsg(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "leave")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -36,11 +36,11 @@ def test_no_args_privmsg(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_other_channel_name(hallo_getter):
+async def test_other_channel_name(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     other = test_hallo.test_server.get_channel_by_address("#other".lower(), "#other")
     other.in_channel = True
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "leave " + other.name)
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -50,9 +50,9 @@ def test_other_channel_name(hallo_getter):
     assert other.name in data[0].text.lower()
 
 
-def test_channel_name_privmsg(hallo_getter):
+async def test_channel_name_privmsg(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "leave " + test_hallo.test_chan.name)
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -62,9 +62,9 @@ def test_channel_name_privmsg(hallo_getter):
     assert test_hallo.test_chan.name in data[0].text.lower()
 
 
-def test_not_in_channel(hallo_getter):
+async def test_not_in_channel(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "leave #not_in_channel")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -72,7 +72,7 @@ def test_not_in_channel(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_server_specified_first(hallo_getter):
+async def test_server_specified_first(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up test resources
     test_serv = ServerMock(test_hallo)
@@ -81,7 +81,7 @@ def test_server_specified_first(hallo_getter):
     test_chan1 = test_serv.get_channel_by_address("#other_serv".lower(), "#other_serv")
     test_chan1.in_channel = True
     # Send command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -98,7 +98,7 @@ def test_server_specified_first(hallo_getter):
     assert test_chan1.name in data[0].text.lower()
 
 
-def test_server_specified_second(hallo_getter):
+async def test_server_specified_second(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up test resources
     test_serv = ServerMock(test_hallo)
@@ -107,7 +107,7 @@ def test_server_specified_second(hallo_getter):
     test_chan1 = test_serv.get_channel_by_address("#other_serv".lower(), "#other_serv")
     test_chan1.in_channel = True
     # Send command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -124,7 +124,7 @@ def test_server_specified_second(hallo_getter):
     assert test_chan1.name in data[0].text.lower()
 
 
-def test_server_specified_no_channel(hallo_getter):
+async def test_server_specified_no_channel(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up test resources
     test_serv = ServerMock(test_hallo)
@@ -135,7 +135,7 @@ def test_server_specified_no_channel(hallo_getter):
     )
     test_chan1.in_channel = False
     # Send command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -150,10 +150,10 @@ def test_server_specified_no_channel(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_server_not_on_server(hallo_getter):
+async def test_server_not_on_server(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Send command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -167,12 +167,12 @@ def test_server_not_on_server(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_not_auto_join(hallo_getter):
+async def test_not_auto_join(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Make test channel auto join
     test_hallo.test_chan.auto_join = True
     # Send command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "leave " + test_hallo.test_chan.name)
     )
     # Check response data
@@ -185,12 +185,12 @@ def test_not_auto_join(hallo_getter):
     assert not test_hallo.test_chan.auto_join
 
 
-def test_post_not_in_channel(hallo_getter):
+async def test_post_not_in_channel(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Assert in channel
     assert test_hallo.test_chan.in_channel
     # Send command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "leave " + test_hallo.test_chan.name)
     )
     # Check response data

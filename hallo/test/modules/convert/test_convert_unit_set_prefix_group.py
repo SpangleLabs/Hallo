@@ -5,8 +5,8 @@ from hallo.test.modules.convert.convert_function_test_base import ConvertFunctio
 
 
 class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
-    def test_type_specified_1(self):
-        self.function_dispatcher.dispatch(
+    async def test_type_specified_1(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -19,8 +19,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit1b" unit' in data[0].text.lower()
         assert self.test_unit1b.valid_prefix_group == self.test_group1
 
-    def test_type_specified_2(self):
-        self.function_dispatcher.dispatch(
+    async def test_type_specified_2(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -33,8 +33,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit1b" unit' in data[0].text.lower()
         assert self.test_unit1b.valid_prefix_group == self.test_group1
 
-    def test_type_specified_3(self):
-        self.function_dispatcher.dispatch(
+    async def test_type_specified_3(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -47,8 +47,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit1b" unit' in data[0].text.lower()
         assert self.test_unit1b.valid_prefix_group == self.test_group1
 
-    def test_type_specified_4(self):
-        self.function_dispatcher.dispatch(
+    async def test_type_specified_4(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -61,9 +61,9 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit1b" unit' in data[0].text.lower()
         assert self.test_unit1b.valid_prefix_group == self.test_group1
 
-    def test_type_specified_set_group_none_1(self):
+    async def test_type_specified_set_group_none_1(self):
         self.test_unit1b.valid_prefix_group = self.test_group1
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -76,9 +76,9 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit1b" unit' in data[0].text.lower()
         assert self.test_unit1b.valid_prefix_group is None
 
-    def test_type_specified_set_group_none_2(self):
+    async def test_type_specified_set_group_none_2(self):
         self.test_unit1b.valid_prefix_group = self.test_group1
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -91,9 +91,9 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit1b" unit' in data[0].text.lower()
         assert self.test_unit1b.valid_prefix_group is None
 
-    def test_type_specified_set_group_none_3(self):
+    async def test_type_specified_set_group_none_3(self):
         self.test_unit1b.valid_prefix_group = self.test_group1
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -106,9 +106,9 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit1b" unit' in data[0].text.lower()
         assert self.test_unit1b.valid_prefix_group is None
 
-    def test_type_specified_set_group_none_4(self):
+    async def test_type_specified_set_group_none_4(self):
         self.test_unit1b.valid_prefix_group = self.test_group1
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -121,8 +121,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit1b" unit' in data[0].text.lower()
         assert self.test_unit1b.valid_prefix_group is None
 
-    def test_blank_message(self):
-        self.function_dispatcher.dispatch(
+    async def test_blank_message(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(self.server, None, self.test_user, "convert unit prefix group")
         )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
@@ -131,8 +131,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
             in data[0].text.lower()
         )
 
-    def test_one_word_1(self):
-        self.function_dispatcher.dispatch(
+    async def test_one_word_1(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit prefix group unit1a"
             )
@@ -143,8 +143,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
             in data[0].text.lower()
         )
 
-    def test_one_word_2(self):
-        self.function_dispatcher.dispatch(
+    async def test_one_word_2(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -158,8 +158,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
             in data[0].text.lower()
         )
 
-    def test_no_args_specified_1(self):
-        self.function_dispatcher.dispatch(
+    async def test_no_args_specified_1(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -172,8 +172,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit1a" unit' in data[0].text.lower()
         assert self.test_unit1a.valid_prefix_group is self.test_group1
 
-    def test_no_args_specified_2(self):
-        self.function_dispatcher.dispatch(
+    async def test_no_args_specified_2(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -186,8 +186,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit1a" unit' in data[0].text.lower()
         assert self.test_unit1a.valid_prefix_group is self.test_group1
 
-    def test_unit_specified_1(self):
-        self.function_dispatcher.dispatch(
+    async def test_unit_specified_1(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -200,8 +200,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit2a" unit' in data[0].text.lower()
         assert self.test_unit2a.valid_prefix_group is self.test_group1
 
-    def test_unit_specified_2(self):
-        self.function_dispatcher.dispatch(
+    async def test_unit_specified_2(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -214,8 +214,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit2a" unit' in data[0].text.lower()
         assert self.test_unit2a.valid_prefix_group is self.test_group1
 
-    def test_extra_word_split(self):
-        self.function_dispatcher.dispatch(
+    async def test_extra_word_split(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -234,8 +234,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         )
         assert self.test_unit1a.valid_prefix_group is None
 
-    def test_ambiguous_unit(self):
-        self.function_dispatcher.dispatch(
+    async def test_ambiguous_unit(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -249,9 +249,9 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert self.test_unit1b.valid_prefix_group is None
         assert self.test_unit2b.valid_prefix_group is None
 
-    def test_prefix_group_none_1(self):
+    async def test_prefix_group_none_1(self):
         self.test_unit2b.valid_prefix_group = self.test_group1
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -264,9 +264,9 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit2b" unit' in data[0].text.lower()
         assert self.test_unit2b.valid_prefix_group is None
 
-    def test_prefix_group_none_2(self):
+    async def test_prefix_group_none_2(self):
         self.test_unit2b.valid_prefix_group = self.test_group1
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -279,8 +279,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert 'for the "unit2b" unit' in data[0].text.lower()
         assert self.test_unit2b.valid_prefix_group is None
 
-    def test_unknown_group(self):
-        self.function_dispatcher.dispatch(
+    async def test_unknown_group(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -292,8 +292,8 @@ class ConvertUnitSetPrefixGroupTest(ConvertFunctionTestBase, unittest.TestCase):
         assert "prefix group not recognised" in data[0].text.lower()
         assert self.test_unit2b.valid_prefix_group is None
 
-    def test_unknown_unit(self):
-        self.function_dispatcher.dispatch(
+    async def test_unknown_unit(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,

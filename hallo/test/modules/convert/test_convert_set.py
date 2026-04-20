@@ -24,8 +24,8 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         hallo.modules.convert.convert_set.ConvertSet.add_unit = self.unit_add
         hallo.modules.convert.convert_set.ConvertSet.set_unit = self.unit_set
 
-    def test_more_than_two(self):
-        self.function_dispatcher.dispatch(
+    async def test_more_than_two(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -39,8 +39,8 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert self.mock_add.arg is None
         assert self.mock_set.arg is None
 
-    def test_only_one_unit(self):
-        self.function_dispatcher.dispatch(
+    async def test_only_one_unit(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(self.server, None, self.test_user, "convert set 3 unit1b")
         )
         data = self.server.get_send_data(1, self.test_user, EventMessage)
@@ -49,8 +49,8 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert self.mock_add.arg is None
         assert self.mock_set.arg is None
 
-    def test_second_part_invalid_1(self):
-        self.function_dispatcher.dispatch(
+    async def test_second_part_invalid_1(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert set 5 unit1b is 15 no_unit"
             )
@@ -62,8 +62,8 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert self.mock_add.arg is None
         assert self.mock_set.arg is None
 
-    def test_second_part_invalid_2(self):
-        self.function_dispatcher.dispatch(
+    async def test_second_part_invalid_2(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert set 5 unit1b is no_unit"
             )
@@ -75,8 +75,8 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert self.mock_add.arg is None
         assert self.mock_set.arg is None
 
-    def test_second_part_no_value(self):
-        self.function_dispatcher.dispatch(
+    async def test_second_part_no_value(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert set 5 unit1b is unit1a"
             )
@@ -93,8 +93,8 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].unit == self.test_unit1a
         assert measures_to[0].amount == 1
 
-    def test_first_part_no_value(self):
-        self.function_dispatcher.dispatch(
+    async def test_first_part_no_value(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert set unit1b is 5 unit1a"
             )
@@ -111,8 +111,8 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].unit == self.test_unit1a
         assert measures_to[0].amount == 5
 
-    def test_neither_have_value(self):
-        self.function_dispatcher.dispatch(
+    async def test_neither_have_value(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert set unit1a = unit1b"
             )
@@ -129,8 +129,8 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].unit == self.test_unit1b
         assert measures_to[0].amount == 1
 
-    def test_both_have_value(self):
-        self.function_dispatcher.dispatch(
+    async def test_both_have_value(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert set 15 unit1a = 5 unit1b"
             )
@@ -147,8 +147,8 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].unit == self.test_unit1b
         assert measures_to[0].amount == 5
 
-    def test_add_new_unit(self):
-        self.function_dispatcher.dispatch(
+    async def test_add_new_unit(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert set 7 new_unit = 1 unit1a"
             )
@@ -163,8 +163,8 @@ class ConvertSetRunTest(ConvertFunctionTestBase, unittest.TestCase):
         assert measures_to[0].unit == self.test_unit1a
         assert measures_to[0].amount == 1
 
-    def test_add_new_unit_not_base(self):
-        self.function_dispatcher.dispatch(
+    async def test_add_new_unit_not_base(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert set 35 new_unit = 5 unit1b"
             )

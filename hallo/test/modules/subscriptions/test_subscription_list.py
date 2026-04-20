@@ -10,10 +10,10 @@ from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.test.modules.subscriptions.mock_subscriptions import mock_sub_repo
 
 
-def test_no_feeds(tmp_path, hallo_getter):
+async def test_no_feeds(tmp_path, hallo_getter):
     test_hallo = hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub list")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -23,7 +23,7 @@ def test_no_feeds(tmp_path, hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_list_feeds(tmp_path, hallo_getter):
+async def test_list_feeds(tmp_path, hallo_getter):
     test_hallo = hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
     another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
@@ -47,7 +47,7 @@ def test_list_feeds(tmp_path, hallo_getter):
     sub3 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf3, timedelta(days=1), None, None)
     rfl.add_sub(sub3)
     # Run FeedList and check output
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub list")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)

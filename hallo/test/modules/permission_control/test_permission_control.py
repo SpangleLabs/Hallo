@@ -4,7 +4,7 @@ from hallo.permission_mask import PermissionMask
 from hallo.test.server_mock import ServerMock
 
 
-def test_run_add_on(hallo_getter):
+async def test_run_add_on(hallo_getter):
     test_hallo = hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
@@ -23,7 +23,7 @@ def test_run_add_on(hallo_getter):
     user1.permission_mask = perm3
     # Get permission mask of given channel
     test_right = "test_right"
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             serv1,
             chan1,
@@ -38,7 +38,7 @@ def test_run_add_on(hallo_getter):
     assert perm2.rights_map[test_right]
 
 
-def test_run_set_on(hallo_getter):
+async def test_run_set_on(hallo_getter):
     test_hallo = hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
@@ -58,7 +58,7 @@ def test_run_set_on(hallo_getter):
     # Get permission mask of given channel
     test_right = "test_right"
     perm2.set_right(test_right, False)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             serv1,
             chan1,
@@ -73,7 +73,7 @@ def test_run_set_on(hallo_getter):
     assert perm2.rights_map[test_right]
 
 
-def test_run_add_off(hallo_getter):
+async def test_run_add_off(hallo_getter):
     test_hallo = hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
@@ -92,7 +92,7 @@ def test_run_add_off(hallo_getter):
     user1.permission_mask = perm3
     # Get permission mask of given channel
     test_right = "test_right"
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             serv1,
             chan1,
@@ -107,7 +107,7 @@ def test_run_add_off(hallo_getter):
     assert not perm2.rights_map[test_right]
 
 
-def test_run_set_off(hallo_getter):
+async def test_run_set_off(hallo_getter):
     test_hallo = hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
@@ -127,7 +127,7 @@ def test_run_set_off(hallo_getter):
     # Get permission mask of given channel
     test_right = "test_right"
     perm2.set_right(test_right, True)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             serv1,
             chan1,
@@ -142,7 +142,7 @@ def test_run_set_off(hallo_getter):
     assert not perm2.rights_map[test_right]
 
 
-def test_run_fail_args(hallo_getter):
+async def test_run_fail_args(hallo_getter):
     test_hallo = hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
@@ -162,7 +162,7 @@ def test_run_fail_args(hallo_getter):
     # Get permission mask of given channel
     test_right = "test_right"
     perm1.set_right(test_right, True)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(serv1, chan1, user1, "permissions server=test_serv1 " + test_right)
     )
     data = serv1.get_send_data(1, chan1, EventMessage)
@@ -172,7 +172,7 @@ def test_run_fail_args(hallo_getter):
     assert perm1.rights_map[test_right]
 
 
-def test_run_fail_not_bool(hallo_getter):
+async def test_run_fail_not_bool(hallo_getter):
     test_hallo = hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
@@ -192,7 +192,7 @@ def test_run_fail_not_bool(hallo_getter):
     # Get permission mask of given channel
     test_right = "test_right"
     perm1.set_right(test_right, True)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             serv1,
             chan1,

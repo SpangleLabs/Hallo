@@ -100,12 +100,13 @@ class FunctionDispatcher(object):
         for module_name in self.module_list:
             self.reload_module(module_name)
 
-    def dispatch(self, event: EventMessage, flag_list: list[str] = None) -> None:
+    async def dispatch(self, event: EventMessage, flag_list: list[str] = None) -> None:
         """
         Sends the function call out to whichever function, if one is found
         :param event: The message event which has triggered the function dispatch
         :param flag_list: List of flags to apply to function call
         """
+        await asyncio.sleep(0.0)
         if flag_list is None:
             flag_list = []
         # Find the function name. Try joining each amount of words in the message until you find a valid function name

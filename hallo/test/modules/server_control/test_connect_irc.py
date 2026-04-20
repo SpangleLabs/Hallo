@@ -6,10 +6,10 @@ from hallo.server_irc import ServerIRC
 from hallo.user_group import UserGroup
 
 
-def test_connect_specify_irc(hallo_getter):
+async def test_connect_specify_irc(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -24,11 +24,11 @@ def test_connect_specify_irc(hallo_getter):
     ), "Incorrect output: " + str(data[0].text)
 
 
-def test_port_in_url(hallo_getter):
+async def test_port_in_url(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     test_port = 80
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -53,11 +53,11 @@ def test_port_in_url(hallo_getter):
     assert right_server.get_server_port() == test_port, "Port incorrect"
 
 
-def test_port_by_argument(hallo_getter):
+async def test_port_by_argument(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     test_port = 80
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -82,11 +82,11 @@ def test_port_by_argument(hallo_getter):
     assert right_server.get_server_port() == test_port, "Port incorrect"
 
 
-def test_address_in_argument(hallo_getter):
+async def test_address_in_argument(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     test_url = "www.example.com"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -111,11 +111,11 @@ def test_address_in_argument(hallo_getter):
     assert right_server.server_address == test_url, "Address incorrect"
 
 
-def test_address_by_argument(hallo_getter):
+async def test_address_by_argument(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     test_url = "www.example.com"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -140,7 +140,7 @@ def test_address_by_argument(hallo_getter):
     assert right_server.server_address == test_url, "Address incorrect"
 
 
-def test_inherit_port(hallo_getter):
+async def test_inherit_port(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set things up
     test_port = 80
@@ -155,7 +155,7 @@ def test_inherit_port(hallo_getter):
         "test_user".lower(), "test_user"
     )
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_serv_irc, test_chan_irc, test_user_irc, "connect irc example.com"
         )
@@ -173,10 +173,10 @@ def test_inherit_port(hallo_getter):
     assert right_server.server_port == test_port, "Port incorrect"
 
 
-def test_non_int_port_failure(hallo_getter):
+async def test_non_int_port_failure(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -192,10 +192,10 @@ def test_non_int_port_failure(hallo_getter):
     )
 
 
-def test_null_address(hallo_getter):
+async def test_null_address(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "connect irc")
     )
     # Check response
@@ -206,13 +206,13 @@ def test_null_address(hallo_getter):
     )
 
 
-def test_specified_server_name(hallo_getter):
+async def test_specified_server_name(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Test vars
     test_name = "test_server"
     test_server = "www.example.com"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -241,13 +241,13 @@ def test_specified_server_name(hallo_getter):
     assert right_server.name == test_name, "Name incorrect"
 
 
-def test_get_server_name_from_domain(hallo_getter):
+async def test_get_server_name_from_domain(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Test vars
     test_name = "example"
     test_server = "www." + test_name + ".com"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -273,10 +273,10 @@ def test_get_server_name_from_domain(hallo_getter):
     assert right_server.name == test_name, "Name incorrect"
 
 
-def test_auto_connect_default(hallo_getter):
+async def test_auto_connect_default(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -301,10 +301,10 @@ def test_auto_connect_default(hallo_getter):
     assert right_server.auto_connect, "Auto connect didn't default to true"
 
 
-def test_auto_connect_true(hallo_getter):
+async def test_auto_connect_true(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -329,10 +329,10 @@ def test_auto_connect_true(hallo_getter):
     assert right_server.auto_connect, "Auto connect didn't set to true"
 
 
-def test_auto_connect_false(hallo_getter):
+async def test_auto_connect_false(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -357,13 +357,13 @@ def test_auto_connect_false(hallo_getter):
     assert not right_server.auto_connect, "Auto connect didn't set to false"
 
 
-def test_server_nick_inherit(hallo_getter):
+async def test_server_nick_inherit(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_nick = "test_hallo"
     test_hallo.test_server.nick = test_nick
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -388,12 +388,12 @@ def test_server_nick_inherit(hallo_getter):
     assert right_server.nick == test_nick, "Nick did not inherit from other server"
 
 
-def test_server_nick_specified(hallo_getter):
+async def test_server_nick_specified(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_nick = "test_hallo2"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -418,12 +418,12 @@ def test_server_nick_specified(hallo_getter):
     assert right_server.nick == test_nick, "Specified nick was not used"
 
 
-def test_server_prefix_specified_string(hallo_getter):
+async def test_server_prefix_specified_string(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_prefix = "robot"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -448,10 +448,10 @@ def test_server_prefix_specified_string(hallo_getter):
     assert right_server.prefix == test_prefix, "Specified prefix was not used"
 
 
-def test_server_prefix_specified_none(hallo_getter):
+async def test_server_prefix_specified_none(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -476,13 +476,13 @@ def test_server_prefix_specified_none(hallo_getter):
     assert right_server.prefix is None, "Prefix wasn't set to None as specified"
 
 
-def test_server_prefix_inherit_string(hallo_getter):
+async def test_server_prefix_inherit_string(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_prefix = "robot"
     test_hallo.test_server.prefix = test_prefix
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -507,13 +507,13 @@ def test_server_prefix_inherit_string(hallo_getter):
     assert right_server.prefix == test_prefix, "Inherited prefix was not used"
 
 
-def test_server_prefix_inherit_none(hallo_getter):
+async def test_server_prefix_inherit_none(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_hallo.test_server.prefix = None
     test_hallo.default_prefix = ""
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -538,12 +538,12 @@ def test_server_prefix_inherit_none(hallo_getter):
     assert right_server.prefix is None, "Prefix wasn't inherited as None"
 
 
-def test_full_name_specified_string(hallo_getter):
+async def test_full_name_specified_string(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_name = "Hallo_Robot"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -568,13 +568,13 @@ def test_full_name_specified_string(hallo_getter):
     assert right_server.full_name == test_name, "Specified full name was not used"
 
 
-def test_full_name_inherit_string(hallo_getter):
+async def test_full_name_inherit_string(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_name = "Hallo_Robot"
     test_hallo.test_server.full_name = test_name
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -599,10 +599,10 @@ def test_full_name_inherit_string(hallo_getter):
     assert right_server.full_name == test_name, "Inherited full name was not used"
 
 
-def test_nickserv_nick_default(hallo_getter):
+async def test_nickserv_nick_default(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -629,7 +629,7 @@ def test_nickserv_nick_default(hallo_getter):
     ), "Default nickserv nick incorrect"
 
 
-def test_nickserv_nick_inherit(hallo_getter):
+async def test_nickserv_nick_inherit(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_nickserv_name = "nameserv"
@@ -644,7 +644,7 @@ def test_nickserv_nick_inherit(hallo_getter):
         "test_user".lower(), "test_user"
     )
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_serv_irc,
             test_chan_irc,
@@ -667,12 +667,12 @@ def test_nickserv_nick_inherit(hallo_getter):
     ), "Nickserv nick wasn't inherited"
 
 
-def test_nickserv_nick_specify(hallo_getter):
+async def test_nickserv_nick_specify(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_nickserv_name = "nameserv"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -699,10 +699,10 @@ def test_nickserv_nick_specify(hallo_getter):
     ), "Specified nickserv nick wasn't set"
 
 
-def test_nickserv_identity_command_default(hallo_getter):
+async def test_nickserv_identity_command_default(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -729,7 +729,7 @@ def test_nickserv_identity_command_default(hallo_getter):
     ), "Default nickserv identity command incorrect"
 
 
-def test_nickserv_identity_command_inherit(hallo_getter):
+async def test_nickserv_identity_command_inherit(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_nickserv_command = "identity"
@@ -744,7 +744,7 @@ def test_nickserv_identity_command_inherit(hallo_getter):
         "test_user".lower(), "test_user"
     )
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_serv_irc,
             test_chan_irc,
@@ -767,12 +767,12 @@ def test_nickserv_identity_command_inherit(hallo_getter):
     ), "Nickserv identity command wasn't inherited"
 
 
-def test_nickserv_identity_command_specify(hallo_getter):
+async def test_nickserv_identity_command_specify(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_nickserv_command = "identity"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -800,10 +800,10 @@ def test_nickserv_identity_command_specify(hallo_getter):
     ), "Specified nickserv identity command wasn't set"
 
 
-def test_nickserv_identity_resp_default(hallo_getter):
+async def test_nickserv_identity_resp_default(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -830,7 +830,7 @@ def test_nickserv_identity_resp_default(hallo_getter):
     ), "Default nickserv identity response incorrect"
 
 
-def test_nickserv_identity_response_inherit(hallo_getter):
+async def test_nickserv_identity_response_inherit(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_nickserv_response = "identity"
@@ -845,7 +845,7 @@ def test_nickserv_identity_response_inherit(hallo_getter):
         "test_user".lower(), "test_user"
     )
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_serv_irc,
             test_chan_irc,
@@ -868,12 +868,12 @@ def test_nickserv_identity_response_inherit(hallo_getter):
     ), "Nickserv identity response wasn't inherited"
 
 
-def test_nickserv_identity_response_specify(hallo_getter):
+async def test_nickserv_identity_response_specify(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_nickserv_response = "identity"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -901,10 +901,10 @@ def test_nickserv_identity_response_specify(hallo_getter):
     ), "Specified nickserv identity response wasn't set"
 
 
-def test_nickserv_password_default(hallo_getter):
+async def test_nickserv_password_default(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -929,7 +929,7 @@ def test_nickserv_password_default(hallo_getter):
     assert right_server.nickserv_pass is None, "Default nickserv password incorrect"
 
 
-def test_nickserv_password_inherit(hallo_getter):
+async def test_nickserv_password_inherit(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_nickserv_pass = "hunter2"
@@ -944,7 +944,7 @@ def test_nickserv_password_inherit(hallo_getter):
         "test_user".lower(), "test_user"
     )
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_serv_irc,
             test_chan_irc,
@@ -967,12 +967,12 @@ def test_nickserv_password_inherit(hallo_getter):
     ), "Nickserv password wasn't inherited"
 
 
-def test_nickserv_password_specify(hallo_getter):
+async def test_nickserv_password_specify(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_nickserv_pass = "hunter2"
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -1000,13 +1000,13 @@ def test_nickserv_password_specify(hallo_getter):
     ), "Specified nickserv password wasn't set"
 
 
-def test_inherit_user_groups_default(hallo_getter):
+async def test_inherit_user_groups_default(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_user_group = UserGroup("test_group", test_hallo)
     test_hallo.test_user.add_user_group(test_user_group)
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -1035,14 +1035,14 @@ def test_inherit_user_groups_default(hallo_getter):
     assert test_user_group in new_user.user_group_list
 
 
-def test_inherit_user_groups_specify_nick(hallo_getter):
+async def test_inherit_user_groups_specify_nick(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Set up
     test_user = "AzureDiamond"
     test_user_group = UserGroup("test_group", test_hallo)
     test_hallo.test_user.add_user_group(test_user_group)
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -1069,12 +1069,12 @@ def test_inherit_user_groups_specify_nick(hallo_getter):
     assert test_user_group in new_user.user_group_list
 
 
-def test_server_added(hallo_getter):
+async def test_server_added(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Pre flight check
     assert len(test_hallo.server_list) == 1, "Too many servers when starting test."
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -1098,12 +1098,12 @@ def test_server_added(hallo_getter):
     assert right_server is not None, "New server wasn't found."
 
 
-def test_thread_started(hallo_getter):
+async def test_thread_started(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Pre flight calc
     thread_count = threading.active_count()
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -1131,10 +1131,10 @@ def test_thread_started(hallo_getter):
     ), "Incorrect number of running threads."
 
 
-def test_server_started(hallo_getter):
+async def test_server_started(hallo_getter):
     test_hallo = hallo_getter({"server_control"})
     # Run command
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,

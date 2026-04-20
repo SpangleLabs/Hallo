@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 from hallo.modules.random.eight_ball import EightBall
 
 
-def test_eightball(hallo_getter):
+async def test_eightball(hallo_getter):
     test_hallo = hallo_getter({"random"})
     all_responses = (
         EightBall.RESPONSES_YES_TOTALLY
@@ -10,7 +10,7 @@ def test_eightball(hallo_getter):
         + EightBall.RESPONSES_MAYBE
         + EightBall.RESPONSES_NO
     )
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "eight ball")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -19,7 +19,7 @@ def test_eightball(hallo_getter):
     ], "Response isn't valid."
 
 
-def test_eightball_with_message(hallo_getter):
+async def test_eightball_with_message(hallo_getter):
     test_hallo = hallo_getter({"random"})
     all_responses = (
         EightBall.RESPONSES_YES_TOTALLY
@@ -27,7 +27,7 @@ def test_eightball_with_message(hallo_getter):
         + EightBall.RESPONSES_MAYBE
         + EightBall.RESPONSES_NO
     )
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             None,
@@ -41,7 +41,7 @@ def test_eightball_with_message(hallo_getter):
     ], "Response isn't valid."
 
 
-def test_all_responses(mock_chooser, hallo_getter):
+async def test_all_responses(mock_chooser, hallo_getter):
     test_hallo = hallo_getter({"random"})
     all_responses = (
         EightBall.RESPONSES_YES_TOTALLY
@@ -54,7 +54,7 @@ def test_all_responses(mock_chooser, hallo_getter):
         # Set RNG
         mock_chooser.choice = x
         # Shake magic eight ball
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "magic8-ball")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)

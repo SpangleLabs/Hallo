@@ -8,9 +8,9 @@ from hallo.modules.silly import Reply
 from hallo.test.server_mock import ServerMock
 
 
-def test_run(hallo_getter):
+async def test_run(hallo_getter):
     test_hallo = hallo_getter({"silly"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "reply")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -42,7 +42,7 @@ async def test_reply_beep(hallo_getter):
     assert response is None
 
 
-def test_reply_pew(hallo_getter):
+async def test_reply_pew(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
@@ -61,7 +61,7 @@ def test_reply_pew(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_reply_haskell(hallo_getter):
+async def test_reply_haskell(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
@@ -89,7 +89,7 @@ def test_reply_haskell(hallo_getter):
     assert len(response_data) > 0, "haskell.jpg image does not exist."
 
 
-def test_reply_podbay_doors(hallo_getter):
+async def test_reply_podbay_doors(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
@@ -105,7 +105,7 @@ def test_reply_podbay_doors(hallo_getter):
     assert "afraid i cannot do that" in response.text.lower()
 
 
-def test_reply_irc_client(hallo_getter):
+async def test_reply_irc_client(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
@@ -121,7 +121,7 @@ def test_reply_irc_client(hallo_getter):
     assert "mibbit" in response.text
 
 
-def test_reply_who_hallo(hallo_getter):
+async def test_reply_who_hallo(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
@@ -133,7 +133,7 @@ def test_reply_who_hallo(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_reply_mfw(hallo_getter):
+async def test_reply_mfw(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply

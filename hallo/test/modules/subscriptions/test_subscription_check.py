@@ -11,7 +11,7 @@ from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.server_mock import ServerMock
 
 
-def test_run_all(tmp_path, hallo_getter):
+async def test_run_all(tmp_path, hallo_getter):
     test_hallo = hallo_getter({"subscriptions"})
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
@@ -49,7 +49,7 @@ def test_run_all(tmp_path, hallo_getter):
         )  # type: SubscriptionCheck
         e621_sub_obj.subscription_repo = sub_repo
         # Test running all feed updates
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(
                 test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub check all"
             )
@@ -73,7 +73,7 @@ def test_run_all(tmp_path, hallo_getter):
         # Check test server 2 data
         serv2.get_send_data(75, chan3, EventMessage)
         # Test running with no new updates.
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(
                 test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub check all"
             )
@@ -85,7 +85,7 @@ def test_run_all(tmp_path, hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_run_by_search(tmp_path, hallo_getter):
+async def test_run_by_search(tmp_path, hallo_getter):
     test_hallo = hallo_getter({"subscriptions"})
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
@@ -123,7 +123,7 @@ def test_run_by_search(tmp_path, hallo_getter):
         )  # type: SubscriptionCheck
         rss_check_obj.subscription_repo = sub_repo
         # Invalid title
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(
                 test_hallo.test_server,
                 test_hallo.test_chan,
@@ -134,13 +134,13 @@ def test_run_by_search(tmp_path, hallo_getter):
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
         assert "error" in data[0].text.lower()
         # Correct title but wrong channel
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "e621 sub check clefable")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
         assert "error" in data[0].text.lower()
         # Correct title check update
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan2, user1, "e621 sub check clefable")
         )
         data = serv1.get_send_data(76, chan2, EventMessage)
@@ -155,7 +155,7 @@ def test_run_by_search(tmp_path, hallo_getter):
                 "subscription updates were found" in data[75].text.lower()
         ), "Actual message: {}".format(data[0].text)
         # No updates
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan2, user1, "e621 sub check clefable")
         )
         data = serv1.get_send_data(1, chan2, EventMessage)

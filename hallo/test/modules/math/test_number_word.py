@@ -1,18 +1,18 @@
 from hallo.events import EventMessage
 
 
-def test_number_simple(hallo_getter):
+async def test_number_simple(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 5")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert "five." == data[0].text, "Number word failing for small numbers."
 
 
-def test_number_big(hallo_getter):
+async def test_number_big(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 295228")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -22,9 +22,9 @@ def test_number_big(hallo_getter):
     )
 
 
-def test_number_teen(hallo_getter):
+async def test_number_teen(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 17")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -33,9 +33,9 @@ def test_number_teen(hallo_getter):
     ), "Number word failing for 'teen' numbers."
 
 
-def test_number_negative(hallo_getter):
+async def test_number_negative(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number -502")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -44,16 +44,16 @@ def test_number_negative(hallo_getter):
     ), "Number word failing for negative numbers."
 
 
-def test_number_float(hallo_getter):
+async def test_number_float(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 2.3")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
         "two point three" in data[0].text.lower()
     ), "Number word failing for non-integers."
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 2.357")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -62,9 +62,9 @@ def test_number_float(hallo_getter):
     ), "Number word failing for non-integers."
 
 
-def test_number_american(hallo_getter):
+async def test_number_american(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 1000000000 american")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -73,9 +73,9 @@ def test_number_american(hallo_getter):
     ), "Number word failing for american formatting."
 
 
-def test_number_british(hallo_getter):
+async def test_number_british(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 1000000000 british")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -84,9 +84,9 @@ def test_number_british(hallo_getter):
     ), "Number word failing for british formatting."
 
 
-def test_number_european(hallo_getter):
+async def test_number_european(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 1000000000 european")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -95,9 +95,9 @@ def test_number_european(hallo_getter):
     ), "Number word failing for european formatting."
 
 
-def test_number_calculation(hallo_getter):
+async def test_number_calculation(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 17*5")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -106,9 +106,9 @@ def test_number_calculation(hallo_getter):
     ), "Number word failing for calculations."
 
 
-def test_number_fail(hallo_getter):
+async def test_number_fail(hallo_getter):
     test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number seventeen")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)

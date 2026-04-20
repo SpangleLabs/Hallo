@@ -556,16 +556,16 @@ class ServerIRC(Server):
         # Get function dispatcher ready
         function_dispatcher = self.hallo.function_dispatcher
         if message_private_bool:
-            function_dispatcher.dispatch(message_evt)
+            await function_dispatcher.dispatch(message_evt)
         else:
             # Update channel activity
             message_channel.update_activity()
             # Send to function dispatcher, or passive dispatcher
             if message_evt.is_prefixed:
                 if message_evt.is_prefixed is True:
-                    function_dispatcher.dispatch(message_evt)
+                    await function_dispatcher.dispatch(message_evt)
                 else:
-                    function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
+                    await function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
             else:
                 await function_dispatcher.dispatch_passive(message_evt)
 

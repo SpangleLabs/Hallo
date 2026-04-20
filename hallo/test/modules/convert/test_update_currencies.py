@@ -19,13 +19,13 @@ class MockUpdate:
         raise Exception(self.answer)
 
 
-def test_run(hallo_getter):
+async def test_run(hallo_getter):
     test_hallo = hallo_getter({"convert"})
     update_all = hallo.modules.convert.update_currencies.UpdateCurrencies.update_all
     mock_update_all = MockUpdate(["Check method called"])
     hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = mock_update_all.method
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -48,7 +48,7 @@ async def test_passive_run(hallo_getter):
         hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = update_all
 
 
-def test_update_all(hallo_getter):
+async def test_update_all(hallo_getter):
     test_hallo = hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate(None)
@@ -68,7 +68,7 @@ def test_update_all(hallo_getter):
     )
     try:
         # Test update_all calls all 3, and gives reply
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -92,7 +92,7 @@ def test_update_all(hallo_getter):
         )
 
 
-def test_update_all_fail_ecb(hallo_getter):
+async def test_update_all_fail_ecb(hallo_getter):
     test_hallo = hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate("HTTPException: 403")
@@ -112,7 +112,7 @@ def test_update_all_fail_ecb(hallo_getter):
     )
     try:
         # Test update_all calls all 3, and gives reply
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -135,7 +135,7 @@ def test_update_all_fail_ecb(hallo_getter):
         )
 
 
-def test_update_all_fail_forex(hallo_getter):
+async def test_update_all_fail_forex(hallo_getter):
     test_hallo = hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate(None)
@@ -157,7 +157,7 @@ def test_update_all_fail_forex(hallo_getter):
     )
     try:
         # Test update_all calls all 3, and gives reply
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -182,7 +182,7 @@ def test_update_all_fail_forex(hallo_getter):
         )
 
 
-def test_update_all_fail_cryptonator(hallo_getter):
+async def test_update_all_fail_cryptonator(hallo_getter):
     test_hallo = hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate(None)
@@ -202,7 +202,7 @@ def test_update_all_fail_cryptonator(hallo_getter):
     )
     try:
         # Test update_all calls all 3, and gives reply
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -227,7 +227,7 @@ def test_update_all_fail_cryptonator(hallo_getter):
         )
 
 
-def test_update_all_fail_all(hallo_getter):
+async def test_update_all_fail_all(hallo_getter):
     test_hallo = hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate("HTTPException: 403")
@@ -249,7 +249,7 @@ def test_update_all_fail_all(hallo_getter):
     )
     try:
         # Test update_all calls all 3, and gives reply
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)

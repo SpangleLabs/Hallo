@@ -35,10 +35,10 @@ async def test_passive_run(tmp_path, hallo_getter):
         assert mock_parse.call_args[0] == ("1 unit1b to unit1a", True)
 
 
-def test_run(hallo_getter):
+async def test_run(hallo_getter):
     test_hallo = hallo_getter({"convert"})
     with mock_convert_parse(test_hallo) as mock_parse:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(
                 test_hallo.test_server, None, test_hallo.test_user, "convert 1 unit1b to unit1a"
             )

@@ -1,14 +1,14 @@
 from hallo.events import EventMessage
 
 
-def test_module_reload(hallo_getter):
+async def test_module_reload(hallo_getter):
     test_hallo = hallo_getter({"hallo_control"})
     old_func_disp = test_hallo.function_dispatcher
     mock_func_disp = FunctionDispatcherMock()
     mock_func_disp.module_reload_resp = True
     try:
         test_hallo.function_dispatcher = mock_func_disp
-        old_func_disp.dispatch(
+        await old_func_disp.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "module reload hallo_control")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -19,14 +19,14 @@ def test_module_reload(hallo_getter):
         test_hallo.function_dispatcher = old_func_disp
 
 
-def test_module_fail(hallo_getter):
+async def test_module_fail(hallo_getter):
     test_hallo = hallo_getter({"hallo_control"})
     old_func_disp = test_hallo.function_dispatcher
     mock_func_disp = FunctionDispatcherMock()
     mock_func_disp.module_reload_resp = False
     try:
         test_hallo.function_dispatcher = mock_func_disp
-        old_func_disp.dispatch(
+        await old_func_disp.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "module reload hallo_control")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
