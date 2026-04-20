@@ -178,7 +178,6 @@ class FunctionDispatcher(object):
         Dispatches a event call to passive functions, if any apply
         :param event: Event object which is triggering passive functions
         """
-        await asyncio.sleep(0.0)
         # If this event is not used, skip this
         if (
             event.__class__ not in self.event_functions
@@ -201,7 +200,7 @@ class FunctionDispatcher(object):
             # Try running the function, if it fails, return an error message
             try:
                 logger.debug("Calling passive function: %s with event %s", function_obj.__class__.__name__, event)
-                response = function_obj.passive_run(event, self.hallo)
+                response = await function_obj.passive_run(event, self.hallo)
                 logger.debug("Got passive function response: %s", response)
                 if response is not None:
                     passive_responses.labels(function_class=function_class.__name__).inc()
@@ -209,7 +208,7 @@ class FunctionDispatcher(object):
                         if isinstance(event, ChannelUserTextEvent):
                             event.reply(response)
                         else:
-                            response.server.send_sync(response)
+                            await response.server.send(response)
                 continue
             except Exception as e:
                 error = PassiveFunctionError(e, self, function_obj, event)

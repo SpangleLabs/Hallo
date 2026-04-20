@@ -60,7 +60,7 @@ class Dailys(Function):
             return event.reply(event.create_response("Dailys repository reloaded."))
         return event.reply(event.create_response("Dailys system does not understand this command."))
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         repo = self.get_dailys_repo(hallo_obj)
         spreadsheets = repo.spreadsheets
         if isinstance(event, EventMessage):

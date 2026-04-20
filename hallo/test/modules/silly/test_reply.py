@@ -26,17 +26,17 @@ async def test_reply_passive(hallo_getter):
     assert "boop" == data[0].text.lower()
 
 
-def test_reply_beep(hallo_getter):
+async def test_reply_beep(hallo_getter):
     test_hallo = hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check beep/boop works
-    response = reply_obj.passive_run(
+    response = await reply_obj.passive_run(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "beep"), test_hallo
     )
     assert response.text == "boop"
     # Check that it doesn't respond if beep is in the message
-    response = reply_obj.passive_run(
+    response = await reply_obj.passive_run(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "it goes beep"), test_hallo
     )
     assert response is None
@@ -47,7 +47,7 @@ def test_reply_pew(hallo_getter):
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check pewpew
-    response = reply_obj.passive_run(
+    response = await reply_obj.passive_run(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "pew"), test_hallo
     )
     assert response.text == "pew pew"
@@ -56,7 +56,7 @@ def test_reply_pew(hallo_getter):
     serv1.name = "canternet"
     chan1 = serv1.get_channel_by_address("#ukofequestria".lower(), "#ukofequestria")
     user1 = serv1.get_user_by_address("test_user".lower(), "test_user")
-    response = reply_obj.passive_run(EventMessage(serv1, chan1, user1, "pew"), test_hallo)
+    response = await reply_obj.passive_run(EventMessage(serv1, chan1, user1, "pew"), test_hallo)
     assert response is None
 
 
@@ -66,7 +66,7 @@ def test_reply_haskell(hallo_getter):
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check haskell.jpg
-    response = reply_obj.passive_run(
+    response = await reply_obj.passive_run(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "haskell.jpg"), test_hallo
     )
     assert response is None
@@ -77,7 +77,7 @@ def test_reply_haskell(hallo_getter):
         "#ecco-the-dolphin".lower(), "#ecco-the-dolphin"
     )
     user1 = serv1.get_user_by_address("test_user".lower(), "test_user")
-    response = reply_obj.passive_run(
+    response = await reply_obj.passive_run(
         EventMessage(serv1, chan1, user1, "haskell.jpg"), test_hallo
     )
     assert "http" in response.text.lower()
@@ -94,7 +94,7 @@ def test_reply_podbay_doors(hallo_getter):
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check pod bay doors
-    response = reply_obj.passive_run(
+    response = await reply_obj.passive_run(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "open the pod bay doors hallo."
         ),
@@ -110,7 +110,7 @@ def test_reply_irc_client(hallo_getter):
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check irc client response
-    response = reply_obj.passive_run(
+    response = await reply_obj.passive_run(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "Which IRC client should I use?"
         ),
@@ -126,7 +126,7 @@ def test_reply_who_hallo(hallo_getter):
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check what is hallo response
-    response = reply_obj.passive_run(
+    response = await reply_obj.passive_run(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "What is hallo?"), test_hallo
     )
     assert "built by dr-spangle" in response.text
@@ -138,13 +138,13 @@ def test_reply_mfw(hallo_getter):
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check MFW produces response
-    response = reply_obj.passive_run(
+    response = await reply_obj.passive_run(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "MFW"), test_hallo
     )
     assert "http" in response.text
     # Check multiple times
     for _ in range(10):
-        response = reply_obj.passive_run(
+        response = await reply_obj.passive_run(
             EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "MFW"), test_hallo
         )
         assert "http" in response.text

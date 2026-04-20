@@ -116,7 +116,7 @@ class SubscriptionCheck(Function):
             f"Subscription updates were found."
         )
 
-    def passive_run(self, event: Event, hallo_obj: Hallo) -> ServerEvent | None:
+    async def passive_run(self, event: Event, hallo_obj: Hallo) -> ServerEvent | None:
         if isinstance(event, EventMenuCallback):
             sub_repo = self.get_sub_repo(hallo_obj)
             sub_repo.handle_menu_callback(event)

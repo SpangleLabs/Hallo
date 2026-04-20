@@ -189,7 +189,7 @@ class Convert(Function):
     def get_passive_events(self):
         return {EventMessage}
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         if not isinstance(event, EventMessage):
             return
         output = self.convert_parse(event.text, True)

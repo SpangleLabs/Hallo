@@ -51,7 +51,7 @@ class UpdateCurrencies(Function):
     def get_passive_events(self):
         return {EventHour}
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         # Get convert repo
         function_dispatcher = hallo_obj.function_dispatcher
         convert_function = function_dispatcher.get_function_by_name("convert")

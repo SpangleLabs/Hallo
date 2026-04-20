@@ -87,7 +87,7 @@ class Function(ABC):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return set()
 
-    def passive_run(self, event: Event, hallo_obj) -> ServerEvent | None:
+    async def passive_run(self, event: Event, hallo_obj) -> ServerEvent | None:
         """Replies to an event not directly addressed to the bot.
         :param event: Event which has called the function
         :param hallo_obj: Hallo object which fired the event.
