@@ -52,7 +52,7 @@ class Dailys(Function):
             ]
         )
 
-    def run(self, event):
+    async def run(self, event):
         if event.text.strip().lower() in ["reload", "redeploy", "refresh"]:
             self.dailys_repo.save_json()
             self.dailys_repo = None

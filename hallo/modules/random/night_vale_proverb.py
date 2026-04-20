@@ -34,6 +34,6 @@ class NightValeProverb(Function):
         for proverb_elem in proverb_list_elem.getElementsByTagName("proverb"):
             self.proverb_list.append(proverb_elem.firstChild.data)
 
-    def run(self, event):
+    async def run(self, event):
         proverb = Commons.get_random_choice(self.proverb_list)[0]
         return event.create_response(proverb)

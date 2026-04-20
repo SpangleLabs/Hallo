@@ -24,7 +24,7 @@ class Cocktail(Function):
             "Format: cocktail <name>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         """Returns ingredients and instructions for a given cocktail (or closest guess). Format: cocktail <name>"""
         doc = minidom.parse("store/cocktail_list.xml")
         cocktail_list_elem = doc.getElementsByTagName("cocktail_list")[0]

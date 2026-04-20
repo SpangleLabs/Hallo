@@ -21,7 +21,7 @@ class Wiki(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Reads the first paragraph from a wikipedia article"
 
-    def run(self, event):
+    async def run(self, event):
         line_clean = event.command_args.strip().replace(" ", "_")
         url = (
             "https://en.wikipedia.org/w/api.php?format=json&action=query&titles={}"

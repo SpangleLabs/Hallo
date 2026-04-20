@@ -35,7 +35,7 @@ class UpdateCurrencies(Function):
             "central bank, forex and preev."
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Get convert repo
         function_dispatcher = event.server.hallo.function_dispatcher
         convert_function = function_dispatcher.get_function_by_name("convert")

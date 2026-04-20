@@ -23,7 +23,7 @@ class Is(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Placeholder. Format: is"
 
-    def run(self, event):
+    async def run(self, event):
         return event.create_response("I am?")
 
 
@@ -44,7 +44,7 @@ class Blank(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "I wonder if this works. Format: "
 
-    def run(self, event):
+    async def run(self, event):
         return event.create_response("Yes?")
 
 
@@ -65,7 +65,7 @@ class Alarm(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Alarm. Format: alarm <subject>"
 
-    def run(self, event):
+    async def run(self, event):
         return event.create_response(
             "woo woooooo woooooo {} wooo wooo!".format(event.command_args)
         )
@@ -88,7 +88,7 @@ class SlowClap(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Slowclap. Format: slowclap"
 
-    def run(self, event):
+    async def run(self, event):
         line_clean = event.command_args.strip().lower()
         server_obj = event.server
         if line_clean == "":
@@ -142,7 +142,7 @@ class Boop(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Boops people. Format: boop <name>"
 
-    def run(self, event):
+    async def run(self, event):
         """Boops people. Format: boop <name>"""
         line_clean = event.command_args.strip().lower()
         if line_clean == "":
@@ -418,7 +418,7 @@ class Reply(Function):
             "Make hallo reply to a detected phrase with a specified response."
         )
 
-    def run(self, event):
+    async def run(self, event):
         return event.create_response("Error, Not yet handled.")
         pass
 

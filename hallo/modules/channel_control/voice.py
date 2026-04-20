@@ -24,7 +24,7 @@ class Voice(Function):
             "no member given. Format: voice <name> <channel>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Get server object
         server_obj = event.server
         # If server isn't IRC type, we can't give voice.

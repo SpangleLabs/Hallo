@@ -19,7 +19,7 @@ class E621(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a random e621 result using the search you specify. Format: e621 <tags>"
 
-    def run(self, event):
+    async def run(self, event):
         search_result = self.get_random_link_result(event.command_args)
         if search_result is None:
             return event.create_response("No results.")

@@ -23,7 +23,7 @@ class ConvertUnitAddName(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Adds a new name to a unit."
 
-    def run(self, event):
+    async def run(self, event):
         # Load repository
         function_dispatcher = event.server.hallo.function_dispatcher
         convert_function = function_dispatcher.get_function_by_name("convert")

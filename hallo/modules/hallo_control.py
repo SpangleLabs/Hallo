@@ -21,7 +21,7 @@ class ConfigSave(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Save the config to xml."
 
-    def run(self, event):
+    async def run(self, event):
         hallo_obj = event.server.hallo
         hallo_obj.save_json()
         return event.create_response("Config has been saved.")
@@ -44,7 +44,7 @@ class ModuleReload(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Reloads a specified module."
 
-    def run(self, event):
+    async def run(self, event):
         hallo_obj = event.server.hallo
         function_dispatcher: FunctionDispatcher = hallo_obj.function_dispatcher
         module_name = event.command_args
@@ -80,7 +80,7 @@ class ActiveThreads(Function):
             "Returns current number of active threads. Format: active thread"
         )
 
-    def run(self, event):
+    async def run(self, event):
         """
         Returns current number of active threads.. should probably be gods only, but it is not. Format: active_thread
         """
@@ -112,7 +112,7 @@ class Help(Function):
         )
         self.hallo_obj = None  # Hallo object containing everything.
 
-    def run(self, event):
+    async def run(self, event):
         self.hallo_obj = event.server.hallo
         if event.command_args.strip() == "":
             return event.create_response(
@@ -180,7 +180,7 @@ class Shutdown(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Shuts down hallo entirely."
 
-    def run(self, event):
+    async def run(self, event):
         hallo_obj = event.server.hallo
         hallo_obj.close()
         return event.create_response("Shutting down.")

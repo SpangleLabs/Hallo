@@ -27,7 +27,7 @@ class DailysRegister(Function):
             " Format: dailys register <dailys API URL> <dailys auth key?>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Get dailys repo
         hallo_obj = event.server.hallo
         function_dispatcher = hallo_obj.function_dispatcher

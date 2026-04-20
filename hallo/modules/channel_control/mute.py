@@ -23,7 +23,7 @@ class Mute(Function):
             "Mutes a given channel or current channel. Format: mute <channel>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Get server object
         server_obj = event.server
         # If server isn't IRC type, we can't mute channels

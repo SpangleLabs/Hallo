@@ -23,7 +23,7 @@ class Kick(Function):
             "Kick given user in given channel, or current channel if no channel given."
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Get server object
         server_obj = event.server
         # If server isn't IRC type, we can't invite people

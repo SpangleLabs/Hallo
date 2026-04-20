@@ -20,7 +20,7 @@ class Butts(Function):
             'Returns a random image from e621 for the search "butt". Format: butts'
         )
 
-    def run(self, event):
+    async def run(self, event):
         function_dispatcher = event.server.hallo.function_dispatcher
         e621_class = function_dispatcher.get_function_by_name("e621")
         e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621

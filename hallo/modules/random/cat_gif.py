@@ -26,7 +26,7 @@ class CatGif(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a random cat gif Format: cat gif"
 
-    def run(self, event):
+    async def run(self, event):
         api_key = event.server.hallo.get_api_key("thecatapi")
         if api_key is None:
             return event.create_response("No API key loaded for cat api.")

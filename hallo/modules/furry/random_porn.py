@@ -21,7 +21,7 @@ class RandomPorn(Function):
             "Format: random porn <tags>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         line_unclean = "{} -rating:s".format(event.command_args.strip())
         function_dispatcher = event.server.hallo.function_dispatcher
         e621_class = function_dispatcher.get_function_by_name("e621")

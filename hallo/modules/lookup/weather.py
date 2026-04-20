@@ -23,7 +23,7 @@ class Weather(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Random weather"
 
-    def run(self, event):
+    async def run(self, event):
         line_clean = event.command_args.strip().lower()
         regex_fluff = re.compile(r"\b(for|[io]n)\b")
         # Clear input fluff

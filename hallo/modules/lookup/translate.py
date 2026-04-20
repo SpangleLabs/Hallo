@@ -23,7 +23,7 @@ class Translate(Function):
             "Translates a given block of text. Format: translate <from>-><to> <text>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         if len(event.command_args.split()) <= 1:
             lang_change = ""
             trans_string = event.command_args

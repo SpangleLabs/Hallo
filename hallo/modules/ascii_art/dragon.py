@@ -19,7 +19,7 @@ class Dragon(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Prints ascii dragon. Format: dragon"
 
-    def run(self, event):
+    async def run(self, event):
         """Prints ascii dragon. Format: dragon"""
         dragon_deer = r"""hmm.. nah. have another deer.
        ""\/ \/""

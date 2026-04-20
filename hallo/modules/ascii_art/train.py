@@ -18,7 +18,7 @@ class Train(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Prints ascii train. Format: train"
 
-    def run(self, event):
+    async def run(self, event):
         """Prints ascii train. Format: train"""
         train = r'''chugga chugga, chugga chugga, woo woo!
             ____.-==-, _______  _______  _______  _______  _..._

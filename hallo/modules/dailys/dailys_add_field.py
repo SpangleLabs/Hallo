@@ -26,7 +26,7 @@ class DailysAddField(Function):
             " Format: add dailys field <field name>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Get spreadsheet repo
         hallo_obj = event.server.hallo
         function_dispatcher = hallo_obj.function_dispatcher

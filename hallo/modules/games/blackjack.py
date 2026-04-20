@@ -47,7 +47,7 @@ class Blackjack(Function):
         return {EventMessage}
 
     # Interesting functions from here
-    def run(self, event):
+    async def run(self, event):
         line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
             return event.create_response(

@@ -21,7 +21,7 @@ class CurrentWeather(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the current weather in your location (if known) or in provided location."
 
-    def run(self, event):
+    async def run(self, event):
         user_data_parser = hallo.modules.user_data.UserDataParser()
         line_clean = event.command_args.strip().lower()
         if line_clean == "":

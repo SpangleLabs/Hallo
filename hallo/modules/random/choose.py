@@ -25,7 +25,7 @@ class Choose(Function):
             "Format: choose <first_option>, <second_option> ... <n-1th option> or <nth option>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         choices = re.compile(", (?:or )?| or,? ", re.IGNORECASE).split(
             event.command_args
         )

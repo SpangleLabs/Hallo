@@ -22,7 +22,7 @@ class Protein(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Convert a set of nucleobases to a string of amino acids"
 
-    def run(self, event):
+    async def run(self, event):
         codon_table = {
             "Ala": ["GCU", "GCC", "GCA", "GCG"],
             "Arg": ["CGU", "CGC", "CGA", "CGG", "AGA", "AGG"],

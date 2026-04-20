@@ -62,7 +62,7 @@ class Function(ABC):
         )
 
     @abstractmethod
-    def run(self, event: EventMessage) -> EventMessage:
+    async def run(self, event: EventMessage) -> EventMessage:
         """Runs the function when it is called directly
         :param event: Event which function wants running on, for which, this should be true:
         (is_prefixed is not false and command_args is not None)

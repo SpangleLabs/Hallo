@@ -25,7 +25,7 @@ class Foof(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "FOOOOOOOOOF. Format: foof"
 
-    def run(self, event):
+    async def run(self, event):
         """FOOOOOOOOOF. Format: foof"""
         rand = Commons.get_random_int(0, 60)[0]
         if rand <= 20:

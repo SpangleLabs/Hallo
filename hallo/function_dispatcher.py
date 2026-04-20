@@ -156,7 +156,7 @@ class FunctionDispatcher(object):
         function_obj = self.get_function_object(function_class)
         # Try running the function, if it fails, return an error message
         try:
-            response = function_obj.run(event)
+            response = await function_obj.run(event)
             if response is not None:
                 await event.reply(response)
             else:

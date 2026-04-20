@@ -45,7 +45,7 @@ class SubscriptionList(Function):
             "Lists subscriptions for the current channel. Format: list subscription"
         )
 
-    def run(self, event: EventMessage) -> EventMessage:
+    async def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
         server = event.server
         hallo_obj = server.hallo

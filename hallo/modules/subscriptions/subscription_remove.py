@@ -46,7 +46,7 @@ class SubscriptionRemove(Function):
             " Format: remove subscription <feed type> <feed title or url>"
         )
 
-    def run(self, event: EventMessage) -> EventMessage:
+    async def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
         server = event.server
         hallo_obj = server.hallo

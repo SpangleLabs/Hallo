@@ -31,7 +31,7 @@ class Euler(Function):
             '"euler <number>" for the solution to project euler problem of the given number.'
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Some functions might need this.
         self.mHalloObject = event.server.hallo
         line_clean = event.command_args.strip().lower()

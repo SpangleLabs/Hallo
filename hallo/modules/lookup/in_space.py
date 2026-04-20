@@ -20,7 +20,7 @@ class InSpace(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the number of people in space right now, and their names. Format: in space"
 
-    def run(self, event):
+    async def run(self, event):
         space_dict = Commons.load_url_json(
             "https://www.howmanypeopleareinspacerightnow.com/space.json"
         )

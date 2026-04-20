@@ -28,7 +28,7 @@ class JoinChannel(Function):
             ' Format: "join <channel> <password?>".'
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Check for server name in input line
         line = event.command_args
         server_name = Commons.find_parameter("server", line)
@@ -77,7 +77,7 @@ class LeaveChannel(Function):
             'Format: "leave <channel>".'
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Check for server name in input line
         line = event.command_args
         server_name = Commons.find_parameter("server", line)
@@ -122,7 +122,7 @@ class Disconnect(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Disconnects from a server."
 
-    def run(self, event):
+    async def run(self, event):
         server_obj = event.server
         hallo_obj = server_obj.hallo
         if event.command_args.strip() != "":
@@ -156,7 +156,7 @@ class Connect(Function):
             'Format: "connect <protocol> <server>" or "connect <already known server name>"'
         )
 
-    def run(self, event):
+    async def run(self, event):
         """Runs the function"""
         remaining_line = event.command_args
         current_server = event.server
@@ -348,7 +348,7 @@ class Say(Function):
             "Format: say <channel> <message>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         """
         Say a message into a channel or server/channel pair (in the format "{server,channel}").
         Format: say <channel> <message>
@@ -429,7 +429,7 @@ class EditServer(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Edits a server's configuration."
 
-    def run(self, event):
+    async def run(self, event):
         """Runs the function"""
         current_server = event.server
         hallo_obj = current_server.hallo
@@ -549,7 +549,7 @@ class ListUsers(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a user list for a given channel."
 
-    def run(self, event):
+    async def run(self, event):
         line_clean = event.command_args.strip().lower()
         # Useful object
         hallo_obj = event.server.hallo
@@ -617,7 +617,7 @@ class ListChannels(Function):
             'for channels on current server, "list channels all" for all channels on all servers.'
         )
 
-    def run(self, event):
+    async def run(self, event):
         """
         Hallo will tell you which channels he is in, ops only.
         Format: "channels" for channels on current server, "channels all" for all channels on all servers.
@@ -705,7 +705,7 @@ class ListServers(Function):
             'Format: "list servers" will list all servers.'
         )
 
-    def run(self, event):
+    async def run(self, event):
         """
         Hallo will tell you which servers he knows about and is/isn't connected to, ops only.
         Format: "servers" for all servers.

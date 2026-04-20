@@ -35,7 +35,7 @@ class ConvertViewRepo(Function):
             "prefix=<name> or prefix_group=<name> for more detail."
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Load repo
         function_dispatcher = event.server.hallo.function_dispatcher
         convert_function = function_dispatcher.get_function_by_name("convert")

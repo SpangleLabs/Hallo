@@ -39,7 +39,7 @@ class SubscriptionAdd(Function):
             " Format: add subscription <sub type> <sub details> <update period?>"
         )
 
-    def run(self, event: EventMessage) -> EventMessage:
+    async def run(self, event: EventMessage) -> EventMessage:
         # Construct type name
         sub_type_name = " ".join(
             [

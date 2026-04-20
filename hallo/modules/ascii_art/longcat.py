@@ -18,7 +18,7 @@ class Longcat(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Make a longcat! Format: longcat <length>"
 
-    def run(self, event):
+    async def run(self, event):
         """Make a longcat! Format: longcat <length>"""
         try:
             segments = int(event.command_args)

@@ -380,7 +380,7 @@ class DDRGame(Game):
         """Launches the new thread to play the game."""
         Thread(target=self.run).start()
 
-    def run(self):
+    async def run(self):
         """Launched into a new thread, this function actually plays the DDR game."""
         server_obj = self.destination.server
         chan_obj = self.destination if isinstance(self.destination, Channel) else None

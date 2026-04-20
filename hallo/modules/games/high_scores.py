@@ -139,7 +139,7 @@ class HighScores(Function):
             open("store/high_score_list.xml", "w"), addindent="\t", newl="\r\n"
         )
 
-    def run(self, event):
+    async def run(self, event):
         output_lines = ["High scores:"]
         for game_name in self.high_scores:
             score = self.high_scores[game_name]["score"]

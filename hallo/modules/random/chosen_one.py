@@ -19,7 +19,7 @@ class ChosenOne(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Specifies who the chosen one is. Format: chosen one"
 
-    def run(self, event):
+    async def run(self, event):
         # If this command is run in privmsg, it won't work
         if event.channel is None:
             return event.create_response("This function can only be used in a channel")

@@ -42,7 +42,7 @@ class ChannelCaps(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets caps lock for channel on or off."
 
-    def run(self, event):
+    async def run(self, event):
         # Get server object
         server_obj = event.server
         # If no arguments given, toggle caps lock in current destination

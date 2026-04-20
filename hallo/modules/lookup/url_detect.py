@@ -29,7 +29,7 @@ class UrlDetect(Function):
         self.help_docs = "URL detection."
         self.hallo_obj = None
 
-    def run(self, event):
+    async def run(self, event):
         return event.create_response("This function does not take input.")
 
     def get_passive_events(self):
