@@ -57,8 +57,8 @@ class Dailys(Function):
             self.dailys_repo.save_json()
             self.dailys_repo = None
             self.get_dailys_repo(event.server.hallo)
-            return event.reply_sync(event.create_response("Dailys repository reloaded."))
-        return event.reply_sync(event.create_response("Dailys system does not understand this command."))
+            return await event.reply(event.create_response("Dailys repository reloaded."))
+        return await event.reply(event.create_response("Dailys system does not understand this command."))
 
     async def passive_run(self, event, hallo_obj):
         repo = self.get_dailys_repo(hallo_obj)
