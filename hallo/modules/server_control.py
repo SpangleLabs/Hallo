@@ -189,7 +189,8 @@ class Connect(Function):
         else:
             return event.create_response("Error, unrecognised server protocol")
 
-    def connect_to_known_server(self, server_obj):
+    @staticmethod
+    def connect_to_known_server(server_obj: Server) -> str:
         """Connects to a known server."""
         server_obj.set_auto_connect(True)
         if server_obj.state == Server.STATE_OPEN:
