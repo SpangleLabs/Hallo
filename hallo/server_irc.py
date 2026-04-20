@@ -292,8 +292,7 @@ class ServerIRC(Server):
                     continue
                 else:
                     # Parse line
-                    # TODO
-                    Thread(target=self.parse_line, args=(next_line,)).start()
+                    asyncio.create_task(self.parse_line(next_line))
         self.disconnect()
 
     async def send(
@@ -440,11 +439,12 @@ class ServerIRC(Server):
         # Send PART command
         self.send_sync(EventLeave(self, channel_obj, None, None, inbound=False))
 
-    def parse_line(self, new_line: str) -> None:
+    async def parse_line(self, new_line: str) -> None:
         """
         Parses a line from the IRC server
         :param new_line: New line of data from the server to parse
         """
+        await asyncio.sleep(0.0)
         # Cleaning up carriage returns
         new_line = new_line.replace("\r", "")
         # TODO: add stuff about time last ping was seen, for reconnection checking
