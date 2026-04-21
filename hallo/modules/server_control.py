@@ -441,14 +441,12 @@ class EditServer(Function):
         # Get protocol and go through protocols branching to whatever function to handle modifying servers of it.
         server_protocol = server_obj.type
         if server_protocol == Server.TYPE_IRC:
-            return event.create_response(
-                self.edit_server_irc(event.command_args, server_obj)
-            )
+            return event.create_response(await self.edit_server_irc(event.command_args, server_obj))
         # Add in ELIF statements here, to make user Connect Function support other protocols
         else:
             return event.create_response("Unrecognised server protocol")
 
-    def edit_server_irc(self, line, server_obj):
+    async def edit_server_irc(self, line, server_obj):
         """Processes arguments in order to edit an IRC server"""
         # Set all variables to none as default
         server_address, server_port = None, None
@@ -522,7 +520,7 @@ class EditServer(Function):
         server_obj.get_nickserv_pass(nickserv_password)
         # If server address or server port was changed, reconnect.
         if server_port is not None or server_address is not None:
-            server_obj.reconnect()
+            await server_obj.reconnect()
         return f"Modified the IRC server: {server_obj.name}."
 
 

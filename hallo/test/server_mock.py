@@ -47,7 +47,7 @@ class ServerMock(Server):
     async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
         self.send(new_event)
 
-    def reconnect(self):
+    async def reconnect(self):
         pass
 
     async def check_user_identity(self, user_obj):

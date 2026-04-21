@@ -104,11 +104,11 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def reconnect(self) -> None:
+    async def reconnect(self) -> None:
         """
         Disconnects and reconnects from the server
         """
-        self.disconnect_sync()
+        await self.disconnect()
         self.start()
 
     def send_sync(

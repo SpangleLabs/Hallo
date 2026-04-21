@@ -258,12 +258,6 @@ class ServerIRC(Server):
             self._writer = None
         self.state = Server.STATE_CLOSED
 
-    def reconnect(self) -> None:
-        """
-        Reconnect to a given server. No changes from Server base, just here for clarity
-        """
-        super().reconnect()
-
     async def run(self) -> None:
         """
         Internal method

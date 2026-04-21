@@ -148,9 +148,6 @@ class ServerTelegram(Server):
             self._msg_queue.stop()
             self.state = Server.STATE_CLOSED
 
-    def reconnect(self) -> None:
-        super().reconnect()
-
     async def parse_private_message(self, update: Update, context: CallbackContext) -> None:
         """
         Handles a new private message
