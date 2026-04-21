@@ -1,6 +1,5 @@
+import asyncio
 import threading
-
-import time
 
 import pytest
 
@@ -20,7 +19,7 @@ async def test_server_race_cancel_failing_connection(hallo_getter):
     # Check it's closed
     assert server.state == Server.STATE_CLOSED
     # Wait a bit
-    time.sleep(5)
+    await asyncio.sleep(5)
     # Check it's still closed
     assert server.state == Server.STATE_CLOSED
 
@@ -33,14 +32,14 @@ async def test_server_race_connect_delay_disconnect(hallo_getter):
     test_hallo.add_server(server)
     server.start()
     # Delay
-    time.sleep(1)
+    await asyncio.sleep(1)
     test_hallo.open = False
     # Disconnect a server
     await server.disconnect()
     # Check it's closed
     assert server.state == Server.STATE_CLOSED
     # Wait a bit
-    time.sleep(5)
+    await asyncio.sleep(5)
     # Check it's still closed
     assert server.state == Server.STATE_CLOSED
 
@@ -57,7 +56,7 @@ async def test_server_race_connect_disconnect(hallo_getter):
     # Check it's closed
     assert server.state == Server.STATE_CLOSED
     # Wait a bit
-    time.sleep(5)
+    await asyncio.sleep(5)
     # Check it's still closed
     assert server.state == Server.STATE_CLOSED
 
@@ -75,12 +74,12 @@ async def test_server_race_bulk_connect_fail(hallo_getter):
         # Connect to the new server object.
         new_server_obj.start()
     # Wait a moment
-    time.sleep(1)
+    await asyncio.sleep(1)
     # Disconnect them all
     for server in test_hallo.server_list:
         await server.disconnect()
     # Wait a couple seconds
-    time.sleep(5)
+    await asyncio.sleep(5)
     # Ensure they're all still closed
     for server in test_hallo.server_list:
         assert not server.is_connected()
@@ -95,11 +94,11 @@ async def test_server_thread_killed_after_disconnect(hallo_getter):
     test_hallo.add_server(server)
     server.start()
     # Delay
-    time.sleep(1)
+    await asyncio.sleep(1)
     # Disconnect a server
     await server.disconnect()
     # Delay
-    time.sleep(1)
+    await asyncio.sleep(1)
     # Check thread count is back to the start count
     assert threading.active_count() == thread_count
     # Check it's closed
