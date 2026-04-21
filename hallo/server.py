@@ -157,7 +157,19 @@ class Server(metaclass=ABCMeta):
             )
         return
 
-    def edit(
+    def edit_sync(
+            self,
+            old_event: 'ChannelUserTextEvent',
+            new_event: 'ChannelUserTextEvent'
+    ) -> Optional['ChannelUserTextEvent']:
+        try:
+            asyncio.get_running_loop()
+        except RuntimeError:
+            asyncio.run(self.edit(old_event, new_event))
+        else:
+            asyncio.create_task(self.edit(old_event, new_event))
+
+    async def edit(
             self,
             old_event: 'ChannelUserTextEvent',
             new_event: 'ChannelUserTextEvent'
@@ -185,7 +197,7 @@ class Server(metaclass=ABCMeta):
         return
 
     @abstractmethod
-    def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
+    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
         raise NotImplementedError
 
     def to_json(self) -> dict:
@@ -200,7 +212,7 @@ class Server(metaclass=ABCMeta):
             return self.hallo.default_nick
         return self.nick
 
-    def set_nick(self, nick: str) -> None:
+    async def set_nick(self, nick: str) -> None:
         """
         Nick setter
         :param nick: New nick for hallo to use on this server
@@ -292,14 +304,14 @@ class Server(metaclass=ABCMeta):
         """
         self.channel_list.append(channel_obj)
 
-    def join_channel(self, channel_obj: Channel) -> None:
+    async def join_channel(self, channel_obj: Channel) -> None:
         """
         Joins a specified channel
         :param channel_obj: Channel to join
         """
         raise NotImplementedError
 
-    def leave_channel(self, channel_obj: Channel) -> None:
+    async def leave_channel(self, channel_obj: Channel) -> None:
         """
         Leaves a specified channel
         :param channel_obj: Channel for hallo to leave

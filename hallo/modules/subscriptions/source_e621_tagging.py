@@ -160,7 +160,7 @@ class E621TaggingMenu(Menu):
 
     def update(self, text: str | None, menu_buttons: list[list[MenuButton]] | None) -> None:
         new_event = self.msg.create_edit(text=text, menu_buttons=menu_buttons)
-        self.msg.server.edit(self.msg, new_event)
+        self.msg.server.edit_sync(self.msg, new_event)
         self.msg = new_event
         self.clicked = False
 

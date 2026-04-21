@@ -15,7 +15,7 @@ class ServerMock(Server):
         self.type = Server.TYPE_MOCK
         self.prefix = ""
 
-    def join_channel(self, channel_obj):
+    async def join_channel(self, channel_obj):
         pass
 
     def start(self):
@@ -31,8 +31,8 @@ class ServerMock(Server):
     def from_xml(xml_string, hallo):
         pass
 
-    def leave_channel(self, channel_obj):
-        super().leave_channel(channel_obj)
+    async def leave_channel(self, channel_obj):
+        await super().leave_channel(channel_obj)
         self.left_channels.append(channel_obj)
 
     async def send(self, event, *, after_sent_callback=None):
@@ -44,7 +44,7 @@ class ServerMock(Server):
         await super().reply(old_event, new_event)
         await self.send(new_event)
 
-    def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
+    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
         self.send(new_event)
 
     def reconnect(self):

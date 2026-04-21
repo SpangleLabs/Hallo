@@ -205,7 +205,7 @@ class ServerIRC(Server):
                 len(next_welcome_line.split()[1]) == 3
                 and next_welcome_line.split()[1].isdigit()
             ):
-                self.parse_line_numeric(next_welcome_line, False)
+                await self.parse_line_numeric(next_welcome_line, False)
         # Check we're still connecting
         if self.state != Server.STATE_CONNECTING:
             return
@@ -224,7 +224,7 @@ class ServerIRC(Server):
         # Join relevant channels
         for channel in self.channel_list:
             if channel.auto_join:
-                self.join_channel(channel)
+                await self.join_channel(channel)
         self.state = Server.STATE_OPEN
 
     def disconnect(self, force: bool = False) -> None:
@@ -397,13 +397,13 @@ class ServerIRC(Server):
         # We can't do any fancy reply mechanics on IRC, so just send the event.
         await self.send(new_event)
 
-    def edit(self, old_event: EventMessage, new_event: EventMessage):
-        super().edit(old_event, new_event)
-        self.edit_by_id(old_event.message_id, new_event)
+    async def edit(self, old_event: EventMessage, new_event: EventMessage):
+        await super().edit(old_event, new_event)
+        await self.edit_by_id(old_event.message_id, new_event)
 
-    def edit_by_id(self, message_id: int, new_event: EventMessage, *, has_photo: bool = False):
+    async def edit_by_id(self, message_id: int, new_event: EventMessage, *, has_photo: bool = False):
         # We can't do any fancy edit mechanics on IRC, so just send the event.
-        self.send_sync(new_event)
+        await self.send(new_event)
 
     async def send_raw(self, data: str) -> None:
         """Sends raw data to the server
@@ -414,7 +414,7 @@ class ServerIRC(Server):
             self._writer.write(data_bytes)
             await self._writer.drain()
 
-    def join_channel(self, channel_obj: Channel) -> None:
+    async def join_channel(self, channel_obj: Channel) -> None:
         """
         Joins a specified channel
         :param channel_obj: Channel to join
@@ -428,16 +428,16 @@ class ServerIRC(Server):
         join_evt = EventJoin(
             self, channel_obj, None, channel_obj.password, inbound=False
         )
-        self.send_sync(join_evt)
+        await self.send(join_evt)
 
-    def leave_channel(self, channel_obj: Channel) -> None:
+    async def leave_channel(self, channel_obj: Channel) -> None:
         """
         Leaves a specified channel
         :param channel_obj: Channel to leave
         """
-        super().leave_channel(channel_obj)
+        await super().leave_channel(channel_obj)
         # Send PART command
-        self.send_sync(EventLeave(self, channel_obj, None, None, inbound=False))
+        await self.send(EventLeave(self, channel_obj, None, None, inbound=False))
 
     async def parse_line(self, new_line: str) -> None:
         """
@@ -481,7 +481,7 @@ class ServerIRC(Server):
             await self.parse_line_kick(new_line)
             self.parse_line_raw(new_line, "kick")
         elif len(new_line.split()[1]) == 3 and new_line.split()[1].isdigit():
-            self.parse_line_numeric(new_line)
+            await self.parse_line_numeric(new_line)
             self.parse_line_raw(new_line, "numeric")
         else:
             self.parse_line_unhandled(new_line)
@@ -951,7 +951,7 @@ class ServerIRC(Server):
             inviter_client.rights_check("invite_channel", invite_channel)
             and invited_client_name == self.get_nick()
         ):
-            self.join_channel(invite_channel)
+            await self.join_channel(invite_channel)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
         await function_dispatcher.dispatch_passive(invite_evt)
@@ -995,7 +995,7 @@ class ServerIRC(Server):
         function_dispatcher = self.hallo.function_dispatcher
         await function_dispatcher.dispatch_passive(kick_evt)
 
-    def parse_line_numeric(self, numeric_line: str, motd_ended: bool = True) -> None:
+    async def parse_line_numeric(self, numeric_line: str, motd_ended: bool = True) -> None:
         """
         Parses a numeric message from the server
         :param numeric_line: Numeric type line from server.
@@ -1027,7 +1027,7 @@ class ServerIRC(Server):
                 nick_word = self.nick[: -len(nick_numstr)]
                 nick_number = float(nick_numstr)
             new_nick = nick_word + str(nick_number + 1)
-            self.set_nick(new_nick)
+            await self.set_nick(new_nick)
             return
         # Only process further numeric codes if motd has ended
         if not motd_ended:
@@ -1258,7 +1258,7 @@ class ServerIRC(Server):
         for user in remove_users:
             channel.remove_user(user)
 
-    def set_nick(self, nick: str) -> None:
+    async def set_nick(self, nick: str) -> None:
         """
         Nick setter
         :param nick: New nickname to use on the server
@@ -1271,7 +1271,7 @@ class ServerIRC(Server):
         self.nick = nick
         if nick != old_nick:
             nick_evt = EventNameChange(self, hallo_user, old_nick, nick, inbound=False)
-            self.send_sync(nick_evt)
+            await self.send(nick_evt)
 
     def get_server_port(self) -> int:
         """server_port getter"""
@@ -1314,7 +1314,7 @@ class ServerIRC(Server):
         """nickserv_pass getter"""
         return self.nickserv_pass
 
-    def set_nickserv_pass(self, nickserv_pass: str | None) -> None:
+    async def set_nickserv_pass(self, nickserv_pass: str | None) -> None:
         """
         nickserv_pass setter
         :param nickserv_pass: Nickserv password for hallo to identify
@@ -1325,7 +1325,7 @@ class ServerIRC(Server):
             nickserv_obj = self.get_user_by_address(
                 self.nickserv_nick.lower(), self.nickserv_nick
             )
-            self.send_sync(
+            await self.send(
                 EventMessage(
                     self,
                     None,

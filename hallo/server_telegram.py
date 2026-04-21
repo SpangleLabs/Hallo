@@ -407,9 +407,9 @@ class ServerTelegram(Server):
         # Send event
         return await self.send(new_event, reply_to_id=reply_to_id)
 
-    def edit(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage:
+    async def edit(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage:
         # Do checks
-        super().edit(old_event, new_event)
+        await super().edit(old_event, new_event)
         if isinstance(old_event, EventMessageWithPhoto) != isinstance(new_event, EventMessageWithPhoto):
             raise ServerException("Can't change whether a message has a photo when editing.")
         self.outgoing.labels(
@@ -419,7 +419,7 @@ class ServerTelegram(Server):
         # Edit event
         return self.edit_by_id(old_event.message_id, new_event, has_photo=isinstance(old_event, EventMessageWithPhoto))
 
-    def edit_by_id(
+    async def edit_by_id(
             self,
             message_id: int,
             new_event: EventMessage,
@@ -522,7 +522,7 @@ class ServerTelegram(Server):
             new_server.add_user(User.from_json(user, new_server))
         return new_server
 
-    def join_channel(self, channel_obj: Channel) -> None:
+    async def join_channel(self, channel_obj: Channel) -> None:
         pass
         # TODO
 
