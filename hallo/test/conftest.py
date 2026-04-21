@@ -92,7 +92,7 @@ def hallo_getter():
         # Disconnect servers if wanted
         if disconnect_servers:
             for server in hallo.server_list:
-                server.disconnect(True)
+                server.disconnect_sync(True)
             hallo.server_list.clear()
         return hallo
 

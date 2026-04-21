@@ -292,7 +292,7 @@ class Hallo:
         """Shuts down the entire program"""
         for server in self.server_list:
             if server.state != Server.STATE_CLOSED:
-                server.disconnect()
+                server.disconnect_sync()
         self.function_dispatcher.close()
         self.save_json()
         self.open = False

@@ -141,7 +141,7 @@ class ServerTelegram(Server):
             self.state = Server.STATE_OPEN
             self._msg_queue.start()
 
-    def disconnect(self, force: bool = False) -> None:
+    async def disconnect(self, force: bool = False) -> None:
         self.state = Server.STATE_DISCONNECTING
         with self._connect_lock:
             self.updater.stop()

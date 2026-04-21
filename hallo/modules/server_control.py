@@ -130,7 +130,7 @@ class Disconnect(Function):
         if server_obj is None:
             return event.create_response("Invalid server.")
         server_obj.set_auto_connect(False)
-        server_obj.disconnect()
+        await server_obj.disconnect()
         return event.create_response(f"Disconnected from server: {server_obj.name}.")
 
 

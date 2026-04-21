@@ -227,7 +227,7 @@ class ServerIRC(Server):
                 await self.join_channel(channel)
         self.state = Server.STATE_OPEN
 
-    def disconnect(self, force: bool = False) -> None:
+    async def disconnect(self, force: bool = False) -> None:
         """
         Disconnect from the server, ensuring the run thread is ended.
         """
@@ -247,7 +247,7 @@ class ServerIRC(Server):
                 user.set_online(False)
             try:
                 quit_evt = EventQuit(self, None, quit_message, inbound=False)
-                self.send_sync(quit_evt)
+                await self.send(quit_evt)
             except Exception as e:
                 error = ExceptionError(f'Failed to send quit message on "{self.name}" IRC server', e, self,)
                 logger.error(error.get_log_line())
@@ -281,19 +281,19 @@ class ServerIRC(Server):
                     logger.error(error.get_log_line())
                     await asyncio.sleep(10)
                     if self.state == Server.STATE_OPEN:
-                        self.disconnect()
+                        await self.disconnect()
                         await self.connect()
                         logger.info("Reconnected.")
                     continue
                 if next_line is None:
                     if self.state == Server.STATE_OPEN:
-                        self.disconnect()
+                        await self.disconnect()
                         await self.connect()
                     continue
                 else:
                     # Parse line
                     asyncio.create_task(self.parse_line(next_line))
-        self.disconnect()
+        await self.disconnect()
 
     async def send(
             self,
