@@ -94,7 +94,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             self.triggered_cache.save_triggered(mood_day.mood_date, time_val)
         return triggered
 
-    def passive_trigger(self, evt: Event) -> None:
+    async def passive_trigger(self, evt: Event) -> None:
         msg_date = evt.get_send_time().date()
         mood_day = self.get_current_mood_data(msg_date)
         if isinstance(evt, EventMinute):
@@ -102,7 +102,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             if latest_time is None:
                 return None
             if not mood_day.has_time(latest_time):
-                return self.send_mood_query(mood_day, latest_time)
+                return await self.send_mood_query(mood_day, latest_time)
             return None
         if isinstance(evt, EventMessage):
             # Check if it's a morning/night message
@@ -111,13 +111,13 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
                 input_clean in hallo.modules.dailys.field_sleep.DailysSleepField.WAKE_WORDS
             ):
                 if self.time_list.has_wake() and not mood_day.has_wake_time():
-                    return self.send_mood_query(mood_day, MoodTime(MoodTime.WAKE))
+                    return await self.send_mood_query(mood_day, MoodTime(MoodTime.WAKE))
                 return None
             if (
                 input_clean in hallo.modules.dailys.field_sleep.DailysSleepField.SLEEP_WORDS
             ):
                 if self.time_list.has_sleep() and mood_day.awaiting_sleep(self.time_list):
-                    return self.send_mood_query(mood_day, MoodTime(MoodTime.SLEEP))
+                    return await self.send_mood_query(mood_day, MoodTime(MoodTime.SLEEP))
                 return None
             # Check if it's a reply to a mood message, or if there's an unanswered mood message
             input_split = input_clean.split()
@@ -173,14 +173,14 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
     def mood_acronym(self) -> str:
         return "".join([m[0] for m in self.moods]).upper()
 
-    def send_mood_query(self, mood_day: MoodDay, time_val: MoodTime) -> None:
+    async def send_mood_query(self, mood_day: MoodDay, time_val: MoodTime) -> None:
         # Construct message
         msg = (
             "Hello, this is your {} mood check. How are you feeling (scale from 1-5) "
             "in these categories: {}".format(time_val, ", ".join(self.moods))
         )
         # Send message
-        evt = self.message_channel(msg)
+        evt = await self.message_channel(msg)
         # Get message_id, if telegram outbound message
         sent_msg_id = -1
         if isinstance(evt.raw_data, RawDataTelegramOutbound):

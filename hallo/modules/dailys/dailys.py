@@ -72,6 +72,6 @@ class Dailys(Function):
             for field in spreadsheet.fields_list:
                 if event.__class__ in field.passive_events():
                     try:
-                        field.passive_trigger(event)
+                        await field.passive_trigger(event)
                     except Exception as e:
                         hallo.modules.dailys.dailys_field.logger.error("Dailys failure: ", exc_info=e)

@@ -18,7 +18,7 @@ class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
         """
         return [EventDay]
 
-    def passive_trigger(self, evt):
+    async def passive_trigger(self, evt):
         """
         :type evt: Event.Event
         :rtype: None
@@ -58,7 +58,7 @@ class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
         self.save_data(notifications, d)
         # Send date to destination
         notif_str = json.dumps(notifications)
-        self.message_channel(notif_str)
+        await self.message_channel(notif_str)
 
     @staticmethod
     def create_from_input(event, spreadsheet):

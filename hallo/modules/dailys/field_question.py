@@ -390,13 +390,13 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
     def passive_events():
         return [EventMessage, EventMinute]
 
-    def passive_trigger(self, evt: Event) -> Event | None:
+    async def passive_trigger(self, evt: Event) -> Event | None:
         if isinstance(evt, EventMinute):
-            return self._time_trigger()
+            return await self._time_trigger()
         if isinstance(evt, EventMessage):
             return self._msg_trigger(evt)
 
-    def _time_trigger(self) -> None:
+    async def _time_trigger(self) -> None:
         answer_cache = AnswerCache(self.data)
         for question in self.questions:
             if not question.is_active():
@@ -406,9 +406,9 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
                 continue
             answer = answer_cache.answer_for_question_at_time(question, last_time)
             if answer is None:
-                self._ask_question(question, last_time)
+                await self._ask_question(question, last_time)
 
-    def _ask_question(self, question: Question, ask_time: datetime.datetime) -> None:
+    async def _ask_question(self, question: Question, ask_time: datetime.datetime) -> None:
         # Create answer object
         answer = Answer(question.id, ask_time)
         # Create message
@@ -427,7 +427,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             answer.question_msg_id = event.message_id
             self.data.save_answer(answer)
         # Send message
-        self.message_channel(msg, after_msg_sent)
+        await self.message_channel(msg, after_msg_sent)
         # Save answer
         self.data.save_answer(answer)
 

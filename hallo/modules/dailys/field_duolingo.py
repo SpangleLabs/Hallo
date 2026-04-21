@@ -22,7 +22,7 @@ class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
         """
         return [EventDay]
 
-    def passive_trigger(self, evt):
+    async def passive_trigger(self, evt):
         """
         :type evt: Event.Event
         :rtype: None
@@ -31,7 +31,7 @@ class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
             lingo = duolingo.Duolingo(self.username, password=self.password)
             friends = lingo.get_friends()
         except Exception:
-            self.message_channel(
+            await self.message_channel(
                 "It seems the password no longer works for Duolingo account {}. "
                 "Please reset it.".format(self.username)
             )
@@ -43,7 +43,7 @@ class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
         d = (evt.get_send_time() - timedelta(1)).date()
         self.save_data(result, d)
         # Send date to destination
-        self.message_channel(result_str)
+        await self.message_channel(result_str)
 
     @staticmethod
     def _check_duo_username(username, password):

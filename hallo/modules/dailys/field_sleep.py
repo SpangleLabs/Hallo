@@ -21,7 +21,7 @@ class DailysSleepField(hallo.modules.dailys.dailys_field.DailysField):
     def passive_events():
         return [EventMessage]
 
-    def passive_trigger(self, evt):
+    async def passive_trigger(self, evt):
         """
         :type evt: EventMessage
         :rtype: None
@@ -45,13 +45,13 @@ class DailysSleepField(hallo.modules.dailys.dailys_field.DailysField):
                 sleep_date = yesterday_date
             # If you already woke in this data, why are you waking again?
             if self.json_key_wake_time in current_data:
-                self.message_channel("Didn't you already wake up?")
+                await self.message_channel("Didn't you already wake up?")
                 return
             # If not, add a wake time to sleep data
             else:
                 current_data[self.json_key_wake_time] = time_str
                 self.save_data(current_data, sleep_date)
-                self.message_channel("Good morning!")
+                await self.message_channel("Good morning!")
                 return
         # If user is going to sleep
         if input_clean in DailysSleepField.SLEEP_WORDS:
@@ -65,7 +65,7 @@ class DailysSleepField(hallo.modules.dailys.dailys_field.DailysField):
                 if self.json_key_wake_time not in current_data:
                     current_data[self.json_key_sleep_time] = time_str
                     self.save_data(current_data, sleep_date)
-                    self.message_channel("Good night again!")
+                    await self.message_channel("Good night again!")
                     return
                 # Move the last wake time to interruptions
                 interruption = dict()
@@ -77,13 +77,13 @@ class DailysSleepField(hallo.modules.dailys.dailys_field.DailysField):
                     current_data[self.json_key_interruptions] = []
                 current_data[self.json_key_interruptions].append(interruption)
                 self.save_data(current_data, sleep_date)
-                self.message_channel("Oh, going back to sleep? Sleep well!")
+                await self.message_channel("Oh, going back to sleep? Sleep well!")
                 return
             # Otherwise they're headed to sleep
             else:
                 current_data[self.json_key_sleep_time] = time_str
                 self.save_data(current_data, sleep_date)
-                self.message_channel("Goodnight!")
+                await self.message_channel("Goodnight!")
                 return
 
     def to_json(self):

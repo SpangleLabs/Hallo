@@ -39,7 +39,7 @@ class DailysField(metaclass=ABCMeta):
     def passive_events():
         raise NotImplementedError()
 
-    def passive_trigger(self, evt):
+    async def passive_trigger(self, evt: Event) -> None:
         """
         :type evt: Event.Event
         :rtype: None
@@ -63,7 +63,7 @@ class DailysField(metaclass=ABCMeta):
     def load_data(self, data_date: date) -> dict | None:
         return self.spreadsheet.read_field(self, data_date)
 
-    def message_channel(
+    async def message_channel(
             self,
             text: str,
             after_sent_callback: Callable[[EventMessage], None] | None = None
@@ -75,7 +75,7 @@ class DailysField(metaclass=ABCMeta):
             text,
             inbound=False,
         )
-        self.spreadsheet.user.server.send_sync(evt, after_sent_callback=after_sent_callback)
+        await self.spreadsheet.user.server.send(evt, after_sent_callback=after_sent_callback)
         return evt
 
 
