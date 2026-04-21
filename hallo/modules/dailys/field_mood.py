@@ -137,15 +137,15 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
                         request.message_id: request for request in unanswered_requests
                     }
                     if reply_id in unanswered_ids:
-                        return self.process_mood_response(
+                        return await self.process_mood_response(
                             evt, input_split[-1], unanswered_ids[reply_id].mood_time, mood_day
                         )
                 # Otherwise, use the most recent mood query
                 if len(unanswered_requests) > 0:
-                    return self.process_mood_response(
+                    return await self.process_mood_response(
                         evt, input_split[-1], unanswered_requests[-1].mood_time, mood_day
                     )
-                return evt.reply_sync(evt.create_response(
+                return await evt.reply(evt.create_response(
                     "Is this a mood measurement, because I can't find a mood query."
                 ))
             # Check if it's a more complicated message
@@ -160,14 +160,14 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
                     try:
                         time_val = MoodTime(time(int(input_time[:2]), int(input_time[-2:])))
                     except ValueError:
-                        return evt.reply_sync(evt.create_response(
+                        return await evt.reply(evt.create_response(
                             "Could not parse the time in that mood measurement."
                         ))
                 if not self.time_list.contains_time(time_val):
-                    return evt.reply_sync(evt.create_response(
+                    return await evt.reply(evt.create_response(
                         "That time value is not being tracked for mood measurements."
                     ))
-                return self.process_mood_response(evt, input_split[-1], time_val, mood_day)
+                return await self.process_mood_response(evt, input_split[-1], time_val, mood_day)
         return None
 
     def mood_acronym(self) -> str:
@@ -191,9 +191,9 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             self.save_day(mood_day)
         return None
 
-    def process_mood_response(self, evt: EventMessage, mood_str: str, time_val: MoodTime, mood_day: MoodDay) -> None:
+    async def process_mood_response(self, evt: EventMessage, mood_str: str, time_val: MoodTime, mood_day: MoodDay) -> None:
         if len(mood_str) != len(self.moods):
-            return evt.reply_sync(evt.create_response(
+            return await evt.reply(evt.create_response(
                 "This mood measurement doesn't seem to have the right number of datapoints"
             ))
         with self.lock:
@@ -202,7 +202,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             }
             mood_day.set_measurement(time_val, measurement_data)
             self.save_day(mood_day)
-        return evt.reply_sync(evt.create_response(
+        return await evt.reply(evt.create_response(
             f"Added mood stat {mood_str} for time: {time_val} and date: {mood_day.mood_date.isoformat()}"
         ))
 

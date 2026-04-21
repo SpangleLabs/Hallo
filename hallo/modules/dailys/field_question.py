@@ -394,7 +394,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         if isinstance(evt, EventMinute):
             return await self._time_trigger()
         if isinstance(evt, EventMessage):
-            return self._msg_trigger(evt)
+            return await self._msg_trigger(evt)
 
     async def _time_trigger(self) -> None:
         answer_cache = AnswerCache(self.data)
@@ -431,10 +431,10 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
         # Save answer
         self.data.save_answer(answer)
 
-    def _msg_trigger(self, evt: EventMessage) -> EventMessage | None:
+    async def _msg_trigger(self, evt: EventMessage) -> EventMessage | None:
         # Check if it's asking about open questions
         if evt.text.strip().lower() in ["questions", "open questions", "unanswered question"]:
-            return self._handle_questions_list_request(evt)
+            return await self._handle_questions_list_request(evt)
         # Check if it's a reply to a question
         if (
             isinstance(evt.raw_data, RawDataTelegram)
@@ -443,25 +443,25 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             reply_id = (
                 evt.raw_data.update_obj.message.reply_to_message.message_id
             )
-            return self._handle_answer_reply(evt, reply_id, evt.text)
+            return await self._handle_answer_reply(evt, reply_id, evt.text)
         # Handle manual answers
         text_split = evt.text.split(maxsplit=2)
         question_dict = {q.id: q for q in self.questions}
         if text_split[0].lower() == "answer" and text_split[1] in question_dict:
-            return self._handle_answer_manual(evt, question_dict[text_split[1]], text_split[2])
+            return await self._handle_answer_manual(evt, question_dict[text_split[1]], text_split[2])
 
-    def _handle_answer_reply(self, evt: EventMessage, reply_id: int, answer: str) -> EventMessage | None:
+    async def _handle_answer_reply(self, evt: EventMessage, reply_id: int, answer: str) -> EventMessage | None:
         cache = AnswerCache(self.data)
         reply_answer = cache.answer_for_question_msg_id(reply_id, self.questions)
         if reply_answer is None:
             return None
         reply_answer.add_answer(answer)
         self.data.save_answer(reply_answer)
-        return evt.reply_sync(evt.create_response(
+        return await evt.reply(evt.create_response(
             f"Answer saved for question ID \"{reply_answer.question_id}\", at {reply_answer.asked_time.isoformat()}"
         ))
 
-    def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> EventMessage | None:
+    async def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> EventMessage | None:
         latest_time = question.last_time()
         current_answer = self.data.get_answer_for_question_at_time(question, latest_time)
         if current_answer is None:
@@ -470,27 +470,27 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
                 answer=answer
             )
             self.data.save_answer(new_answer)
-            return evt.reply_sync(evt.create_response(
+            return await evt.reply(evt.create_response(
                 f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
             ))
         current_answer.add_answer(answer)
         self.data.save_answer(current_answer)
-        return evt.reply_sync(evt.create_response(
+        return await evt.reply(evt.create_response(
             f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
         ))
 
-    def _handle_questions_list_request(self, evt: EventMessage):
+    async def _handle_questions_list_request(self, evt: EventMessage):
         cache = AnswerCache(self.data)
         questions = cache.list_unanswered_questions(self.questions)
         if not questions:
-            return evt.reply_sync(evt.create_response(
+            return await evt.reply(evt.create_response(
                 "There are no unanswered questions here at the moment."
             ))
         questions_str = "\n".join(f"---\nid={q.id}:\n{q.question}" for q in questions)
         header_str = f"There are {len(questions)} unanswered questions:"
         if len(questions) == 1:
             header_str = "There is 1 unanswered question:"
-        return evt.reply_sync(evt.create_response(
+        return await evt.reply(evt.create_response(
             f"{header_str}\n{questions_str}"
         ))
 
