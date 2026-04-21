@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Type
+from typing import Type, TYPE_CHECKING
 
 from hallo.events import (
     EventSecond,
@@ -18,6 +18,9 @@ from hallo.events import (
     EventMode,
     EventCTCP, Event, ServerEvent,
 )
+
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
 
 
 class Function(ABC):
@@ -54,10 +57,10 @@ class Function(ABC):
     # EVENT_NUMERIC = "numeric"      # Event constant signifying a numeric message from a server (IRC only)
     # EVENT_RAW = "raw"           # Event constant signifying raw data received from server which doesn't fit the above
 
-    def __init__(self):
-        self.help_name = None  # Name for use in help listing
+    def __init__(self) -> None:
+        self.help_name: str = None  # Name for use in help listing
         self.names: set[str] = set()  # Set of names which can be used to address the function
-        self.help_docs = (
+        self.help_docs: str | None = (
             None  # Help documentation, if it's just a single line, can be set here
         )
 
@@ -87,7 +90,7 @@ class Function(ABC):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return set()
 
-    async def passive_run(self, event: Event, hallo_obj) -> ServerEvent | None:
+    async def passive_run(self, event: Event, hallo_obj: 'Hallo') -> ServerEvent | None:
         """Replies to an event not directly addressed to the bot.
         :param event: Event which has called the function
         :param hallo_obj: Hallo object which fired the event.
