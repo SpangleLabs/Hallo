@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING
 
 from yippi import Post, Rating, YippiClient
 
-import hallo.modules.subscriptions.common_e6_key
-import hallo.modules.subscriptions.source_e621
-import hallo.modules.subscriptions.stream_source
-import hallo.modules.subscriptions.subscription_exception
+from hallo.modules.subscriptions.common_e6_key import E6KeysCommon
+from hallo.modules.subscriptions.source_e621 import E621Source, e6_client_from_input
+from hallo.modules.subscriptions.stream_source import Key
+from hallo.modules.subscriptions.subscription_exception import SubscriptionException
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage, EventMessageWithPhoto, EventMenuCallback, MenuButton
 from hallo.inc.input_parser import InputParser
@@ -14,8 +14,8 @@ from hallo.server import Server
 
 if TYPE_CHECKING:
     from hallo.hallo import Hallo
-    import hallo.modules.subscriptions.subscription_check
-    import hallo.modules.subscriptions.subscription_repo
+    from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
+    from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
 
 def buttons_for_submission(tag_results: dict[str, bool], page: int = 1) -> list[list[MenuButton]]:
@@ -66,8 +66,8 @@ class E621TaggingMenu(Menu):
 
     def __init__(
             self,
-            msg: 'EventMessage',
-            user: 'User',
+            msg: EventMessage,
+            user: User,
             e6_client: YippiClient,
             post_id: int,
             search: str,
@@ -75,19 +75,19 @@ class E621TaggingMenu(Menu):
             page: int = 1
     ) -> None:
         super().__init__(msg)
-        self.user = user
-        self.e6_client = e6_client
-        self.post_id = post_id
-        self.search = search
-        self.tag_results = tag_results
-        self.page = page
-        self.clicked = False
+        self.user: User = user
+        self.e6_client: YippiClient = e6_client
+        self.post_id: int = post_id
+        self.search: str = search
+        self.tag_results: dict[str, bool] = tag_results
+        self.page: int = page
+        self.clicked: bool = False
 
-    def text_for_post(self, item: 'Post', suffix: str = None) -> str:
+    def text_for_post(self, item: Post, suffix: str = None) -> str:
         prefix = f'Update on "{self.search}" tagging e621 search.'
         return text_for_post(item, prefix=prefix, suffix=suffix)
 
-    def handle_callback(self, event: 'EventMenuCallback') -> None:
+    def handle_callback(self, event: EventMenuCallback) -> None:
         if self.clicked:
             return
         self.clicked = True
@@ -169,16 +169,12 @@ class E621TaggingMenu(Menu):
         server = hallo_obj.get_server_by_name(msg.server_name)
         user = server.get_user_by_address(data["user_addr"])
         if user is None:
-            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
-                "Could not find user matching address `{}`".format(data["user_addr"])
-            )
+            raise SubscriptionException(f"Could not find user matching address `{data['user_addr']}`")
         function_dispatcher = hallo_obj.function_dispatcher
         sub_check_class = function_dispatcher.get_function_by_name("check subscription")
-        sub_check_obj: hallo.modules.subscriptions.subscription_check.SubscriptionCheck = function_dispatcher.get_function_object(
-            sub_check_class
-        )
+        sub_check_obj: 'SubscriptionCheck' = function_dispatcher.get_function_object(sub_check_class)
         sub_repo = sub_check_obj.get_sub_repo(hallo_obj)
-        e6_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6KeysCommon)
+        e6_keys = sub_repo.get_common_config_by_type(E6KeysCommon)
         e6_client = e6_keys.get_client_by_user(user)
         return cls(
             msg,
@@ -200,7 +196,7 @@ class E621TaggingMenu(Menu):
         }
 
 
-class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
+class E621TaggingSource(E621Source):
     type_name = "e621_tagging"
     type_names: list[str] = ["e621 tagging", "e621 tagging search", "tagging e621"]
 
@@ -208,18 +204,18 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
             self,
             search: str,
             e6_client: YippiClient,
-            sub_repo: 'hallo.modules.subscriptions.subscription_repo.SubscriptionRepo',
+            sub_repo: 'SubscriptionRepo',
             owner: User,
             tags: list[str],
-            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
-    ):
+            last_keys: list[Key] | None = None
+    ) -> None:
         super().__init__(search, e6_client, owner, last_keys)
-        self.sub_repo = sub_repo
-        self.owner = owner
+        self.sub_repo: 'SubscriptionRepo' = sub_repo
+        self.owner: User = owner
         self.tags: list[str] = tags
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo) -> 'E621TaggingSource':
+    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'E621TaggingSource':
         parsed = InputParser(argument)
         tags_arg = parsed.get_arg_by_names(
             ["tags", "watched_tags", "to_tag", "watched tags", "to tag", "watch"]
@@ -247,11 +243,11 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
                 search = search_arg
                 tags = parsed.remaining_text.split()
             else:
-                raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
+                raise SubscriptionException(
                     'You need to specify a search term with search="search term" and '
                     'tags to watch with tags="tags to watch"'
                 )
-        e6_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6KeysCommon)
+        e6_keys = sub_repo.get_common_config_by_type(E6KeysCommon)
         # Make sure you're not using the default user here
         e6_client = e6_keys.get_client_by_user(user, allow_default=False)
         return cls(search, e6_client, sub_repo, user, tags)
@@ -288,10 +284,10 @@ class E621TaggingSource(hallo.modules.subscriptions.source_e621.E621Source):
         return msg
 
     @classmethod
-    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'E621TaggingSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo: 'SubscriptionRepo') -> 'E621TaggingSource':
         user_addr = json_data["e621_user_address"]
         user = destination.server.get_user_by_address(user_addr)
-        e6_client = hallo.modules.subscriptions.source_e621.e6_client_from_input(user, sub_repo)
+        e6_client = e6_client_from_input(user, sub_repo)
         return E621TaggingSource(
             json_data["search"],
             e6_client,

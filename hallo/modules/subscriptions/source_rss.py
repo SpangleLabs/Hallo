@@ -1,5 +1,6 @@
 import hashlib
 import re
+from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
 from bs4 import BeautifulSoup
@@ -7,8 +8,11 @@ from bs4 import BeautifulSoup
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage, EventMessageWithPhoto
 from hallo.inc.commons import Commons
-import hallo.modules.subscriptions.stream_source
+from hallo.modules.subscriptions.stream_source import StreamSource, Key
 from hallo.server import Server
+
+if TYPE_CHECKING:
+    from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
 
 def _get_item_title(feed_item: ElementTree.Element) -> str | None:
@@ -36,16 +40,11 @@ def _get_feed_items(rss_elem: ElementTree.Element) -> list[ElementTree.Element]:
         return rss_elem.findall("{http://www.w3.org/2005/Atom}entry")
 
 
-class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTree.Element]):
+class RssSource(StreamSource[ElementTree.Element]):
     type_name: str = "rss"
     type_names: list[str] = ["rss", "rss feed"]
 
-    def __init__(
-            self,
-            url: str,
-            feed_title: str | None = None,
-            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
-    ):
+    def __init__(self, url: str, feed_title: str | None = None, last_keys: list[Key] | None = None) -> None:
         super().__init__(last_keys)
         self.url = url
         if feed_title is None:
@@ -90,7 +89,7 @@ class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTr
         self.feed_title = self._get_feed_title()
         return _get_feed_items(rss_elem)
 
-    def item_to_key(self, item: ElementTree.Element) -> hallo.modules.subscriptions.stream_source.Key:
+    def item_to_key(self, item: ElementTree.Element) -> Key:
         item_guid_elem = item.find("guid")
         if item_guid_elem is not None:
             item_hash = item_guid_elem.text
@@ -190,11 +189,11 @@ class RssSource(hallo.modules.subscriptions.stream_source.StreamSource[ElementTr
         return f"{self.feed_title} ({self.url})"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo) -> 'RssSource':
+    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'RssSource':
         return RssSource(argument)
 
     @classmethod
-    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'RssSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo: 'SubscriptionRepo') -> 'RssSource':
         return RssSource(
             json_data["url"],
             json_data["title"],

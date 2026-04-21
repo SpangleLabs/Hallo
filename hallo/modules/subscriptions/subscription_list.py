@@ -1,8 +1,8 @@
 from hallo.events import EventMessage
 from hallo.function import Function
-import hallo.modules.subscriptions.subscription_factory
-import hallo.modules.subscriptions.subscription_check
-import hallo.modules.subscriptions.subscription
+from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
+from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
+from hallo.modules.subscriptions.subscription import Subscription
 
 
 class SubscriptionList(Function):
@@ -13,13 +13,13 @@ class SubscriptionList(Function):
     list_words = ["list"]
     sub_words = ["sub", "subs", "subscription", "subscriptions"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructor
         """
         super().__init__()
         # Name for use in help listing
-        self.help_name = "list subscription"
+        self.help_name: str = "list subscription"
         # Names which can be used to address the function
         name_templates = {
             "{0} {1}",
@@ -31,40 +31,31 @@ class SubscriptionList(Function):
             "{2} {0} {1}",
             "{0} {2} {1}",
         }
-        self.names = set(
+        self.names: set[str] = set(
             [
                 template.format(name, list_word, sub)
-                for name in hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
+                for name in SubscriptionFactory.get_source_names()
                 for template in name_templates
                 for list_word in self.list_words
                 for sub in self.sub_words
             ]
         )
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = (
-            "Lists subscriptions for the current channel. Format: list subscription"
-        )
+        self.help_docs: str = "Lists subscriptions for the current channel. Format: list subscription"
 
     async def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
         server = event.server
         hallo_obj = server.hallo
         function_dispatcher = hallo_obj.function_dispatcher
-        sub_check_function = function_dispatcher.get_function_by_name(
-            "check subscription"
-        )
-        sub_check_obj = function_dispatcher.get_function_object(
-            sub_check_function
-        )  # type: hallo.modules.new_subscriptions.subscription_check.SubscriptionCheck
+        sub_check_function = function_dispatcher.get_function_by_name("check subscription")
+        sub_check_obj: SubscriptionCheck = function_dispatcher.get_function_object(sub_check_function)
         sub_repo = sub_check_obj.get_sub_repo(hallo_obj)
         # Find list of feeds for current channel.
         with sub_repo.sub_lock:
-            dest_searches: list[hallo.modules.subscriptions.subscription.Subscription] = \
-                sub_repo.get_subs_by_destination(event.destination)
+            dest_searches: list[Subscription] = sub_repo.get_subs_by_destination(event.destination)
         if len(dest_searches) == 0:
-            return event.create_response(
-                "There are no subscriptions posting to this destination."
-            )
+            return event.create_response("There are no subscriptions posting to this destination.")
         sub_names = []
         for search_item in dest_searches:
             new_line = f"{search_item.source.type_name} - {search_item.source.title}"
@@ -72,6 +63,4 @@ class SubscriptionList(Function):
                 new_line += f" ({search_item.last_update.isoformat()})"
             sub_names.append(new_line)
         sub_names.sort()
-        return event.create_response(
-            "Subscriptions posting to this channel:\n" + "\n".join(sub_names)
-        )
+        return event.create_response("Subscriptions posting to this channel:\n" + "\n".join(sub_names))

@@ -1,37 +1,37 @@
-from typing import NewType
+from typing import NewType, TYPE_CHECKING
 
-import hallo.modules.subscriptions.subscription_exception
+from hallo.modules.subscriptions.subscription_exception import SubscriptionException
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage, EventMessageWithPhoto
-import hallo.modules.subscriptions.stream_source
-import hallo.modules.subscriptions.common_fa_key
+from hallo.modules.subscriptions.stream_source import StreamSource, Key
+from hallo.modules.subscriptions.common_fa_key import FAKey, FAKeysCommon
 from hallo.server import Server
+
+if TYPE_CHECKING:
+    from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
+
 
 SubmissionId = NewType("SubmissionId", int)
 
 
-def fa_key_from_json(user_addr: str, server: Server, sub_repo) -> hallo.modules.subscriptions.common_fa_key.FAKey:
+def fa_key_from_json(user_addr: str, server: Server, sub_repo: 'SubscriptionRepo') -> FAKey:
     user = server.get_user_by_address(user_addr)
     if user is None:
-        raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
-            "Could not find user matching address `{}`".format(user_addr)
-        )
-    fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
-    assert isinstance(fa_keys, hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
+        raise SubscriptionException(f"Could not find user matching address `{user_addr}`")
+    fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+    assert isinstance(fa_keys, FAKeysCommon)
     fa_key = fa_keys.get_key_by_user(user)
     if fa_key is None:
-        raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
-            "Could not find fa key for user: {}".format(user.name)
-        )
+        raise SubscriptionException(f"Could not find fa key for user: {user.name}")
     return fa_key
 
 
-def fa_key_from_input(user: User, sub_repo) -> hallo.modules.subscriptions.common_fa_key.FAKey:
-    fa_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
-    assert isinstance(fa_keys, hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
+def fa_key_from_input(user: User, sub_repo: 'SubscriptionRepo') -> FAKey:
+    fa_keys = sub_repo.get_common_config_by_type(FAKeysCommon)
+    assert isinstance(fa_keys, FAKeysCommon)
     fa_key = fa_keys.get_key_by_user(user)
     if fa_key is None:
-        raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
+        raise SubscriptionException(
             "Cannot create FA user favourites subscription without cookie details. "
             "Please set up FA cookies with "
             "`setup FA user data a=<cookie_a>;b=<cookie_b>` and your cookie values."
@@ -39,7 +39,7 @@ def fa_key_from_input(user: User, sub_repo) -> hallo.modules.subscriptions.commo
     return fa_key
 
 
-class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[SubmissionId]):
+class FAFavsSource(StreamSource[SubmissionId]):
     type_name: str = "fa_user_favs"
     type_names: list[str] = [
         "fa user favs",
@@ -52,15 +52,15 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
 
     def __init__(
             self,
-            fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
+            fa_key: FAKey,
             username: str,
-            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
-    ):
+            last_keys: list[Key] | None = None
+    ) -> None:
         super().__init__(last_keys)
         self.username = username
         self.fa_key = fa_key
 
-    def item_to_key(self, item: SubmissionId) -> hallo.modules.subscriptions.stream_source.Key:
+    def item_to_key(self, item: SubmissionId) -> Key:
         return item
 
     def item_to_event(
@@ -72,7 +72,7 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()
         submission = fa_reader.get_submission_page(item)
-        link = "https://furaffinity.net/view/{}".format(item)
+        link = f"https://furaffinity.net/view/{item}"
         title = submission.title
         posted_by = submission.name
         # Construct output
@@ -95,7 +95,7 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
         return f'Favourites subscription for "{self.username}"'
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo) -> 'FAFavsSource':
+    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAFavsSource':
         fa_key = fa_key_from_input(user, sub_repo)
         return FAFavsSource(fa_key, argument)
 
@@ -105,7 +105,7 @@ class FAFavsSource(hallo.modules.subscriptions.stream_source.StreamSource[Submis
         return [SubmissionId(x) for x in favs_page.submission_ids]
 
     @classmethod
-    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FAFavsSource':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo: 'SubscriptionRepo') -> 'FAFavsSource':
         user_addr = json_data["fa_key_user_address"]
         fa_key = fa_key_from_json(user_addr, destination.server, sub_repo)
         return FAFavsSource(

@@ -1,8 +1,7 @@
 from hallo.events import EventMessage
 from hallo.function import Function
-import hallo.modules.subscriptions.subscription_factory
-import hallo.modules.subscriptions.subscription_check
-import hallo.modules.subscriptions.subscription
+from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
+from hallo.modules.subscriptions.subscription import Subscription
 
 
 class SubscriptionAdd(Function):
@@ -13,28 +12,28 @@ class SubscriptionAdd(Function):
     add_words = ["add"]
     sub_words = ["sub", "subscription"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructor
         """
         super().__init__()
         # Name for use in help listing
-        self.help_name = "add subscription"
+        self.help_name: str = "add subscription"
         # Names which can be used to address the function
-        name_templates = {
+        name_templates: set[str] = {
             "{add} {source} {sub}"
         }
-        self.names = set(
+        self.names: set[str] = set(
             [
                 template.format(add=add, source=name, sub=sub)
-                for name in hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
+                for name in SubscriptionFactory.get_source_names()
                 for template in name_templates
                 for add in self.add_words
                 for sub in self.sub_words
             ]
         )
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = (
+        self.help_docs: str = (
             "Adds a new subscription to be checked for updates which will be posted to the current location."
             " Format: add subscription <sub type> <sub details> <update period?>"
         )
@@ -49,9 +48,7 @@ class SubscriptionAdd(Function):
             ]
         ).strip()
         # Get class from sub type name
-        source_class = hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.get_source_class_by_name(
-            sub_type_name
-        )
+        source_class = SubscriptionFactory.get_source_class_by_name(sub_type_name)
         # Get subscription repo
         function_dispatcher = event.server.hallo.function_dispatcher
         # TODO: check if I need to do this?
@@ -61,9 +58,7 @@ class SubscriptionAdd(Function):
         )  # type: hallo.modules.new_subscriptions.subscription_check.SubscriptionCheck
         sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
         # Create new subscription
-        sub_obj = hallo.modules.subscriptions.subscription.Subscription.create_from_input(
-            event, source_class, sub_repo
-        )
+        sub_obj = Subscription.create_from_input(event, source_class, sub_repo)
         # No need to test subscription, that's done in create_from_input
         # Acquire lock and save sub
         with sub_repo.sub_lock:

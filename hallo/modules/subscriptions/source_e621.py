@@ -1,22 +1,25 @@
 import urllib.parse
+from typing import TYPE_CHECKING
 
 from yippi import Post, Rating, YippiClient
 
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage, EventMessageWithPhoto
-import hallo.modules.subscriptions.stream_source
-import hallo.modules.subscriptions.subscription_exception
-import hallo.modules.subscriptions.common_e6_key
+from hallo.modules.subscriptions.stream_source import StreamSource, Key
+from hallo.modules.subscriptions.common_e6_key import E6KeysCommon
 from hallo.server import Server
 
+if TYPE_CHECKING:
+    from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
-def e6_client_from_input(user: User, sub_repo) -> YippiClient:
-    e6_keys = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_e6_key.E6KeysCommon)
+
+def e6_client_from_input(user: User, sub_repo: 'SubscriptionRepo') -> YippiClient:
+    e6_keys = sub_repo.get_common_config_by_type(E6KeysCommon)
     e6_client = e6_keys.get_client_by_user(user)
     return e6_client
 
 
-class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
+class E621Source(StreamSource[Post]):
     type_name: str = "e621"
     type_names: list[str] = ["e621", "e621 search", "search e621"]
 
@@ -24,13 +27,13 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
             self,
             search: str,
             e6_client: YippiClient,
-            owner: 'User',
-            last_keys: list[hallo.modules.subscriptions.stream_source.Key] = None
-    ):
+            owner: User,
+            last_keys: list[Key] = None
+    ) -> None:
         super().__init__(last_keys)
         self.search: str = search
-        self.e6_client = e6_client
-        self.owner = owner
+        self.e6_client: YippiClient = e6_client
+        self.owner: User = owner
 
     def matches_name(self, name_clean: str) -> bool:
         return name_clean == self.search.lower().strip()
@@ -40,7 +43,7 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
         return f"search for \"{self.search}\""
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo) -> 'E621Source':
+    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'E621Source':
         e6_client = e6_client_from_input(user, sub_repo)
         return E621Source(
             argument,
@@ -51,7 +54,7 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
     def current_state(self) -> list[Post]:
         return self.e6_client.posts(self.search)
 
-    def item_to_key(self, item: Post) -> hallo.modules.subscriptions.stream_source.Key:
+    def item_to_key(self, item: Post) -> Key:
         return item.id
 
     def item_to_event(
@@ -75,7 +78,7 @@ class E621Source(hallo.modules.subscriptions.stream_source.StreamSource[Post]):
         )
 
     @classmethod
-    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'E621Source':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo: 'SubscriptionRepo') -> 'E621Source':
         user_addr = json_data["e621_user_address"]
         owner = destination.server.get_user_by_address(user_addr)
         e6_client = e6_client_from_input(owner, sub_repo)

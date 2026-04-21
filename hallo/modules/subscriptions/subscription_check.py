@@ -5,8 +5,8 @@ from hallo.errors import SubscriptionCheckError
 from hallo.events import Event, EventMinute, EventMessage, ServerEvent, EventMenuCallback
 from hallo.function import Function
 from hallo.hallo import Hallo
-import hallo.modules.subscriptions.subscription_factory
-import hallo.modules.subscriptions.subscription_repo
+from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
+from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
 logger = logging.getLogger(__name__)
 
@@ -21,13 +21,13 @@ class SubscriptionCheck(Function):
 
     NAMES_ALL = ["*", "all"]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructor
         """
         super().__init__()
         # Name for use in help listing
-        self.help_name = "check subscription"
+        self.help_name: str = "check subscription"
         # Names which can be used to address the function
         name_templates = {
             "{0} {1}",
@@ -39,25 +39,22 @@ class SubscriptionCheck(Function):
             "{2} {0} {1}",
             "{0} {2} {1}",
         }
-        self.names = set(
+        self.names: set[str] = set(
             [
                 template.format(name, check, sub)
-                for name in hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.get_source_names()
+                for name in SubscriptionFactory.get_source_names()
                 for template in name_templates
                 for check in self.check_words
                 for sub in self.sub_words
             ]
         )
         # Help documentation, if it's just a single line, can be set here
-        self.help_docs = "Checks a specified feed for updates and returns them. Format: subscription check <feed name>"
-        self.subscription_repo = None
-        """ :type : hallo.modules.subscriptions.subscription_repo.SubscriptionRepo | None"""
+        self.help_docs: str = "Checks a specified feed for updates and returns them. Format: subscription check <feed name>"
+        self.subscription_repo: SubscriptionRepo | None = None
 
-    def get_sub_repo(self, hallo_obj: Hallo) -> hallo.modules.subscriptions.subscription_repo.SubscriptionRepo:
+    def get_sub_repo(self, hallo_obj: Hallo) -> SubscriptionRepo:
         if self.subscription_repo is None:
-            self.subscription_repo = hallo.modules.subscriptions.subscription_repo.SubscriptionRepo.load_json(
-                hallo_obj
-            )
+            self.subscription_repo = SubscriptionRepo.load_json(hallo_obj)
             # Add menus last, after common config
             self.subscription_repo.load_menu_cache(hallo_obj)
         return self.subscription_repo

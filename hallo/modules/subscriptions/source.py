@@ -1,10 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, TYPE_CHECKING
 
 from hallo.destination import Channel, User, Destination
 from hallo.events import EventMessage
 from hallo.hallo import Hallo
 from hallo.server import Server
+
+if TYPE_CHECKING:
+    from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
+
 
 State = TypeVar("State")
 Update = TypeVar("Update")
@@ -14,7 +18,7 @@ class Source(ABC, Generic[State, Update]):
     type_name: str = None
     type_names: list[str] = None
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     @abstractmethod
@@ -28,7 +32,7 @@ class Source(ABC, Generic[State, Update]):
 
     @classmethod
     @abstractmethod
-    def from_input(cls, argument: str, user: User, sub_repo) -> 'Source':
+    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'Source':
         pass
 
     @abstractmethod
@@ -61,7 +65,7 @@ class Source(ABC, Generic[State, Update]):
 
     @classmethod
     @abstractmethod
-    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'Source':
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo: 'SubscriptionRepo') -> 'Source':
         pass
 
     @abstractmethod

@@ -1,17 +1,18 @@
-import hallo.modules.subscriptions.subscription_exception
+from typing import TYPE_CHECKING
+
+from hallo.modules.subscriptions.subscription_exception import SubscriptionException
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage
-import hallo.modules.subscriptions.source_fa_favs
-import hallo.modules.subscriptions.stream_source
-import hallo.modules.subscriptions.common_fa_key
+from hallo.modules.subscriptions.source_fa_favs import fa_key_from_input, fa_key_from_json
+from hallo.modules.subscriptions.stream_source import StreamSource, Key
+from hallo.modules.subscriptions.common_fa_key import FAKey
 from hallo.server import Server
 
+if TYPE_CHECKING:
+    from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
-class FAUserWatchersSource(
-    hallo.modules.subscriptions.stream_source.StreamSource[
-        hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FAWatch
-    ]
-):
+
+class FAUserWatchersSource(StreamSource[FAKey.FAReader.FAWatch]):
     type_name: str = "fa_user_watchers"
     type_names: list[str] = [
         "fa user watchers",
@@ -20,28 +21,24 @@ class FAUserWatchersSource(
         "furaffinity user new watchers",
     ]
 
-    def __init__(self, fa_key: hallo.modules.subscriptions.common_fa_key.FAKey, username: str,
-                 last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None):
+    def __init__(self, fa_key: FAKey, username: str, last_keys: list[Key] | None = None) -> None:
         super().__init__(last_keys)
         self.fa_key = fa_key
         self.username = username
 
-    def current_state(self) -> list[hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FAWatch]:
+    def current_state(self) -> list[FAKey.FAReader.FAWatch]:
         fa_reader = self.fa_key.get_fa_reader()
         user_page = fa_reader.get_user_page(self.username)
         return user_page.watched_by
 
-    def item_to_key(
-            self,
-            item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FAWatch
-    ) -> hallo.modules.subscriptions.stream_source.Key:
+    def item_to_key(self, item: FAKey.FAReader.FAWatch) -> Key:
         return item.watcher_username
 
     def item_to_event(
             self, server: Server, channel: Channel | None, user: User | None,
-            item: hallo.modules.subscriptions.common_fa_key.FAKey.FAReader.FAWatch
+            item: FAKey.FAReader.FAWatch
     ) -> EventMessage:
-        link = "https://furaffinity.net/user/{}/".format(item.watcher_username)
+        link = f"https://furaffinity.net/user/{item.watcher_username}/"
         return EventMessage(
             server, channel, user,
             f"{item.watcher_name} has watched {item.watched_name}. Link: {link}",
@@ -56,23 +53,20 @@ class FAUserWatchersSource(
         return f'New watchers subscription for "{self.username}"'
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo) -> 'FAUserWatchersSource':
-        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
+    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAUserWatchersSource':
+        fa_key = fa_key_from_input(user, sub_repo)
         # Check if it's a valid user
         try:
             fa_key.get_fa_reader().get_user_page(argument)
         except Exception:
-            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
-                "This does not appear to be a valid username."
-            )
+            raise SubscriptionException("This does not appear to be a valid username.")
         return FAUserWatchersSource(fa_key, argument)
 
     @classmethod
-    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FAUserWatchersSource':
-        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
-            json_data["fa_key_user_address"],
-            destination.server, sub_repo
-        )
+    def from_json(
+            cls, json_data: dict, destination: Destination, sub_repo: 'SubscriptionRepo'
+    ) -> 'FAUserWatchersSource':
+        fa_key = fa_key_from_json(json_data["fa_key_user_address"], destination.server, sub_repo)
         return FAUserWatchersSource(
             fa_key,
             json_data["username"],
@@ -91,18 +85,14 @@ class FAUserWatchersSource(
 class FAWatchersSource(FAUserWatchersSource):
     type_name: str = "fa_notif_watchers"
     type_names: list[str] = [
-        "{}{}{}{}".format(fa, new, watchers, notifications)
+        f"{fa}{new}{watchers}{notifications}"
         for fa in ["fa ", "furaffinity "]
         for new in ["new ", ""]
         for watchers in ["watcher", "watchers"]
         for notifications in ["", " notifications"]
     ]
 
-    def __init__(
-            self,
-            fa_key: hallo.modules.subscriptions.common_fa_key.FAKey,
-            last_keys: list[hallo.modules.subscriptions.stream_source.Key] | None = None
-    ):
+    def __init__(self, fa_key: FAKey, last_keys: list[Key] | None = None) -> None:
         username = fa_key.get_fa_reader().get_notification_page().username
         super().__init__(fa_key, username, last_keys)
 
@@ -114,16 +104,13 @@ class FAWatchersSource(FAUserWatchersSource):
         return f"New watchers notifications for {self.fa_key.user.name}"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo) -> 'FAWatchersSource':
-        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_input(user, sub_repo)
+    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAWatchersSource':
+        fa_key = fa_key_from_input(user, sub_repo)
         return FAWatchersSource(fa_key)
 
     @classmethod
-    def from_json(cls, json_data: dict, destination: Destination, sub_repo) -> 'FAWatchersSource':
-        fa_key = hallo.modules.subscriptions.source_fa_favs.fa_key_from_json(
-            json_data["fa_key_user_address"],
-            destination.server, sub_repo
-        )
+    def from_json(cls, json_data: dict, destination: Destination, sub_repo: 'SubscriptionRepo') -> 'FAWatchersSource':
+        fa_key = fa_key_from_json(json_data["fa_key_user_address"], destination.server, sub_repo)
         return FAWatchersSource(fa_key, json_data["last_keys"])
 
     def to_json(self) -> dict:

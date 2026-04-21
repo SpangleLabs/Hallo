@@ -5,10 +5,10 @@ from typing import Optional, Callable, TYPE_CHECKING
 
 import dateutil.parser
 
-import hallo.modules.user_data
+from hallo.modules.user_data import UserDataParser, FAKeyData
 from hallo.destination import User
 from hallo.inc.commons import CachedObject, Commons
-import hallo.modules.subscriptions.subscription_common
+from hallo.modules.subscriptions.subscription_common import SubscriptionCommon
 
 if TYPE_CHECKING:
     from hallo.hallo import Hallo
@@ -16,20 +16,18 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class FAKeysCommon(hallo.modules.subscriptions.subscription_common.SubscriptionCommon):
+class FAKeysCommon(SubscriptionCommon):
     type_name: str = "fa_keys"
 
-    def __init__(self, hallo_obj: 'Hallo'):
+    def __init__(self, hallo_obj: 'Hallo') -> None:
         super().__init__(hallo_obj)
         self.list_keys: dict[User, FAKey] = dict()
 
     def get_key_by_user(self, user: User) -> Optional['FAKey']:
         if user in self.list_keys:
             return self.list_keys[user]
-        user_data_parser = hallo.modules.user_data.UserDataParser()
-        fa_data: hallo.modules.user_data.FAKeyData = user_data_parser.get_data_by_user_and_type(
-            user, hallo.modules.user_data.FAKeyData
-        )
+        user_data_parser = UserDataParser()
+        fa_data: FAKeyData = user_data_parser.get_data_by_user_and_type(user, FAKeyData)
         if fa_data is None:
             return None
         fa_key = FAKey(user, fa_data.cookie_a, fa_data.cookie_b)
@@ -68,7 +66,7 @@ class FAKey:
         class FALoginFailedError(Exception):
             pass
 
-        def __init__(self, cookie_a: str, cookie_b: str):
+        def __init__(self, cookie_a: str, cookie_b: str) -> None:
             self.a = cookie_a
             self.b = cookie_b
             self.timeout: timedelta = timedelta(seconds=60)
@@ -99,7 +97,7 @@ class FAKey:
 
         def _get_api_data(self, path: str, needs_cookie: bool = False) -> dict | list:
             fa_api_url = os.getenv("FA_API_URL", "https://faexport.spangle.org.uk")
-            url = "{}/{}".format(fa_api_url, path)
+            url = f"{fa_api_url}/{path}"
             if needs_cookie:
                 cookie_string = "b=" + self.b + "; a=" + self.a
                 return Commons.load_url_json(url, [["FA_COOKIE", cookie_string]])
@@ -120,53 +118,45 @@ class FAKey:
 
         def get_user_page(self, username: str) -> 'FAKey.FAReader.FAUserPage':
             # Needs shout list, for checking own shouts
-            data = self._get_api_data("/user/{}.json".format(username))
+            data = self._get_api_data(f"/user/{username}.json")
 
             def shout_data_getter():
-                return self._get_api_data("/user/{}/shouts.json".format(username))
+                return self._get_api_data(f"/user/{username}/shouts.json")
 
             user_page = FAKey.FAReader.FAUserPage(data, shout_data_getter, username)
             return user_page
 
         def get_user_fav_page(self, username: str) -> 'FAKey.FAReader.FAUserFavouritesPage':
             # This endpoint returns a list of submission IDs
-            id_list: list[int] = self._get_api_data("/user/{}/favorites.json".format(username))
+            id_list: list[int] = self._get_api_data(f"/user/{username}/favorites.json")
             fav_page = FAKey.FAReader.FAUserFavouritesPage(id_list, username)
             return fav_page
 
         def get_submission_page(self, submission_id: int | str) -> 'FAKey.FAReader.FAViewSubmissionPage':
-            data = self._get_api_data("/submission/{}.json".format(submission_id))
+            data = self._get_api_data(f"/submission/{submission_id}.json")
 
             def comment_data_getter():
-                return self._get_api_data(
-                    "/submission/{}/comments.json?include_hidden=1".format(submission_id)
-                )
+                return self._get_api_data(f"/submission/{submission_id}/comments.json?include_hidden=1")
 
-            sub_page = FAKey.FAReader.FAViewSubmissionPage(
-                data, comment_data_getter, submission_id
-            )
+            sub_page = FAKey.FAReader.FAViewSubmissionPage(data, comment_data_getter, submission_id)
             return sub_page
 
         def get_journal_page(self, journal_id: int | str) -> 'FAKey.FAReader.FAViewJournalPage':
-            data = self._get_api_data("/journal/{}.json".format(journal_id))
+            data = self._get_api_data(f"/journal/{journal_id}.json")
 
             def comment_data_getter():
-                return self._get_api_data(
-                    "/journal/{}/comments.json?include_hidden=1".format(journal_id)
-                )
+                return self._get_api_data(f"/journal/{journal_id}/comments.json?include_hidden=1")
 
-            journal_page = FAKey.FAReader.FAViewJournalPage(
-                data, comment_data_getter, journal_id
-            )
+            journal_page = FAKey.FAReader.FAViewJournalPage(data, comment_data_getter, journal_id)
             return journal_page
 
         def get_search_page(self, search_term: str) -> 'FAKey.FAReader.FASearchPage':
-            id_list = self._get_api_data("/search.json?q={}".format(search_term))
+            id_list = self._get_api_data(f"/search.json?q={search_term}")
             search_page = FAKey.FAReader.FASearchPage(id_list, search_term)
             return search_page
 
         class FANotificationsPage:
-            def __init__(self, data: dict):
+            def __init__(self, data: dict) -> None:
                 self.username: str = data["current_user"]["profile_name"]
                 self.watches: list[FAKey.FAReader.FANotificationWatch] = []
                 watch_list = data["new_watches"]
@@ -254,10 +244,10 @@ class FAKey:
                         logger.error("Failed to read journal: ", exc_info=e)
 
         class FANotificationWatch:
-            def __init__(self, name: str, username: str, avatar: str):
+            def __init__(self, name: str, username: str, avatar: str) -> None:
                 self.name: str = name
                 self.username: str = username
-                self.link: str = "https://furaffinity.net/user/{}/".format(username)
+                self.link: str = f"https://furaffinity.net/user/{username}/"
                 self.avatar: str = avatar
 
         class FANotificationCommentSubmission:
@@ -270,20 +260,16 @@ class FAKey:
                     submission_yours: bool,
                     submission_id: str,
                     submission_name: str,
-            ):
+            ) -> None:
                 self.comment_id: str = comment_id
-                self.comment_link: str = "https://furaffinity.net/view/{}/#cid:{}".format(
-                    submission_id, comment_id
-                )
+                self.comment_link: str = f"https://furaffinity.net/view/{submission_id}/#cid:{comment_id}"
                 self.username: str = username
                 self.name: str = name
                 self.comment_on: bool = comment_on
                 self.submission_yours: bool = submission_yours
                 self.submission_id = submission_id
                 self.submission_name = submission_name
-                self.submission_link: str = "https://furaffinity.net/view/{}/".format(
-                    submission_id
-                )
+                self.submission_link: str = f"https://furaffinity.net/view/{submission_id}/"
 
         class FANotificationCommentJournal:
             def __init__(
@@ -295,51 +281,43 @@ class FAKey:
                     journal_yours: bool,
                     journal_id: str,
                     journal_name: str,
-            ):
+            ) -> None:
                 self.comment_id: str = comment_id
-                self.comment_link: str = "https://furaffinity.net/journal/{}/#cid:{}".format(
-                    journal_id, comment_id
-                )
+                self.comment_link: str = f"https://furaffinity.net/journal/{journal_id}/#cid:{comment_id}"
                 self.username: str = username
                 self.name: str = name
                 self.comment_on: bool = comment_on
                 self.journal_yours: bool = journal_yours
                 self.journal_id: str = journal_id
                 self.journal_name: str = journal_name
-                self.journal_link: str = "https://furaffinity.net/journal/{}/".format(
-                    journal_id
-                )
+                self.journal_link: str = f"https://furaffinity.net/journal/{journal_id}/"
 
         class FANotificationShout:
-            def __init__(self, shout_id: str, username: str, name: str, page_username: str):
+            def __init__(self, shout_id: str, username: str, name: str, page_username: str) -> None:
                 self.shout_id: str = shout_id
                 self.username: str = username
                 self.name: str = name
                 self.page_username: str = page_username
 
         class FANotificationFavourite:
-            def __init__(self, fav_id: str, username: str, name: str, submission_id: str, submission_name: str):
+            def __init__(self, fav_id: str, username: str, name: str, submission_id: str, submission_name: str) -> None:
                 self.fav_id: str = fav_id
                 self.username: str = username
                 self.name: str = name
                 self.submission_id: str = submission_id
                 self.submission_name: str = submission_name
-                self.submission_link: str = "https://furaffinity.net/view/{}/".format(
-                    submission_id
-                )
+                self.submission_link: str = f"https://furaffinity.net/view/{submission_id}/"
 
         class FANotificationJournal:
-            def __init__(self, journal_id: str, journal_name: str, username: str, name: str):
+            def __init__(self, journal_id: str, journal_name: str, username: str, name: str) -> None:
                 self.journal_id: str = journal_id
-                self.journal_link: str = "https://furaffinity.net/journal/{}/".format(
-                    journal_id
-                )
+                self.journal_link: str = f"https://furaffinity.net/journal/{journal_id}/"
                 self.journal_name: str = journal_name
                 self.username: str = username
                 self.name: str = name
 
         class FASubmissionsPage:
-            def __init__(self, data: dict):
+            def __init__(self, data: dict) -> None:
                 self.submissions: list[FAKey.FAReader.FANotificationSubmission] = []
                 subs_list = data["new_submissions"]
                 for sub_notif in subs_list:
@@ -353,18 +331,16 @@ class FAKey:
                     self.submissions.append(new_submission)
 
         class FANotificationSubmission:
-            def __init__(self, submission_id: str, preview_link: str, title: str, username: str, name: str):
+            def __init__(self, submission_id: str, preview_link: str, title: str, username: str, name: str) -> None:
                 self.submission_id: str = submission_id
-                self.submission_link: str = "https://furaffinity.net/view/{}/".format(
-                    submission_id
-                )
+                self.submission_link: str = f"https://furaffinity.net/view/{submission_id}/"
                 self.preview_link: str = preview_link
                 self.title: str = title
                 self.username: str = username
                 self.name: str = name
 
         class FANotesPage:
-            def __init__(self, data: dict, folder: str):
+            def __init__(self, data: dict, folder: str) -> None:
                 self.folder: str = folder
                 self.notes: list[FAKey.FAReader.FANote] = []
                 for note in data:
@@ -378,18 +354,16 @@ class FAKey:
                     self.notes.append(new_note)
 
         class FANote:
-            def __init__(self, note_id: str, subject: str, username: str, name: str, is_read: bool):
+            def __init__(self, note_id: str, subject: str, username: str, name: str, is_read: bool) -> None:
                 self.note_id: str = note_id
-                self.note_link: str = "https://www.furaffinity.net/viewmessage/{}/".format(
-                    note_id
-                )
+                self.note_link: str = f"https://www.furaffinity.net/viewmessage/{note_id}/"
                 self.subject: str = subject
                 self.username: str = username
                 self.name: str = name
                 self.is_read: bool = is_read
 
         class FAUserPage:
-            def __init__(self, data: dict, shout_data_getter: Callable[[], dict], username: str):
+            def __init__(self, data: dict, shout_data_getter: Callable[[], dict], username: str) -> None:
                 self.username: str = username
                 self.name: str = data["full_name"]
                 self.user_title: str | None = (
@@ -445,7 +419,7 @@ class FAKey:
                 return self._shout_cache
 
         class FAShout:
-            def __init__(self, shout_id: str, username: str, name: str, avatar: str, text: str):
+            def __init__(self, shout_id: str, username: str, name: str, avatar: str, text: str) -> None:
                 self.shout_id: str = shout_id
                 self.username: str = username
                 self.name: str = name
@@ -455,19 +429,19 @@ class FAKey:
         class FAWatch:
             def __init__(
                     self, watcher_username: str, watcher_name: str, watched_username: str, watched_name: str
-            ):
+            ) -> None:
                 self.watcher_username: str = watcher_username
                 self.watcher_name: str = watcher_name
                 self.watched_username: str = watched_username
                 self.watched_name: str = watched_name
 
         class FAUserFavouritesPage:
-            def __init__(self, id_list: list[int], username: str):
+            def __init__(self, id_list: list[int], username: str) -> None:
                 self.username: str = username
                 self.submission_ids: list[int] = id_list
 
         class FAViewSubmissionPage:
-            def __init__(self, data: dict, comments_data_getter: Callable[[], dict], submission_id: str):
+            def __init__(self, data: dict, comments_data_getter: Callable[[], dict], submission_id: str) -> None:
                 self.submission_id: str = submission_id
                 self.title: str = data["title"]
                 self.full_image: str = data["download"]
@@ -501,7 +475,7 @@ class FAKey:
                 return self._comments_section_cache
 
         class FACommentsSection:
-            def __init__(self, comments_data: dict):
+            def __init__(self, comments_data: dict) -> None:
                 self.top_level_comments: list[FAKey.FAReader.FAComment] = []
                 for comment in comments_data:
                     comment_id = comment["id"]
@@ -554,7 +528,7 @@ class FAKey:
                     text: str,
                     is_deleted: bool,
                     parent_comment: Optional['FAKey.FAReader.FAComment'] = None,
-            ):
+            ) -> None:
                 self.username: str = username
                 self.name: str = name
                 self.avatar_link: str = avatar_link
@@ -566,7 +540,7 @@ class FAKey:
                 self.reply_comments: list[FAKey.FAReader.FAComment] = []
 
         class FAViewJournalPage:
-            def __init__(self, data: dict, comments_data_getter: Callable[[], dict], journal_id: str):
+            def __init__(self, data: dict, comments_data_getter: Callable[[], dict], journal_id: str) -> None:
                 self.journal_id: str = journal_id
                 self.username: str = data["profile_name"]
                 self.name: str = data["name"]
@@ -589,6 +563,6 @@ class FAKey:
                 return self._comments_section_cache
 
         class FASearchPage:
-            def __init__(self, id_list: list[str], search_term: str):
+            def __init__(self, id_list: list[str], search_term: str) -> None:
                 self.search_term: str = search_term
                 self.id_list: list[str] = id_list
