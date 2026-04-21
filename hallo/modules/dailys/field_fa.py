@@ -1,28 +1,27 @@
 import json
 import os
 from datetime import timedelta
+from typing import TYPE_CHECKING, Type
 
 import hallo.modules.user_data
 import hallo.modules.dailys.dailys_field
-from hallo.events import EventDay
+from hallo.events import EventDay, EventMessage, Event
 from hallo.inc.commons import Commons
 
+if TYPE_CHECKING:
+    from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
 
 class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "furaffinity"
 
     @staticmethod
-    def passive_events():
+    def passive_events() -> list[Type[Event]]:
         """
         :rtype: list[type]
         """
         return [EventDay]
 
-    async def passive_trigger(self, evt):
-        """
-        :type evt: Event.Event
-        :rtype: None
-        """
+    async def passive_trigger(self, evt: Event) -> None:
         user_parser = hallo.modules.user_data.UserDataParser()
         fa_data: hallo.modules.user_data.FAKeyData = user_parser.get_data_by_user_and_type(
             self.spreadsheet.user, hallo.modules.user_data.FAKeyData
@@ -61,7 +60,7 @@ class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
         await self.message_channel(notif_str)
 
     @staticmethod
-    def create_from_input(event, spreadsheet):
+    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysFAField':
         # Check user has an FA login
         user_parser = hallo.modules.user_data.UserDataParser()
         fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, hallo.modules.user_data.FAKeyData)
@@ -71,11 +70,11 @@ class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
             )
         return DailysFAField(spreadsheet)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         json_obj = dict()
         json_obj["type_name"] = self.type_name
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, spreadsheet):
+    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysFAField':
         return DailysFAField(spreadsheet)

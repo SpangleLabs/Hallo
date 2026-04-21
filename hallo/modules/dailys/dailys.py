@@ -1,12 +1,20 @@
-import hallo.modules.dailys.dailys_field_factory
-from hallo.events import EventMessage
+import logging
+from typing import TYPE_CHECKING
+
+from hallo.modules.dailys.dailys_field_factory import DailysFieldFactory
+from hallo.events import EventMessage, Event, ServerEvent
 from hallo.function import Function
-import hallo.modules.dailys.dailys_field
-import hallo.modules.dailys.dailys_repo
+from hallo.modules.dailys.dailys_repo import DailysRepo
+
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
+
+
+logger = logging.getLogger(__name__)
 
 
 class Dailys(Function):
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructor
         """
@@ -23,36 +31,36 @@ class Dailys(Function):
         self.dailys_repo = None
         """ :type : DailysRepo | None"""
 
-    def get_dailys_repo(self, hallo_obj):
+    def get_dailys_repo(self, hallo_obj: 'Hallo') -> 'DailysRepo':
         if self.dailys_repo is None:
-            self.dailys_repo = hallo.modules.dailys.dailys_repo.DailysRepo.load_json(hallo_obj)
+            self.dailys_repo = DailysRepo.load_json(hallo_obj)
         return self.dailys_repo
 
     @staticmethod
-    def is_persistent():
+    def is_persistent() -> bool:
         return True
 
     @staticmethod
-    def load_function():
+    def load_function() -> 'Dailys':
         """Loads the function, persistent functions only."""
         return Dailys()
 
-    def save_function(self):
+    def save_function(self) -> None:
         """Saves the function, persistent functions only."""
         if self.dailys_repo is not None:
             self.dailys_repo.save_json()
 
-    def get_passive_events(self):
+    def get_passive_events(self) -> set[Event]:
         """Returns a list of events which this function may want to respond to in a passive way"""
         return set(
             [
                 event
-                for field in hallo.modules.dailys.dailys_field_factory.DailysFieldFactory.fields
+                for field in DailysFieldFactory.fields
                 for event in field.passive_events()
             ]
         )
 
-    async def run(self, event):
+    async def run(self, event: EventMessage) -> EventMessage:
         if event.text.strip().lower() in ["reload", "redeploy", "refresh"]:
             self.dailys_repo.save_json()
             self.dailys_repo = None
@@ -60,7 +68,7 @@ class Dailys(Function):
             return await event.reply(event.create_response("Dailys repository reloaded."))
         return await event.reply(event.create_response("Dailys system does not understand this command."))
 
-    async def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event: Event, hallo_obj: 'Hallo') -> ServerEvent | None:
         repo = self.get_dailys_repo(hallo_obj)
         spreadsheets = repo.spreadsheets
         if isinstance(event, EventMessage):
@@ -74,4 +82,4 @@ class Dailys(Function):
                     try:
                         await field.passive_trigger(event)
                     except Exception as e:
-                        hallo.modules.dailys.dailys_field.logger.error("Dailys failure: ", exc_info=e)
+                        logger.error("Dailys failure: ", exc_info=e)

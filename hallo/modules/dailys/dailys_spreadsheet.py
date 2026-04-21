@@ -1,41 +1,32 @@
+from typing import TYPE_CHECKING
+import datetime
+
 import hallo.modules.dailys.dailys_field_factory
 from hallo.inc.commons import Commons
 import hallo.modules.dailys.dailys_field
 
+if TYPE_CHECKING:
+    from hallo.destination import Destination, User
+    from hallo.hallo import Hallo
+    from hallo.modules.dailys.dailys_field import DailysField
+
 
 class DailysSpreadsheet:
-    def __init__(self, user, destination, dailys_url, dailys_key):
-        """
-        :type user: destination.User
-        :type destination: destination.Destination
-        :type dailys_url: str
-        :type dailys_key: str | None
-        """
-        self.user = user
-        """ :type : Destination.User"""
-        self.destination = destination
-        """ :type : Destination.Destination | None"""
-        self.dailys_url = dailys_url
+    def __init__(self, user: User, destination: Destination, dailys_url: str, dailys_key: str | None) -> None:
+        self.user: User = user
+        self.destination: Destination = destination
+        self.dailys_url: str = dailys_url
         if self.dailys_url is not None and self.dailys_url[-1] == "/":
             self.dailys_url = self.dailys_url[:-1]
-        """ :type : str"""
-        self.dailys_key = dailys_key
-        """ :type : str"""
-        self.fields_list = []
-        """ :type : list[DailysField]"""
+        self.dailys_key: str | None = dailys_key
+        self.fields_list: list['DailysField'] = []
 
-    def add_field(self, field):
-        """
-        :type field: DailysField
-        """
+    def add_field(self, field: 'DailysField') -> None:
         self.fields_list.append(field)
 
-    def save_field(self, dailys_field, data, data_date):
+    def save_field(self, dailys_field: 'DailysField', data: dict, data_date: datetime.datetime) -> None:
         """
         Save given data in a specified column for the current date row.
-        :type dailys_field: DailysField
-        :type data: dict
-        :type data_date: date
         """
         if dailys_field.type_name is None:
             raise hallo.modules.dailys.dailys_field.DailysException("Cannot write to unassigned dailys field")
@@ -43,18 +34,14 @@ class DailysSpreadsheet:
         if self.dailys_key is not None:
             headers = [["Authorization", self.dailys_key]]
         Commons.put_json_to_url(
-            "{}/stats/{}/{}/?source=Hallo".format(
-                self.dailys_url, dailys_field.type_name, data_date.isoformat()
-            ),
+            f"{self.dailys_url}/stats/{dailys_field.type_name}/{data_date.isoformat()}/?source=Hallo",
             data,
             headers,
         )
 
-    def read_path(self, path):
+    def read_path(self, path: str) -> list | dict:
         """
         Save given data in a specified column for the current date row.
-        :type path: str
-        :rtype: list | dict
         """
         headers = None
         if self.dailys_key is not None:
@@ -66,12 +53,9 @@ class DailysSpreadsheet:
             headers
         )
 
-    def read_field(self, dailys_field, data_date):
+    def read_field(self, dailys_field: 'DailysField', data_date: datetime.datetime) -> dict | None:
         """
         Save given data in a specified column for the current date row.
-        :type dailys_field: DailysField
-        :type data_date: date
-        :rtype: dict | None
         """
         if dailys_field.type_name is None:
             raise hallo.modules.dailys.dailys_field.DailysException("Cannot read from unassigned dailys field")
@@ -80,7 +64,7 @@ class DailysSpreadsheet:
             return None
         return data[0]["data"]
 
-    def to_json(self):
+    def to_json(self) -> dict:
         json_obj = dict()
         json_obj["server_name"] = self.user.server.name
         json_obj["user_address"] = self.user.address
@@ -95,7 +79,7 @@ class DailysSpreadsheet:
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, hallo_obj):
+    def from_json(json_obj: dict, hallo_obj: Hallo) -> 'DailysSpreadsheet':
         server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise hallo.modules.dailys.dailys_field.DailysException(

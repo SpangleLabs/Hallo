@@ -1,10 +1,14 @@
 from datetime import timedelta
+from typing import TYPE_CHECKING, Type
 
-from hallo.events import EventMessage
-import hallo.modules.dailys.dailys_field
+from hallo.events import EventMessage, Event
+from hallo.modules.dailys.dailys_field import DailysField
+
+if TYPE_CHECKING:
+    from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
 
 
-class DailysSleepField(hallo.modules.dailys.dailys_field.DailysField):
+class DailysSleepField(DailysField):
     # Does sleep and wake times, sleep notes, dream logs, shower?
     type_name = "sleep"
     WAKE_WORDS = ["morning", "wake", "woke"]
@@ -14,18 +18,14 @@ class DailysSleepField(hallo.modules.dailys.dailys_field.DailysField):
     json_key_interruptions = "interruptions"
 
     @staticmethod
-    def create_from_input(event, spreadsheet):
+    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysSleepField':
         return DailysSleepField(spreadsheet)
 
     @staticmethod
-    def passive_events():
+    def passive_events() -> list[Type[Event]]:
         return [EventMessage]
 
-    async def passive_trigger(self, evt):
-        """
-        :type evt: EventMessage
-        :rtype: None
-        """
+    async def passive_trigger(self, evt: Event) -> None:
         input_clean = evt.text.strip().lower()
         now = evt.get_send_time()
         time_str = now.isoformat()
@@ -86,11 +86,11 @@ class DailysSleepField(hallo.modules.dailys.dailys_field.DailysField):
                 await self.message_channel("Goodnight!")
                 return
 
-    def to_json(self):
+    def to_json(self) -> dict:
         json_obj = dict()
         json_obj["type_name"] = self.type_name
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, spreadsheet):
+    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysSleepField':
         return DailysSleepField(spreadsheet)

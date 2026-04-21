@@ -1,11 +1,11 @@
 from urllib.error import HTTPError
 
 from hallo.function import Function
-import hallo.modules.dailys.dailys_spreadsheet
+from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
 
 
 class DailysRegister(Function):
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructor
         """
@@ -27,7 +27,7 @@ class DailysRegister(Function):
             " Format: dailys register <dailys API URL> <dailys auth key?>"
         )
 
-    async def run(self, event):
+    async def run(self, event: EventMessage) -> EventMessage:
         # Get dailys repo
         hallo_obj = event.server.hallo
         function_dispatcher = hallo_obj.function_dispatcher
@@ -47,12 +47,12 @@ class DailysRegister(Function):
         # If no second argument, that means there is no key
         spreadsheet = None
         if len(clean_input) == 1:
-            spreadsheet = hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet(
+            spreadsheet = DailysSpreadsheet(
                 event.user, event.channel, clean_input[0], None
             )
         elif len(clean_input) == 2:
             try:
-                spreadsheet = hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet(
+                spreadsheet = DailysSpreadsheet(
                     event.user, event.channel, clean_input[0], clean_input[1]
                 )
                 resp = spreadsheet.read_path("stats/")
@@ -61,7 +61,7 @@ class DailysRegister(Function):
             except HTTPError:
                 pass
             if spreadsheet is None:
-                spreadsheet = hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet(
+                spreadsheet = DailysSpreadsheet(
                     event.user, event.channel, clean_input[1], clean_input[0]
                 )
         if len(clean_input) == 0 or len(clean_input) > 2 or spreadsheet is None:

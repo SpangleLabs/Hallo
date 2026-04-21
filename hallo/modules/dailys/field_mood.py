@@ -1,18 +1,18 @@
 import functools
 from datetime import timedelta, time, date
 from threading import RLock
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from hallo.events import EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound, Event
-import hallo.modules.dailys.dailys_field
-import hallo.modules.dailys.field_sleep
+from hallo.modules.dailys.dailys_field import DailysField, DailysException
+from hallo.modules.dailys.field_sleep import DailysSleepField
 from hallo.modules.dailys.field_mood_models import MoodTime, MoodDay, MoodTriggeredCache, MoodTimeList
 
 if TYPE_CHECKING:
-    import hallo.modules.dailys.dailys_spreadsheet
+    from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
 
 
-class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
+class DailysMoodField(DailysField):
     """
     DailysMoodField defines all the interactions for the `mood` type of dailys data entry.
     This is everything about how Hallo parses messages for mood measurements, how it sends out requests, etc
@@ -20,12 +20,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "mood"
     # Does mood measurements
 
-    def __init__(
-            self,
-            spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet',
-            times: list[MoodTime],
-            moods: list[str]
-    ):
+    def __init__(self, spreadsheet: 'DailysSpreadsheet', times: list[MoodTime], moods: list[str]) -> None:
         super().__init__(spreadsheet)
         self.times = times
         self.time_list = MoodTimeList(times)
@@ -34,19 +29,14 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
         self.triggered_cache = MoodTriggeredCache()
 
     @staticmethod
-    def create_from_input(
-            event: EventMessage,
-            spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet'
-    ) -> 'DailysMoodField':
+    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
         return DailysMoodField.create_from_spreadsheet(spreadsheet)
 
     @staticmethod
-    def create_from_spreadsheet(
-            spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet'
-    ) -> 'DailysMoodField':
+    def create_from_spreadsheet(spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
         static_data = spreadsheet.read_path("stats/mood/static/")
         if len(static_data) == 0:
-            raise hallo.modules.dailys.dailys_field.DailysException(
+            raise DailysException(
                 "Mood field static data has not been set up on dailys system."
             )
         moods = static_data[0]["data"]["moods"]
@@ -57,7 +47,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
         return DailysMoodField(spreadsheet, times, moods)
 
     @staticmethod
-    def passive_events():
+    def passive_events() -> list[Type[Event]]:
         return [EventMessage, EventMinute]
 
     def get_current_mood_data(self, mood_date: date) -> MoodDay:
@@ -78,7 +68,7 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
                 return yesterday_data
             return today_data
 
-    def has_triggered_for_time(self, mood_date: date, time_val: MoodTime):
+    def has_triggered_for_time(self, mood_date: date, time_val: MoodTime) -> bool:
         # Check cache for true values
         if self.triggered_cache.has_triggered(mood_date, time_val):
             return True
@@ -108,13 +98,13 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             # Check if it's a morning/night message
             input_clean = evt.text.strip().lower()
             if (
-                input_clean in hallo.modules.dailys.field_sleep.DailysSleepField.WAKE_WORDS
+                input_clean in DailysSleepField.WAKE_WORDS
             ):
                 if self.time_list.has_wake() and not mood_day.has_wake_time():
                     return await self.send_mood_query(mood_day, MoodTime(MoodTime.WAKE))
                 return None
             if (
-                input_clean in hallo.modules.dailys.field_sleep.DailysSleepField.SLEEP_WORDS
+                input_clean in DailysSleepField.SLEEP_WORDS
             ):
                 if self.time_list.has_sleep() and mood_day.awaiting_sleep(self.time_list):
                     return await self.send_mood_query(mood_day, MoodTime(MoodTime.SLEEP))
@@ -152,9 +142,9 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             if len(input_split) == 3 and input_split[0].upper() == self.mood_acronym():
                 input_time = input_split[1]
                 time_val = None
-                if input_time.lower() in hallo.modules.dailys.field_sleep.DailysSleepField.WAKE_WORDS:
+                if input_time.lower() in DailysSleepField.WAKE_WORDS:
                     time_val = MoodTime(MoodTime.WAKE)
-                elif input_time.lower() in hallo.modules.dailys.field_sleep.DailysSleepField.SLEEP_WORDS:
+                elif input_time.lower() in DailysSleepField.SLEEP_WORDS:
                     time_val = MoodTime(MoodTime.SLEEP)
                 else:
                     try:
@@ -191,7 +181,13 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
             self.save_day(mood_day)
         return None
 
-    async def process_mood_response(self, evt: EventMessage, mood_str: str, time_val: MoodTime, mood_day: MoodDay) -> None:
+    async def process_mood_response(
+            self,
+            evt: EventMessage,
+            mood_str: str,
+            time_val: MoodTime,
+            mood_day: MoodDay,
+    ) -> None:
         if len(mood_str) != len(self.moods):
             return await evt.reply(evt.create_response(
                 "This mood measurement doesn't seem to have the right number of datapoints"
@@ -210,11 +206,11 @@ class DailysMoodField(hallo.modules.dailys.dailys_field.DailysField):
         data = mood_day.to_dict()
         self.save_data(data, mood_day.mood_date)
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "type_name": self.type_name
         }
 
     @staticmethod
-    def from_json(json_obj, spreadsheet):
+    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
         return DailysMoodField.create_from_spreadsheet(spreadsheet)

@@ -1,13 +1,11 @@
 import hallo.modules.dailys.dailys_field_factory
 from hallo.function import Function
 import hallo.modules.dailys.dailys_field
+from hallo.events import EventMessage
 
 
 class DailysAddField(Function):
-    def __init__(self):
-        """
-        Constructor
-        """
+    def __init__(self) -> None:
         super().__init__()
         # Name for use in help listing
         self.help_name = "add dailys field"
@@ -26,7 +24,7 @@ class DailysAddField(Function):
             " Format: add dailys field <field name>"
         )
 
-    async def run(self, event):
+    async def run(self, event: EventMessage) -> EventMessage:
         # Get spreadsheet repo
         hallo_obj = event.server.hallo
         function_dispatcher = hallo_obj.function_dispatcher

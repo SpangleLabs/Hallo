@@ -11,7 +11,7 @@ class MoodTime:
     WAKE = "WakeUpTime"
     SLEEP = "SleepTime"
 
-    def __init__(self, mood_time: str | time):
+    def __init__(self, mood_time: str | time) -> None:
         self.mood_time = mood_time
         if mood_time not in [self.WAKE, self.SLEEP] and not isinstance(mood_time, time):
             raise TypeError("Invalid type for MoodTime")
@@ -23,16 +23,16 @@ class MoodTime:
         else:
             return MoodTime(datetime.strptime(time_str, "%H:%M:%S").time())
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'MoodTime') -> bool:
         return isinstance(other, MoodTime) and self.mood_time == other.mood_time
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.mood_time)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.mood_time)
 
-    def __lt__(self, other) -> bool:
+    def __lt__(self, other: 'MoodTime') -> bool:
         if not isinstance(other, MoodTime):
             return NotImplemented
         if self.is_wake():
@@ -56,7 +56,7 @@ class MoodDay:
     """
     MoodDay represents a day of mood measurements, this converts into a full Dailys data entry dict
     """
-    def __init__(self, mood_date: date, mood_entries: dict[MoodTime, 'MoodEntry']):
+    def __init__(self, mood_date: date, mood_entries: dict[MoodTime, 'MoodEntry']) -> None:
         self.mood_date = mood_date
         self.mood_entries = mood_entries or {}
 
@@ -140,7 +140,7 @@ class MoodEntry(ABC):
     without mood data yet (as it could be a confirmation that a mood request was sent).
     This is the raw data parsed from Dailys data, basically.
     """
-    def __init__(self, mood_time: MoodTime, *, message_id: int | None = None):
+    def __init__(self, mood_time: MoodTime, *, message_id: int | None = None) -> None:
         self.mood_time = mood_time
         self.message_id = message_id
 
@@ -163,7 +163,7 @@ class MoodRequest(MoodEntry):
     MoodRequest is a MoodEntry where Hallo has sent out a request for a mood measurement, but hasn't yet received the
     response
     """
-    def __init__(self, mood_time: MoodTime, message_id: int):
+    def __init__(self, mood_time: MoodTime, message_id: int) -> None:
         super().__init__(mood_time, message_id=message_id)
 
     @classmethod
@@ -183,7 +183,7 @@ class MoodMeasurement(MoodEntry):
     """
     MoodMeasurement is a MoodEntry where the mood measurement data has been supplied by the user
     """
-    def __init__(self, mood_time: MoodTime, mood_dict: dict[str, int], message_id: int | None = None):
+    def __init__(self, mood_time: MoodTime, mood_dict: dict[str, int], message_id: int | None = None) -> None:
         super().__init__(mood_time, message_id=message_id)
         self.mood_dict = mood_dict
 
@@ -207,20 +207,20 @@ class MoodTriggeredCache:
     """
     MoodTriggeredCache is a cache of dates to which mood measurements have triggered for that day
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self.cache: dict[date, list[time | str]] = {}
         # Cache of time values which have triggered already on set days.
 
-    def has_triggered(self, mood_date: date, time_val: MoodTime):
+    def has_triggered(self, mood_date: date, time_val: MoodTime) -> bool:
         return mood_date in self.cache and time_val.mood_time in self.cache[mood_date]
 
-    def save_triggered(self, mood_date, time_val):
+    def save_triggered(self, mood_date, time_val) -> None:
         self.clean_old_cache(mood_date)
         if mood_date not in self.cache:
             self.cache[mood_date] = []
         self.cache[mood_date].append(time_val)
 
-    def clean_old_cache(self, current_date):
+    def clean_old_cache(self, current_date) -> None:
         expired_dates = []
         for mood_date in self.cache:
             if mood_date <= current_date - timedelta(days=4):
@@ -233,16 +233,16 @@ class MoodTimeList:
     """
     MoodTimeList stores the list of times which mood measurements should be taken at each day
     """
-    def __init__(self, mood_times: list[MoodTime]):
+    def __init__(self, mood_times: list[MoodTime]) -> None:
         self.times = mood_times
 
-    def has_wake(self):
+    def has_wake(self) -> bool:
         return MoodTime(MoodTime.WAKE) in self.times
 
-    def has_sleep(self):
+    def has_sleep(self) -> bool:
         return MoodTime(MoodTime.SLEEP) in self.times
 
-    def has_non_sleep(self):
+    def has_non_sleep(self) -> bool:
         return self.times != [MoodTime(MoodTime.SLEEP)]
 
     def most_recent_time(self, current_time: time) -> MoodTime | None:

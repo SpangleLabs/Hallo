@@ -1,20 +1,20 @@
 import datetime
 from threading import RLock
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 import dateutil.parser
 import isodate
 
-import hallo.modules.dailys.dailys_field
+from hallo.modules.dailys.dailys_field import DailysField, DailysException
 from hallo.events import EventMessage, EventMinute, Event, RawDataTelegram
 
 if TYPE_CHECKING:
-    import hallo.modules.dailys.dailys_spreadsheet
+    from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
 
 
 class AnswerOption:
 
-    def __init__(self, answer: str):
+    def __init__(self, answer: str) -> None:
         self.answer = answer
 
     @classmethod
@@ -25,7 +25,7 @@ class AnswerOption:
 
 
 class RepeatingInterval:
-    def __init__(self, iso8601: str):
+    def __init__(self, iso8601: str) -> None:
         repeat, start, period = iso8601.split("/")
         self.count = None
         if repeat != "R":
@@ -77,7 +77,7 @@ class Question:
             deprecation: datetime.datetime | None = None,
             must_answer: bool = False,
             remind_period: datetime.timedelta | None = None,
-    ):
+    ) -> None:
         self.id = qid
         self.question = question
         self.time_pattern = time_pattern
@@ -88,7 +88,7 @@ class Question:
         self.must_answer = must_answer  # TODO
         self.remind_period = remind_period  # TODO
 
-    def is_active(self):
+    def is_active(self) -> bool:
         now = datetime.datetime.now(datetime.timezone.utc)
         if self.deprecation is None:
             return True
@@ -156,7 +156,7 @@ class AnswerEdit:
             self,
             answer: str,
             answer_time: datetime.datetime
-    ):
+    ) -> None:
         self.answer = answer
         self.answer_time = answer_time
 
@@ -184,7 +184,7 @@ class Answer:
             answer_time: datetime.datetime | None = None,
             edit_history: list[AnswerEdit] | None = None,
             question_msg_id: int | None = None,
-    ):
+    ) -> None:
         self.answer = answer
         self.answer_time = answer_time
         self.asked_time = asked_time
@@ -240,7 +240,7 @@ class Answer:
 
 
 class AnswersData:
-    def __init__(self, spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet'):
+    def __init__(self, spreadsheet: 'DailysSpreadsheet') -> None:
         self.spreadsheet = spreadsheet
         self.lock = RLock()
 
@@ -262,7 +262,7 @@ class AnswersData:
         answer_data = date_data[0]["data"]["answers"]
         return [Answer.from_dict(d) for d in answer_data]
 
-    def save_answers_for_date(self, answer_date: datetime.date, answers: list[Answer]):
+    def save_answers_for_date(self, answer_date: datetime.date, answers: list[Answer]) -> None:
         with self.lock:
             date_data = {"answers": [a.to_dict() for a in answers]}
             self.spreadsheet.save_field(QuestionsField, date_data, answer_date)
@@ -281,9 +281,9 @@ class AnswersData:
 
 
 class AnswerCache:
-    def __init__(self, data: 'AnswersData'):
-        self.data = data
-        self._cache = {}
+    def __init__(self, data: 'AnswersData') -> None:
+        self.data: 'AnswersData' = data
+        self._cache: dict[datetime.date, dict[str, dict[datetime.datetime, Answer]]] = {}
 
     def _populate_answers_for_date(self, answer_date: datetime.date) -> None:
         answers = self.data.get_answers_for_date(answer_date)
@@ -359,38 +359,32 @@ class AnswerCache:
         return unanswered
 
 
-class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
+class QuestionsField(DailysField):
     type_name = "questions"
 
-    def __init__(
-            self,
-            spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet',
-            questions: list[Question]
-    ):
+    def __init__(self, spreadsheet: 'DailysSpreadsheet', questions: list[Question]) -> None:
         super().__init__(spreadsheet)
         self.questions = questions
         self.data = AnswersData(spreadsheet)
 
     @staticmethod
-    def create_from_input(event, spreadsheet):
+    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
         return QuestionsField.create_from_spreadsheet(spreadsheet)
 
     @staticmethod
-    def create_from_spreadsheet(spreadsheet):
+    def create_from_spreadsheet(spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
         static_data = spreadsheet.read_path("stats/questions/static/")
         if len(static_data) == 0:
-            raise hallo.modules.dailys.dailys_field.DailysException(
-                "Questions field static data has not been set up on dailys system."
-            )
+            raise DailysException("Questions field static data has not been set up on dailys system.")
         question_data = static_data[0]["data"]["questions"]
         questions = [Question.from_dict(d) for d in question_data]
         return QuestionsField(spreadsheet, questions)
 
     @staticmethod
-    def passive_events():
+    def passive_events() -> list[Type[Event]]:
         return [EventMessage, EventMinute]
 
-    async def passive_trigger(self, evt: Event) -> Event | None:
+    async def passive_trigger(self, evt: Event) -> None:
         if isinstance(evt, EventMinute):
             return await self._time_trigger()
         if isinstance(evt, EventMessage):
@@ -479,7 +473,7 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
         ))
 
-    async def _handle_questions_list_request(self, evt: EventMessage):
+    async def _handle_questions_list_request(self, evt: EventMessage) -> None:
         cache = AnswerCache(self.data)
         questions = cache.list_unanswered_questions(self.questions)
         if not questions:
@@ -494,11 +488,11 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             f"{header_str}\n{questions_str}"
         ))
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "type_name": self.type_name
         }
 
     @staticmethod
-    def from_json(json_obj, spreadsheet):
+    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
         return QuestionsField.create_from_spreadsheet(spreadsheet)
