@@ -114,7 +114,7 @@ class Subscription(Generic[State, Update]):
                     exc_info=e
                 )
 
-    def passive_run(self, event: EventMessage, hallo_obj: 'Hallo') -> bool:
+    async def passive_run(self, event: EventMessage, hallo_obj: 'Hallo') -> bool:
         """
         :return: True if it would like to be updated
         """

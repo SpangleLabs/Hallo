@@ -60,7 +60,7 @@ class Source(ABC, Generic[State, Update]):
         """
         pass
 
-    def passive_run(self, event: EventMessage, hallo_obj: Hallo) -> bool:
+    async def passive_run(self, event: EventMessage, hallo_obj: Hallo) -> bool:
         pass
 
     @classmethod

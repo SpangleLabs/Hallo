@@ -123,7 +123,7 @@ class SubscriptionCheck(Function):
             sub_repo = self.get_sub_repo(hallo_obj)
             with sub_repo.sub_lock:
                 for sub in sub_repo.sub_list:
-                    wants_update = sub.passive_run(event, hallo_obj)
+                    wants_update = await sub.passive_run(event, hallo_obj)
                     if wants_update:
                         sub.update()
             return

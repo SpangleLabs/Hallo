@@ -121,7 +121,7 @@ class E621BacklogTaggingSource(E621TaggingSource):
         self.remaining_count = count_posts
         return count_posts
 
-    def passive_run(self, event: EventMessage, hallo_obj: 'Hallo') -> bool:
+    async def passive_run(self, event: EventMessage, hallo_obj: 'Hallo') -> bool:
         text_split = event.text.strip().split()
         if not text_split:
             return False
@@ -153,7 +153,7 @@ class E621BacklogTaggingSource(E621TaggingSource):
             resp = event.create_response(
                 f"Okay, will send {self.batch_size} more \"{self.search}\" updates. There are about {remaining_count} posts left."
             )
-        event.reply_sync(resp)
+        await event.reply(resp)
         return True
 
     @classmethod
