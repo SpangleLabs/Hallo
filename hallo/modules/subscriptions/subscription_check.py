@@ -81,7 +81,7 @@ class SubscriptionCheck(Function):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {EventMinute, EventMenuCallback, EventMessage}
 
-    def run(self, event: EventMessage) -> EventMessage:
+    async def run(self, event: EventMessage) -> EventMessage:
         # Handy variables
         hallo_obj = event.server.hallo
         # Clean up input

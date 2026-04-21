@@ -31,6 +31,6 @@ class Scriptures(Function):
         for scripture_elem in scripture_list_elem.getElementsByTagName("scripture"):
             self.scripture_list.append(scripture_elem.firstChild.data)
 
-    def run(self, event):
+    async def run(self, event):
         scripture = Commons.get_random_choice(self.scripture_list)[0]
         return event.create_response(scripture)

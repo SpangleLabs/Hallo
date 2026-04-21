@@ -27,7 +27,7 @@ class RandomPerson(Function):
             "Format: random person"
         )
 
-    def run(self, event):
+    async def run(self, event):
         input_clean = event.command_args.strip().lower()
         url = "https://api.randomuser.me/0.6/?nat=gb&format=json"
         # Get api response

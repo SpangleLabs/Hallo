@@ -26,7 +26,7 @@ class NightValeWeather(Function):
         )
         self.hallo_obj = None
 
-    def run(self, event):
+    async def run(self, event):
         # Get hallo object
         self.hallo_obj = event.server.hallo
         # Get playlist data from youtube api

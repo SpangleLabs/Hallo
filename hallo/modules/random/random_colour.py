@@ -19,7 +19,7 @@ class RandomColour(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a random colour. Format: random colour"
 
-    def run(self, event):
+    async def run(self, event):
         rgb_list = Commons.get_random_int(0, 255, 3)
         hex_code = "{}{}{}".format(
             hex(rgb_list[0])[2:].zfill(2),

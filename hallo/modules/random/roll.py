@@ -27,7 +27,7 @@ class Roll(Function):
             'Format: "roll <min>-<max>" or "roll <num>d<sides>"'
         )
 
-    def run(self, event):
+    async def run(self, event):
         """Runs the function"""
         # Check which format the input is in.
         dice_format_regex = re.compile("^[0-9]+d[0-9]+$", re.IGNORECASE)
