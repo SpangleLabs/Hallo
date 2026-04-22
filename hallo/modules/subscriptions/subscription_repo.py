@@ -102,10 +102,10 @@ class SubscriptionRepo:
             f"More than one subscription common config exists for the type: {common_type.__name__}"
         )
 
-    def handle_menu_callback(self, event: 'EventMenuCallback') -> None:
+    async def handle_menu_callback(self, event: 'EventMenuCallback') -> None:
         menu = self.menu_cache.get_menu_by_callback_event(event)
         if menu:
-            menu.handle_callback(event)
+            await menu.handle_callback(event)
 
     def save_json(self) -> None:
         """

@@ -144,5 +144,5 @@ class Menu(ABC):
         }
 
     @abstractmethod
-    def handle_callback(self, event: 'EventMenuCallback') -> None:
+    async def handle_callback(self, event: 'EventMenuCallback') -> None:
         raise NotImplementedError

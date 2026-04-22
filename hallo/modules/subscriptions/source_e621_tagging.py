@@ -87,24 +87,24 @@ class E621TaggingMenu(Menu):
         prefix = f'Update on "{self.search}" tagging e621 search.'
         return text_for_post(item, prefix=prefix, suffix=suffix)
 
-    def handle_callback(self, event: EventMenuCallback) -> None:
+    async def handle_callback(self, event: EventMenuCallback) -> None:
         if self.clicked:
             return
         self.clicked = True
         if event.callback_data.startswith("page:"):
             self.page = int(event.callback_data.split(":")[1])
-            return self.update_tag_menu()
+            return await self.update_tag_menu()
         if event.callback_data.startswith("tag:"):
             tag = event.callback_data.split(":", 1)[1]
             self.tag_results[tag] = not self.tag_results[tag]
-            return self.update_tag_menu()
+            return await self.update_tag_menu()
         if event.callback_data == "refresh":
             post = self.e6_client.post(self.post_id)
             post_tags = [tag for tag_list in post.tags.values() for tag in tag_list]
             old_tag_results = self.tag_results
             self.tag_results = {tag: tag in post_tags for tag in self.tag_results.keys()}
             if old_tag_results != self.tag_results:
-                return self.update_tag_menu()
+                return await self.update_tag_menu()
             else:
                 self.clicked = False
                 return
@@ -121,19 +121,19 @@ class E621TaggingMenu(Menu):
             ]
             if not new_tags and not del_tags:
                 text = self.text_for_post(post, "This will not make any changes, are you sure?")
-                return self.update(text, menu_buttons)
+                return await self.update(text, menu_buttons)
             suffix = ["This will make these changes"]
             if new_tags:
                 suffix.append("Add tags: " + ", ".join(new_tags))
             if del_tags:
                 suffix.append("Remove tags: " + ", ".join(del_tags))
             text = self.text_for_post(post, "\n".join(suffix))
-            return self.update(text, menu_buttons)
+            return await self.update(text, menu_buttons)
         if event.callback_data == "cancel":
             post = self.e6_client.post(self.post_id)
             text = self.text_for_post(post)
             menu_buttons = buttons_for_submission(self.tag_results, self.page)
-            return self.update(text, menu_buttons)
+            return await self.update(text, menu_buttons)
         if event.callback_data == "save":
             post = self.e6_client.post(self.post_id)
             negative_tags = set(tag for tag in self.tag_results.keys() if self.tag_results[tag] is False)
@@ -143,7 +143,7 @@ class E621TaggingMenu(Menu):
             del_tags = negative_tags.intersection(current_tags)
             text = self.text_for_post(post)
             if not new_tags and not del_tags:
-                return self.update(text, None)
+                return await self.update(text, None)
             new_tag_dict = {
                 tag_key: [tag for tag in tag_list if tag not in negative_tags]
                 for tag_key, tag_list in post.tags.items()
@@ -152,15 +152,15 @@ class E621TaggingMenu(Menu):
             post.tags = new_tag_dict
             has_notes = post._original_data["has_notes"]
             post.update(has_notes=has_notes, reason="Tag change via Hallo bot")
-            return self.update(text, None)
+            return await self.update(text, None)
 
-    def update_tag_menu(self) -> None:
+    async def update_tag_menu(self) -> None:
         buttons = buttons_for_submission(self.tag_results, self.page)
-        self.update(None, buttons)
+        await self.update(None, buttons)
 
-    def update(self, text: str | None, menu_buttons: list[list[MenuButton]] | None) -> None:
+    async def update(self, text: str | None, menu_buttons: list[list[MenuButton]] | None) -> None:
         new_event = self.msg.create_edit(text=text, menu_buttons=menu_buttons)
-        self.msg.server.edit_sync(self.msg, new_event)
+        await self.msg.server.edit(self.msg, new_event)
         self.msg = new_event
         self.clicked = False
 

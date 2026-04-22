@@ -151,18 +151,6 @@ class Server(metaclass=ABCMeta):
             )
         return
 
-    def edit_sync(
-            self,
-            old_event: 'ChannelUserTextEvent',
-            new_event: 'ChannelUserTextEvent'
-    ) -> Optional['ChannelUserTextEvent']:
-        try:
-            asyncio.get_running_loop()
-        except RuntimeError:
-            asyncio.run(self.edit(old_event, new_event))
-        else:
-            asyncio.create_task(self.edit(old_event, new_event))
-
     async def edit(
             self,
             old_event: 'ChannelUserTextEvent',

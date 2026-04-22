@@ -116,7 +116,7 @@ class SubscriptionCheck(Function):
     async def passive_run(self, event: Event, hallo_obj: Hallo) -> ServerEvent | None:
         if isinstance(event, EventMenuCallback):
             sub_repo = self.get_sub_repo(hallo_obj)
-            sub_repo.handle_menu_callback(event)
+            await sub_repo.handle_menu_callback(event)
             sub_repo.menu_cache.save_to_json()
             return
         if isinstance(event, EventMessage):
