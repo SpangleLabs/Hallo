@@ -359,7 +359,7 @@ def test_update_forex():
 
 @pytest.mark.external_integration
 @pytest.mark.skip(reason="Cryptonator API occasionally returns HTML pages")
-def test_update_cryptonator():
+async def test_update_cryptonator():
     # Set up test repo
     test_repo = hallo.modules.convert.convert_repo.ConvertRepo()
     test_type = hallo.modules.convert.convert_repo.ConvertType(test_repo, "currency")
@@ -371,7 +371,7 @@ def test_update_cryptonator():
         test_type.add_unit(test_unit)
     # Run update_from_cryptonator_data
     c = hallo.modules.convert.update_currencies.UpdateCurrencies()
-    c.update_from_cryptonator_data(test_repo)
+    await c.update_from_cryptonator_data(test_repo)
     # Check results
     for code in currency_codes:
         test_unit = test_type.get_unit_by_name(code)

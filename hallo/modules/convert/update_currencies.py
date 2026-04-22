@@ -1,10 +1,15 @@
+import asyncio
 import logging
-import time
+from typing import TYPE_CHECKING
 from xml.dom import minidom
 
 from hallo.events import EventHour
 from hallo.function import Function
 from hallo.inc.commons import Commons
+
+if TYPE_CHECKING:
+    from hallo.modules.convert.convert_repo import ConvertRepo
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +49,7 @@ class UpdateCurrencies(Function):
         )  # type: Convert
         repo = convert_function_obj.convert_repo
         # Update all sources
-        output_lines = self.update_all(repo)
+        output_lines = await self.update_all(repo)
         # Return output
         return event.create_response("\n".join(output_lines))
 
@@ -60,12 +65,12 @@ class UpdateCurrencies(Function):
         )  # type: Convert
         repo = convert_function_obj.convert_repo
         # Update all sources
-        output_lines = self.update_all(repo)
+        output_lines = await self.update_all(repo)
         for line in output_lines:
             logger.info(line)
         return None
 
-    def update_all(self, repo):
+    async def update_all(self, repo):
         output_lines = []
         # Update with the European Bank
         try:
@@ -87,7 +92,7 @@ class UpdateCurrencies(Function):
         # Update with Preev
         try:
             output_lines.append(
-                self.update_from_cryptonator_data(repo)
+                await self.update_from_cryptonator_data(repo)
                 or "Updated currency data from Cryptonator."
             )
         except Exception as e:
@@ -157,7 +162,7 @@ class UpdateCurrencies(Function):
             # Set Value
             currency_unit.update_value(currency_value)
 
-    def update_from_cryptonator_data(self, repo):
+    async def update_from_cryptonator_data(self, repo: 'ConvertRepo') -> None:
         """
         Updates the value of conversion cryptocurrencies using cryptonator data.
         :type repo: ConvertRepo
@@ -169,17 +174,13 @@ class UpdateCurrencies(Function):
         for code in currency_codes:
             # Get data
             try:
-                data = Commons.load_url_json(
-                    "https://api.cryptonator.com/api/ticker/{}-eur".format(code)
-                )
+                data = Commons.load_url_json(f"https://api.cryptonator.com/api/ticker/{code}-eur")
             except Exception as e:
                 # If it fails, because it failed to parse the JSON, give it another go
                 # Cryptonator API returns HTML sometimes. I don't know why.
                 if "Expecting value:" in str(e):
-                    time.sleep(5)
-                    data = Commons.load_url_json(
-                        "https://api.cryptonator.com/api/ticker/{}-eur".format(code)
-                    )
+                    await asyncio.sleep(5)
+                    data = Commons.load_url_json(f"https://api.cryptonator.com/api/ticker/{code}-eur")
                 else:
                     raise e
             # Get the ConvertUnit object for the currency reference
