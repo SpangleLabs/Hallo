@@ -1,4 +1,4 @@
-from threading import Lock, Thread
+import asyncio
 from typing import TYPE_CHECKING, Callable
 
 import telegram
@@ -79,7 +79,6 @@ class ServerTelegram(Server):
         self.permission_mask = PermissionMask()  # PermissionMask for the server
         # Dynamic/unsaved class variables
         self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
-        self._connect_lock = Lock()
         request = Request(con_pool_size=8)
         self.bot = telegram.Bot(token=self.api_key, request=request)
         self.bot.logger.setLevel(logging.INFO)
@@ -127,8 +126,7 @@ class ServerTelegram(Server):
         if self.state != Server.STATE_CLOSED:
             raise ServerException("Already started.")
         self.state = Server.STATE_CONNECTING
-        with self._connect_lock:
-            Thread(target=self.connect).start()
+        asyncio.create_task(self.connect)
 
     def connect(self) -> None:
         """
