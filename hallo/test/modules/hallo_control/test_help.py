@@ -7,7 +7,7 @@ from hallo.test.server_mock import ServerMock
 
 
 async def test_help_all(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help")
     )
@@ -40,7 +40,7 @@ async def test_help_mock_func_disp():
 
 
 async def test_help_func(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help help")
     )
@@ -50,7 +50,7 @@ async def test_help_func(hallo_getter):
 
 
 async def test_help_no_func(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help not a real function")
     )
@@ -60,7 +60,7 @@ async def test_help_no_func(hallo_getter):
 
 
 async def test_help_no_doc(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     # Manually add FunctionMock to function dispatcher
     test_hallo.function_dispatcher.load_function(None, FunctionMockNoDoc)
     try:
@@ -75,7 +75,7 @@ async def test_help_no_doc(hallo_getter):
 
 
 async def test_help_mock_func(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     # Manually add FunctionMock to function dispatcher
     test_hallo.function_dispatcher.load_function(None, FunctionMock)
     try:

@@ -3,7 +3,7 @@ from hallo.modules.random.scriptures import Scriptures
 
 
 async def test_scripture(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Get proverb list
     n = Scriptures()
     scripture_list = n.scripture_list

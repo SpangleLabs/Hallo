@@ -3,7 +3,7 @@ from hallo.modules.random.night_vale_proverb import NightValeProverb
 
 
 async def test_proverb(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Get proverb list
     n = NightValeProverb()
     proverb_list = n.proverb_list

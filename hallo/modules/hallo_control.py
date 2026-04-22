@@ -182,5 +182,5 @@ class Shutdown(Function):
 
     async def run(self, event):
         hallo_obj = event.server.hallo
-        hallo_obj.close()
+        await hallo_obj.close()
         return event.create_response("Shutting down.")

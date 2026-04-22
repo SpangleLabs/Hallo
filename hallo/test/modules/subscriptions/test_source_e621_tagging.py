@@ -8,8 +8,8 @@ from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.modules.user_data import E6KeyData
 
 
-def test_init(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_init(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
     rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["table", "legs"])
@@ -23,8 +23,8 @@ def test_init(hallo_getter):
         assert key in rf.__dict__, "Key is missing from E621Sub object: " + key
 
 
-def test_matches_name(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_matches_name(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
     rf = E621TaggingSource("Cabinet ", e6_client, sub_repo, test_hallo.test_user, ["table", "legs"])
@@ -32,8 +32,8 @@ def test_matches_name(hallo_getter):
     assert rf.matches_name("cabinet")
 
 
-def test_title(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_title(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
     rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["table", "legs"])
@@ -41,8 +41,8 @@ def test_title(hallo_getter):
     assert "\"cabinet\"" in rf.title
 
 
-def test_from_input(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_from_input(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
     test_hallo.test_user.extra_data_dict[E6KeyData.type_name] = E6KeyData("test_username", "test_api_key").to_json()
 
@@ -53,8 +53,8 @@ def test_from_input(hallo_getter):
     assert rf.e6_client._login == ("test_username", "test_api_key")
 
 
-def test_from_input__no_user_data(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_from_input__no_user_data(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
 
     with pytest.raises(hallo.modules.subscriptions.subscription_exception.SubscriptionException) as e:
@@ -65,8 +65,8 @@ def test_from_input__no_user_data(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_current_state(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_current_state(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
     rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["table", "legs"])
@@ -88,8 +88,8 @@ def test_current_state(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_item_to_key(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_item_to_key(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
     rf = E621TaggingSource("cabinet", e6_client, sub_repo, test_hallo.test_user, ["table", "legs"])
@@ -99,8 +99,8 @@ def test_item_to_key(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_item_to_event(hallo_getter, tmp_path):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_item_to_event(hallo_getter, tmp_path):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
     sub_repo.MENU_STORE_FILE = tmp_path / "subscription_menus.json"
@@ -135,8 +135,8 @@ def test_item_to_event(hallo_getter, tmp_path):
 
 
 @pytest.mark.external_integration
-def test_item_to_event__no_embed(hallo_getter, tmp_path):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_item_to_event__no_embed(hallo_getter, tmp_path):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
     sub_repo.MENU_STORE_FILE = tmp_path / "subscription_menus.json"
@@ -170,8 +170,8 @@ def test_item_to_event__no_embed(hallo_getter, tmp_path):
     assert "tag:chital" in button_data
 
 
-def test_json(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_json(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
     test_e621_search = "cabinet"

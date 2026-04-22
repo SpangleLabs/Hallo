@@ -3,7 +3,7 @@ from hallo.hallo import Hallo
 
 
 async def test_save_config(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     old_hallo = test_hallo.test_user.server.hallo
     try:
         mock_hallo = HalloMock()

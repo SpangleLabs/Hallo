@@ -8,7 +8,7 @@ from hallo.events import EventMessage
 
 @pytest.mark.external_integration
 async def test_weather(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Check API key is set
     if test_hallo.get_api_key("youtube") is None:
         # Read from env variable
@@ -31,7 +31,7 @@ async def test_weather(mock_chooser, hallo_getter):
 
 @pytest.mark.external_integration
 async def test_passive(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Check API key is set
     if test_hallo.get_api_key("youtube") is None:
         # Read from env variable
@@ -59,7 +59,7 @@ async def test_passive(mock_chooser, hallo_getter):
 
 @pytest.mark.external_integration
 async def test_no_api_key(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Check there's no API key
     if test_hallo.get_api_key("youtube") is not None:
         del test_hallo.api_key_list["youtube"]

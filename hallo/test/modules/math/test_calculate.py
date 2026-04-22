@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_calc_simple(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc 2+2")
     )
@@ -11,7 +11,7 @@ async def test_calc_simple(hallo_getter):
 
 
 async def test_calc_multiply(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc 21*56")
     )
@@ -20,7 +20,7 @@ async def test_calc_multiply(hallo_getter):
 
 
 async def test_calc_divide(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc 1/5")
     )
@@ -29,7 +29,7 @@ async def test_calc_divide(hallo_getter):
 
 
 async def test_calc_subtract(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc 13-17")
     )
@@ -38,7 +38,7 @@ async def test_calc_subtract(hallo_getter):
 
 
 async def test_calc_div_zero(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc 1/0")
     )
@@ -50,7 +50,7 @@ async def test_calc_div_zero(hallo_getter):
 
 
 async def test_cos(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc cos(0)")
     )
@@ -69,7 +69,7 @@ async def test_cos(hallo_getter):
 
 
 async def test_sin(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc sin(0)")
     )
@@ -88,7 +88,7 @@ async def test_sin(hallo_getter):
 
 
 async def test_order_of_operations(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc 6+7*8")
     )
@@ -112,7 +112,7 @@ async def test_order_of_operations(hallo_getter):
 
 
 async def test_brackets(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc (25-11)*3")
     )
@@ -166,7 +166,7 @@ async def test_brackets(hallo_getter):
 
 
 async def test_pi(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc pi")
     )
@@ -175,7 +175,7 @@ async def test_pi(hallo_getter):
 
 
 async def test_e(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc e")
     )
@@ -184,7 +184,7 @@ async def test_e(hallo_getter):
 
 
 async def test_tan(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc tan(0)")
     )
@@ -203,7 +203,7 @@ async def test_tan(hallo_getter):
 
 
 async def test_acos(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc acos(1)")
     )
@@ -227,7 +227,7 @@ async def test_acos(hallo_getter):
 
 
 async def test_asin(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc asin(0)")
     )
@@ -251,7 +251,7 @@ async def test_asin(hallo_getter):
 
 
 async def test_atan(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc atan(0)")
     )
@@ -275,7 +275,7 @@ async def test_atan(hallo_getter):
 
 
 async def test_sqrt(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc sqrt(4)")
     )
@@ -304,7 +304,7 @@ async def test_sqrt(hallo_getter):
 
 
 async def test_power(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc 2^2")
     )
@@ -333,7 +333,7 @@ async def test_power(hallo_getter):
 
 
 async def test_hyperbolics(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     # Cosh
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc cosh(0)")
@@ -448,7 +448,7 @@ async def test_hyperbolics(hallo_getter):
 
 
 async def test_gamma(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc gamma(1)")
     )
@@ -467,7 +467,7 @@ async def test_gamma(hallo_getter):
 
 
 async def test_passive(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "25")
     )
@@ -515,7 +515,7 @@ async def test_passive(hallo_getter):
 
 
 async def test_passive_ip_error(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "127.0.0.1")
     )
@@ -524,7 +524,7 @@ async def test_passive_ip_error(hallo_getter):
 
 
 async def test_ee(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc ee")
     )
@@ -542,7 +542,7 @@ async def test_ee(hallo_getter):
 
 
 async def test_equals(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "calc 2+2=4")
     )

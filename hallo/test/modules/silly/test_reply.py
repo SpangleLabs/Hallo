@@ -9,7 +9,7 @@ from hallo.test.server_mock import ServerMock
 
 
 async def test_run(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "reply")
     )
@@ -18,7 +18,7 @@ async def test_run(hallo_getter):
 
 
 async def test_reply_passive(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "beep")
     )
@@ -27,7 +27,7 @@ async def test_reply_passive(hallo_getter):
 
 
 async def test_reply_beep(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check beep/boop works
@@ -43,7 +43,7 @@ async def test_reply_beep(hallo_getter):
 
 
 async def test_reply_pew(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check pewpew
@@ -62,7 +62,7 @@ async def test_reply_pew(hallo_getter):
 
 @pytest.mark.external_integration
 async def test_reply_haskell(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check haskell.jpg
@@ -90,7 +90,7 @@ async def test_reply_haskell(hallo_getter):
 
 
 async def test_reply_podbay_doors(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check pod bay doors
@@ -106,7 +106,7 @@ async def test_reply_podbay_doors(hallo_getter):
 
 
 async def test_reply_irc_client(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check irc client response
@@ -122,7 +122,7 @@ async def test_reply_irc_client(hallo_getter):
 
 
 async def test_reply_who_hallo(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check what is hallo response
@@ -134,7 +134,7 @@ async def test_reply_who_hallo(hallo_getter):
 
 @pytest.mark.external_integration
 async def test_reply_mfw(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     reply_func = test_hallo.function_dispatcher.get_function_by_name("reply")
     reply_obj = test_hallo.function_dispatcher.get_function_object(reply_func)  # type: Reply
     # Check MFW produces response

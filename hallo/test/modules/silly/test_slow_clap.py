@@ -4,7 +4,7 @@ from hallo.events import EventMessage
 
 
 async def test_slowclap(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     time_start = time.time()
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "slowclap")
@@ -18,7 +18,7 @@ async def test_slowclap(hallo_getter):
 
 
 async def test_slowclap_privmsg(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     time_start = time.time()
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "slowclap")
@@ -30,7 +30,7 @@ async def test_slowclap_privmsg(hallo_getter):
 
 
 async def test_slowclap_chan(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
@@ -55,7 +55,7 @@ async def test_slowclap_chan(hallo_getter):
 
 
 async def test_slowclap_chan_not_in_chan(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+    test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )

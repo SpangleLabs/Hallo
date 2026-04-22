@@ -4,7 +4,7 @@ from hallo.test.server_mock import ServerMock
 
 
 async def test_connect_to_known_server(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up an example server
     server_name = "known_server_name"
     test_server = ServerMock(test_hallo)
@@ -29,7 +29,7 @@ async def test_connect_to_known_server(hallo_getter):
 
 
 async def test_connect_to_known_server_fail_connected(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up example server
     server_name = "known_server_name"
     test_server = ServerMock(test_hallo)
@@ -58,7 +58,7 @@ async def test_connect_to_known_server_fail_connected(hallo_getter):
 
 
 async def test_connect_fail_unrecognised_protocol(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "connect www.example.com"
@@ -71,7 +71,7 @@ async def test_connect_fail_unrecognised_protocol(hallo_getter):
 
 
 async def test_connect_default_current_protocol(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up some mock methods
     test_hallo.test_server.type = Server.TYPE_IRC
     # Run command

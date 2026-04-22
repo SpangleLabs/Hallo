@@ -3,7 +3,7 @@ from hallo.modules.random.thought_for_the_day import ThoughtForTheDay
 
 
 async def test_tftd(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Get proverb list
     n = ThoughtForTheDay()
     thought_list = n.thought_list

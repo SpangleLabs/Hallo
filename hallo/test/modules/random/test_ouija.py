@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_one_word(mock_roller, mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 1
     # Check function
@@ -21,7 +21,7 @@ async def test_one_word(mock_roller, mock_chooser, hallo_getter):
 
 
 async def test_three_words(mock_roller, mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 3
     # Check function
@@ -37,7 +37,7 @@ async def test_three_words(mock_roller, mock_chooser, hallo_getter):
 
 
 async def test_word_list(mock_roller, mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 1
     # Check function

@@ -71,11 +71,11 @@ class TestHallo(Hallo):
 
 
 @pytest.fixture # TODO: async this sometime
-def hallo_getter():
+async def hallo_getter():
     # Create a Hallo
     hallo = TestHallo()
 
-    def function(modules: set[str] | None = None, disconnect_servers: bool = False):
+    async def function(modules: set[str] | None = None, disconnect_servers: bool = False):
         hallo.set_modules(modules)
         # Start hallo thread
         hallo.start_task()
@@ -92,10 +92,10 @@ def hallo_getter():
         # Disconnect servers if wanted
         if disconnect_servers:
             for server in hallo.server_list:
-                server.disconnect_sync(True)
+                await server.disconnect(True)
             hallo.server_list.clear()
         return hallo
 
     yield function
-    hallo.close()
+    await hallo.close()
     asyncio.get_event_loop().run_until_complete(hallo.end_task())

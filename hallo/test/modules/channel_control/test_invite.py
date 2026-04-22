@@ -4,7 +4,7 @@ from hallo.test.server_mock import ServerMock
 
 
 async def test_invite_not_irc(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = "NOT_IRC"
@@ -25,7 +25,7 @@ async def test_invite_not_irc(hallo_getter):
 
 
 async def test_invite_0_fail(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -50,7 +50,7 @@ async def test_invite_0_fail(hallo_getter):
 
 
 async def test_invite_1priv_not_known(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -76,7 +76,7 @@ async def test_invite_1priv_not_known(hallo_getter):
 
 
 async def test_invite_1priv_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -103,7 +103,7 @@ async def test_invite_1priv_not_in_channel(hallo_getter):
 
 
 async def test_invite_1priv_user_already_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -128,7 +128,7 @@ async def test_invite_1priv_user_already_there(hallo_getter):
 
 
 async def test_invite_1priv_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -152,7 +152,7 @@ async def test_invite_1priv_no_power(hallo_getter):
 
 
 async def test_invite_1priv(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -181,7 +181,7 @@ async def test_invite_1priv(hallo_getter):
 
 
 async def test_invite_1_chan_user_already_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -217,7 +217,7 @@ async def test_invite_1_chan_user_already_there(hallo_getter):
 
 
 async def test_invite_1_chan_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -250,7 +250,7 @@ async def test_invite_1_chan_no_power(hallo_getter):
 
 
 async def test_invite_1_chan(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -288,7 +288,7 @@ async def test_invite_1_chan(hallo_getter):
 
 
 async def test_invite_1_user_already_here(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -317,7 +317,7 @@ async def test_invite_1_user_already_here(hallo_getter):
 
 
 async def test_invite_1_user_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -345,7 +345,7 @@ async def test_invite_1_user_no_power(hallo_getter):
 
 
 async def test_invite_1_user(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -378,7 +378,7 @@ async def test_invite_1_user(hallo_getter):
 
 
 async def test_invite_2_chan_user_already_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -414,7 +414,7 @@ async def test_invite_2_chan_user_already_there(hallo_getter):
 
 
 async def test_invite_2_chan_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -447,7 +447,7 @@ async def test_invite_2_chan_no_power(hallo_getter):
 
 
 async def test_invite_2_chan(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -485,7 +485,7 @@ async def test_invite_2_chan(hallo_getter):
 
 
 async def test_invite_2_user_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -518,7 +518,7 @@ async def test_invite_2_user_not_in_channel(hallo_getter):
 
 
 async def test_invite_2_user_user_already_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -554,7 +554,7 @@ async def test_invite_2_user_user_already_there(hallo_getter):
 
 
 async def test_invite_2_user_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -587,7 +587,7 @@ async def test_invite_2_user_no_power(hallo_getter):
 
 
 async def test_invite_2_user(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC

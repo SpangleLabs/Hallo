@@ -4,7 +4,7 @@ from hallo.test.server_mock import ServerMock
 
 
 async def test_mute_not_irc(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = "NOT_IRC"
@@ -25,7 +25,7 @@ async def test_mute_not_irc(hallo_getter):
 
 
 async def test_mute_privmsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -41,7 +41,7 @@ async def test_mute_privmsg(hallo_getter):
 
 
 async def test_mute_0_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -66,7 +66,7 @@ async def test_mute_0_no_power(hallo_getter):
 
 
 async def test_mute_0(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -96,7 +96,7 @@ async def test_mute_0(hallo_getter):
 
 
 async def test_mute_1_not_known(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -123,7 +123,7 @@ async def test_mute_1_not_known(hallo_getter):
 
 
 async def test_mute_1_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -152,7 +152,7 @@ async def test_mute_1_not_in_channel(hallo_getter):
 
 
 async def test_mute_1_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -179,7 +179,7 @@ async def test_mute_1_no_power(hallo_getter):
 
 
 async def test_mute_1(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC

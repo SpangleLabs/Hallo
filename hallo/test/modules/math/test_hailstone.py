@@ -3,7 +3,7 @@ from hallo.modules.math import Hailstone
 
 
 async def test_hailstone_simple(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "hailstone 5")
     )
@@ -14,7 +14,7 @@ async def test_hailstone_simple(hallo_getter):
 
 
 async def test_hailstone_over_limit(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, None, test_hallo.test_user, "hailstone " + str(Hailstone.LIMIT + 1)
@@ -27,7 +27,7 @@ async def test_hailstone_over_limit(hallo_getter):
 
 
 async def test_hailstone_negative(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "hailstone -5")
     )
@@ -36,7 +36,7 @@ async def test_hailstone_negative(hallo_getter):
 
 
 async def test_hailstone_float(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "hailstone 2.3")
     )

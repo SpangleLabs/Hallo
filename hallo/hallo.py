@@ -156,7 +156,7 @@ class Hallo:
                 logger.error("Error sending core time loop event.", exc_info=e)
             last_date_time = now_date_time
             await asyncio.sleep(0.1)
-        self.close()
+        await self.close()
 
     def save_json(self) -> None:
         """
@@ -288,11 +288,11 @@ class Hallo:
             if server.name.lower() == server_name.lower():
                 self.server_list.remove(server)
 
-    def close(self) -> None:
+    async def close(self) -> None:
         """Shuts down the entire program"""
         for server in self.server_list:
             if server.state != Server.STATE_CLOSED:
-                server.disconnect_sync()
+                await server.disconnect()
         self.function_dispatcher.close()
         self.save_json()
         self.open = False

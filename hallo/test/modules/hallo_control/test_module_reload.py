@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_module_reload(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     old_func_disp = test_hallo.function_dispatcher
     mock_func_disp = FunctionDispatcherMock()
     mock_func_disp.module_reload_resp = True
@@ -20,7 +20,7 @@ async def test_module_reload(hallo_getter):
 
 
 async def test_module_fail(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     old_func_disp = test_hallo.function_dispatcher
     mock_func_disp = FunctionDispatcherMock()
     mock_func_disp.module_reload_resp = False

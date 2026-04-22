@@ -3,8 +3,8 @@ from hallo.modules.dailys.field_dream import DailysDreamField
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
-def test_ignore_other(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_ignore_other(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
@@ -25,8 +25,8 @@ def test_ignore_other(hallo_getter):
     assert len(test_hallo.test_server.send_data) == 0
 
 
-def test_record_dream(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_record_dream(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
@@ -59,8 +59,8 @@ def test_record_dream(hallo_getter):
     assert test_hallo.test_server.send_data[0].user == test_hallo.test_user
 
 
-def test_record_second_dream(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_record_second_dream(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     evt = EventMessage(
         test_hallo.test_server,
         test_hallo.test_chan,
@@ -104,8 +104,8 @@ def test_record_second_dream(hallo_getter):
     assert test_hallo.test_server.send_data[0].user == test_hallo.test_user
 
 
-def test_create_from_input(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "dream"

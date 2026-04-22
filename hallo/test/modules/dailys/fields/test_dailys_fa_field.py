@@ -11,8 +11,8 @@ from hallo.modules.user_data import UserDataParser, FAKeyData
 from hallo.test.modules.dailys.dailys_spreadsheet_mock import DailysSpreadsheetMock
 
 
-def test_day_rollover_no_data(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_day_rollover_no_data(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
@@ -28,8 +28,8 @@ def test_day_rollover_no_data(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_day_rollover(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_day_rollover(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup FA key
@@ -60,8 +60,8 @@ def test_day_rollover(hallo_getter):
     assert test_hallo.test_server.send_data[0].user == test_hallo.test_user
 
 
-def test_create_from_input_no_fa_data(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_no_fa_data(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "furaffinity"
@@ -85,8 +85,8 @@ def test_create_from_input_no_fa_data(hallo_getter):
         ), "Exception did not mention that there was no FA data set up."
 
 
-def test_create_from_input(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "furaffinity"

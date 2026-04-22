@@ -3,7 +3,7 @@ from hallo.modules.math import Hailstone
 
 
 async def test_hcf_simple(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "hcf 5 13")
     )
@@ -14,7 +14,7 @@ async def test_hcf_simple(hallo_getter):
 
 
 async def test_hcf_big(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "hcf 295228 285349")
     )
@@ -32,7 +32,7 @@ async def test_hcf_big(hallo_getter):
 
 
 async def test_hcf_one_arg(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "hcf " + str(Hailstone.LIMIT + 1))
     )
@@ -43,7 +43,7 @@ async def test_hcf_one_arg(hallo_getter):
 
 
 async def test_hcf_negative(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "hcf -502 -124")
     )
@@ -68,7 +68,7 @@ async def test_hcf_negative(hallo_getter):
 
 
 async def test_hcf_float(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "hcf 2.3 13")
     )

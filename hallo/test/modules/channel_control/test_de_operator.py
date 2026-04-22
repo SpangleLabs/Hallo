@@ -4,7 +4,7 @@ from hallo.test.server_mock import ServerMock
 
 
 async def test_deop_not_irc(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = "NOT_IRC"
@@ -25,7 +25,7 @@ async def test_deop_not_irc(hallo_getter):
 
 
 async def test_deop_0_privmsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -46,7 +46,7 @@ async def test_deop_0_privmsg(hallo_getter):
 
 
 async def test_deop_0_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -68,7 +68,7 @@ async def test_deop_0_no_power(hallo_getter):
 
 
 async def test_deop_0_not_op(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -93,7 +93,7 @@ async def test_deop_0_not_op(hallo_getter):
 
 
 async def test_deop_0(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -123,7 +123,7 @@ async def test_deop_0(hallo_getter):
 
 
 async def test_deop_1priv_channel_not_known(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -149,7 +149,7 @@ async def test_deop_1priv_channel_not_known(hallo_getter):
 
 
 async def test_deop_1priv_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -176,7 +176,7 @@ async def test_deop_1priv_not_in_channel(hallo_getter):
 
 
 async def test_deop_1priv_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -200,7 +200,7 @@ async def test_deop_1priv_user_not_there(hallo_getter):
 
 
 async def test_deop_1priv_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -227,7 +227,7 @@ async def test_deop_1priv_no_power(hallo_getter):
 
 
 async def test_deop_1priv_not_op(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -254,7 +254,7 @@ async def test_deop_1priv_not_op(hallo_getter):
 
 
 async def test_deop_1priv(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -286,7 +286,7 @@ async def test_deop_1priv(hallo_getter):
 
 
 async def test_deop_1_chan_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -322,7 +322,7 @@ async def test_deop_1_chan_user_not_there(hallo_getter):
 
 
 async def test_deop_1_chan_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -358,7 +358,7 @@ async def test_deop_1_chan_no_power(hallo_getter):
 
 
 async def test_deop_1_chan_not_op(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -394,7 +394,7 @@ async def test_deop_1_chan_not_op(hallo_getter):
 
 
 async def test_deop_1_chan(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -435,7 +435,7 @@ async def test_deop_1_chan(hallo_getter):
 
 
 async def test_deop_1_user_not_here(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -463,7 +463,7 @@ async def test_deop_1_user_not_here(hallo_getter):
 
 
 async def test_deop_1_user_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -494,7 +494,7 @@ async def test_deop_1_user_no_power(hallo_getter):
 
 
 async def test_deop_1_user_not_op(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -525,7 +525,7 @@ async def test_deop_1_user_not_op(hallo_getter):
 
 
 async def test_deop_1_user(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -561,7 +561,7 @@ async def test_deop_1_user(hallo_getter):
 
 
 async def test_deop_2_chan_user_not_known(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -597,7 +597,7 @@ async def test_deop_2_chan_user_not_known(hallo_getter):
 
 
 async def test_deop_2_chan_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -634,7 +634,7 @@ async def test_deop_2_chan_user_not_there(hallo_getter):
 
 
 async def test_deop_2_chan_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -670,7 +670,7 @@ async def test_deop_2_chan_no_power(hallo_getter):
 
 
 async def test_deop_2_chan_not_op(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -706,7 +706,7 @@ async def test_deop_2_chan_not_op(hallo_getter):
 
 
 async def test_deop_2_chan(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -747,7 +747,7 @@ async def test_deop_2_chan(hallo_getter):
 
 
 async def test_deop_2_user_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -780,7 +780,7 @@ async def test_deop_2_user_not_in_channel(hallo_getter):
 
 
 async def test_deop_2_user_user_not_known(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -816,7 +816,7 @@ async def test_deop_2_user_user_not_known(hallo_getter):
 
 
 async def test_deop_2_user_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -853,7 +853,7 @@ async def test_deop_2_user_user_not_there(hallo_getter):
 
 
 async def test_deop_2_user_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -889,7 +889,7 @@ async def test_deop_2_user_no_power(hallo_getter):
 
 
 async def test_deop_2_user_not_op(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -925,7 +925,7 @@ async def test_deop_2_user_not_op(hallo_getter):
 
 
 async def test_deop_2_user(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC

@@ -9,7 +9,7 @@ from hallo.server_irc import ServerIRC
 
 @pytest.mark.slow
 async def test_server_race_cancel_failing_connection(hallo_getter):
-    test_hallo = hallo_getter({})
+    test_hallo = await hallo_getter({})
     # Create a server
     server = ServerIRC(test_hallo, "example", "example.com", 80)
     test_hallo.add_server(server)
@@ -26,7 +26,7 @@ async def test_server_race_cancel_failing_connection(hallo_getter):
 
 @pytest.mark.external_integration
 async def test_server_race_connect_delay_disconnect(hallo_getter):
-    test_hallo = hallo_getter({})
+    test_hallo = await hallo_getter({})
     # Create a server
     server = ServerIRC(test_hallo, "freenode", "irc.freenode.net", 6667)
     test_hallo.add_server(server)
@@ -46,7 +46,7 @@ async def test_server_race_connect_delay_disconnect(hallo_getter):
 
 @pytest.mark.external_integration
 async def test_server_race_connect_disconnect(hallo_getter):
-    test_hallo = hallo_getter({})
+    test_hallo = await hallo_getter({})
     # Create a server
     server = ServerIRC(test_hallo, "freenode", "irc.freenode.net", 6667)
     test_hallo.add_server(server)
@@ -63,7 +63,7 @@ async def test_server_race_connect_disconnect(hallo_getter):
 
 @pytest.mark.slow
 async def test_server_race_bulk_connect_fail(hallo_getter):
-    test_hallo = hallo_getter({})
+    test_hallo = await hallo_getter({})
     # Create ten servers
     for x in range(10):
         new_server_obj = ServerIRC(test_hallo, "example" + str(x), "example.com", 80)
@@ -87,7 +87,7 @@ async def test_server_race_bulk_connect_fail(hallo_getter):
 
 @pytest.mark.external_integration
 async def test_server_thread_killed_after_disconnect(hallo_getter):
-    test_hallo = hallo_getter({})
+    test_hallo = await hallo_getter({})
     thread_count = threading.active_count()
     # Create a server
     server = ServerIRC(test_hallo, "freenode", "irc.freenode.net", 6667)

@@ -11,7 +11,7 @@ from hallo.test.modules.subscriptions.mock_subscriptions import mock_sub_repo
 
 
 async def test_no_feeds(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+    test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub list")
@@ -24,7 +24,7 @@ async def test_no_feeds(tmp_path, hallo_getter):
 
 @pytest.mark.external_integration
 async def test_list_feeds(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+    test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
     another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")

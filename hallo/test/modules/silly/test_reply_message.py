@@ -86,8 +86,8 @@ def test_add_blacklist():
     assert "test_chan3" in rm.blacklist["test_serv2"]
 
 
-def test_check_response(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+async def test_check_response(hallo_getter):
+    test_hallo = await hallo_getter({"silly"})
     # Setup common testing objects
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
@@ -124,8 +124,8 @@ def test_check_response(hallo_getter):
     )
 
 
-def test_check_destination(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+async def test_check_destination(hallo_getter):
+    test_hallo = await hallo_getter({"silly"})
     serv_name1 = "test_serv1"
     serv_name2 = "test_serv2"
     serv_name3 = "test_serv3"

@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_logs_toggle(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan.logging = False
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "channel logging")
@@ -22,7 +22,7 @@ async def test_logs_toggle(hallo_getter):
 
 
 async def test_logs_on(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan.logging = False
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "channel logging on")
@@ -34,7 +34,7 @@ async def test_logs_on(hallo_getter):
 
 
 async def test_logs_off(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan.logging = True
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "channel logging off")
@@ -46,7 +46,7 @@ async def test_logs_off(hallo_getter):
 
 
 async def test_logs_channel_toggle(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
@@ -70,7 +70,7 @@ async def test_logs_channel_toggle(hallo_getter):
 
 
 async def test_logs_channel_on(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
@@ -88,7 +88,7 @@ async def test_logs_channel_on(hallo_getter):
 
 
 async def test_logs_channel_off(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
@@ -106,7 +106,7 @@ async def test_logs_channel_off(hallo_getter):
 
 
 async def test_logs_on_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
@@ -124,7 +124,7 @@ async def test_logs_on_channel(hallo_getter):
 
 
 async def test_logs_off_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
@@ -142,7 +142,7 @@ async def test_logs_off_channel(hallo_getter):
 
 
 async def test_logs_not_in_channel_toggle(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
@@ -157,7 +157,7 @@ async def test_logs_not_in_channel_toggle(hallo_getter):
 
 
 async def test_logs_not_in_channel_on(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
@@ -174,7 +174,7 @@ async def test_logs_not_in_channel_on(hallo_getter):
 
 
 async def test_logs_no_bool(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )

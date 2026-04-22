@@ -3,7 +3,7 @@ from hallo.modules.random.eight_ball import EightBall
 
 
 async def test_eightball(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     all_responses = (
         EightBall.RESPONSES_YES_TOTALLY
         + EightBall.RESPONSES_YES_PROBABLY
@@ -20,7 +20,7 @@ async def test_eightball(hallo_getter):
 
 
 async def test_eightball_with_message(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     all_responses = (
         EightBall.RESPONSES_YES_TOTALLY
         + EightBall.RESPONSES_YES_PROBABLY
@@ -42,7 +42,7 @@ async def test_eightball_with_message(hallo_getter):
 
 
 async def test_all_responses(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     all_responses = (
         EightBall.RESPONSES_YES_TOTALLY
         + EightBall.RESPONSES_YES_PROBABLY

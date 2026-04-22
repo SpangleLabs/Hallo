@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_factors_simple(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors 6")
     )
@@ -11,7 +11,7 @@ async def test_factors_simple(hallo_getter):
 
 
 async def test_factors_big(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors 295228")
     )
@@ -20,7 +20,7 @@ async def test_factors_big(hallo_getter):
 
 
 async def test_factors_negative(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors -17")
     )
@@ -29,7 +29,7 @@ async def test_factors_negative(hallo_getter):
 
 
 async def test_factors_float(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors 17.5")
     )
@@ -40,7 +40,7 @@ async def test_factors_float(hallo_getter):
 
 
 async def test_factors_prime(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors 104779")
     )
@@ -49,7 +49,7 @@ async def test_factors_prime(hallo_getter):
 
 
 async def test_factors_fail(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors seventeen")
     )
@@ -60,7 +60,7 @@ async def test_factors_fail(hallo_getter):
 
 
 async def test_factors_calc(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors 17+5")
     )
@@ -69,7 +69,7 @@ async def test_factors_calc(hallo_getter):
 
 
 async def test_factors_calc_division(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors 232234/83")
     )
@@ -80,7 +80,7 @@ async def test_factors_calc_division(hallo_getter):
 
 
 async def test_factors_calc_float(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors 232234/80")
     )

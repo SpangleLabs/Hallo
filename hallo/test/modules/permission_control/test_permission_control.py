@@ -5,7 +5,7 @@ from hallo.test.server_mock import ServerMock
 
 
 async def test_run_add_on(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+    test_hallo = await hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
     perm0 = PermissionMask()
@@ -39,7 +39,7 @@ async def test_run_add_on(hallo_getter):
 
 
 async def test_run_set_on(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+    test_hallo = await hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
     perm0 = PermissionMask()
@@ -74,7 +74,7 @@ async def test_run_set_on(hallo_getter):
 
 
 async def test_run_add_off(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+    test_hallo = await hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
     perm0 = PermissionMask()
@@ -108,7 +108,7 @@ async def test_run_add_off(hallo_getter):
 
 
 async def test_run_set_off(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+    test_hallo = await hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
     perm0 = PermissionMask()
@@ -143,7 +143,7 @@ async def test_run_set_off(hallo_getter):
 
 
 async def test_run_fail_args(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+    test_hallo = await hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
     perm0 = PermissionMask()
@@ -173,7 +173,7 @@ async def test_run_fail_args(hallo_getter):
 
 
 async def test_run_fail_not_bool(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+    test_hallo = await hallo_getter({"permission_control"})
     # Set up a test hallo and server and channel and user
     hallo1 = Hallo()
     perm0 = PermissionMask()

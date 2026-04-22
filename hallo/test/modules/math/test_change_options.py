@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_change_options_simple(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "change options 5")
     )
@@ -14,7 +14,7 @@ async def test_change_options_simple(hallo_getter):
 
 
 async def test_change_options_over_limit(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "change options 21")
     )
@@ -25,7 +25,7 @@ async def test_change_options_over_limit(hallo_getter):
 
 
 async def test_change_options_negative(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "change options -5")
     )
@@ -36,7 +36,7 @@ async def test_change_options_negative(hallo_getter):
 
 
 async def test_change_options_float(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "change option 2.3")
     )

@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_number_simple(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 5")
     )
@@ -11,7 +11,7 @@ async def test_number_simple(hallo_getter):
 
 
 async def test_number_big(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 295228")
     )
@@ -23,7 +23,7 @@ async def test_number_big(hallo_getter):
 
 
 async def test_number_teen(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 17")
     )
@@ -34,7 +34,7 @@ async def test_number_teen(hallo_getter):
 
 
 async def test_number_negative(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number -502")
     )
@@ -45,7 +45,7 @@ async def test_number_negative(hallo_getter):
 
 
 async def test_number_float(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 2.3")
     )
@@ -63,7 +63,7 @@ async def test_number_float(hallo_getter):
 
 
 async def test_number_american(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 1000000000 american")
     )
@@ -74,7 +74,7 @@ async def test_number_american(hallo_getter):
 
 
 async def test_number_british(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 1000000000 british")
     )
@@ -85,7 +85,7 @@ async def test_number_british(hallo_getter):
 
 
 async def test_number_european(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 1000000000 european")
     )
@@ -96,7 +96,7 @@ async def test_number_european(hallo_getter):
 
 
 async def test_number_calculation(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number 17*5")
     )
@@ -107,7 +107,7 @@ async def test_number_calculation(hallo_getter):
 
 
 async def test_number_fail(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "number seventeen")
     )

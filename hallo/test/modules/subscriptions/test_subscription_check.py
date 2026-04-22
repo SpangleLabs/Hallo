@@ -12,7 +12,7 @@ from hallo.test.server_mock import ServerMock
 
 
 async def test_run_all(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+    test_hallo = await hallo_getter({"subscriptions"})
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
     # Set up test servers and channels
@@ -86,7 +86,7 @@ async def test_run_all(tmp_path, hallo_getter):
 
 
 async def test_run_by_search(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+    test_hallo = await hallo_getter({"subscriptions"})
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
     # Set up test servers and channels
@@ -166,7 +166,7 @@ async def test_run_by_search(tmp_path, hallo_getter):
 
 
 async def test_run_passive(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+    test_hallo = await hallo_getter({"subscriptions"})
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")

@@ -7,7 +7,7 @@ from hallo.events import EventMessage
 
 @pytest.mark.external_integration
 async def test_cat_gif_with_key(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Check API key is set
     if test_hallo.get_api_key("thecatapi") is None:
         # Read from env variable
@@ -21,7 +21,7 @@ async def test_cat_gif_with_key(hallo_getter):
 
 
 async def test_cat_gif_no_key(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Check there's no API key
     if test_hallo.get_api_key("thecatapi") is not None:
         del test_hallo.api_key_list["thecatapi"]

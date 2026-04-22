@@ -4,7 +4,7 @@ from hallo.events import EventMessage
 
 
 async def test_short_doof(mock_roller, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     for x in range(21):
         # Set RNG
         mock_roller.answer = x
@@ -17,7 +17,7 @@ async def test_short_doof(mock_roller, hallo_getter):
 
 
 async def test_medium_doof(mock_roller, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     for x in range(21, 41):
         # Set RNG
         mock_roller.answer = x
@@ -30,7 +30,7 @@ async def test_medium_doof(mock_roller, hallo_getter):
 
 
 async def test_long_doof(mock_roller, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     for x in range(41, 60):
         if x == 40 + 15:
             continue
@@ -47,7 +47,7 @@ async def test_long_doof(mock_roller, hallo_getter):
 
 
 async def test_mega_doof(mock_roller, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 55
     # Check
@@ -66,7 +66,7 @@ async def test_mega_doof(mock_roller, hallo_getter):
 
 
 async def test_passive_foof(mock_roller, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     mock_roller.answer = 0
     await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "foof")
@@ -76,7 +76,7 @@ async def test_passive_foof(mock_roller, hallo_getter):
 
 
 async def test_passive_foof_exclamation(mock_roller, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     mock_roller.answer = 0
     await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "foof!")
@@ -86,7 +86,7 @@ async def test_passive_foof_exclamation(mock_roller, hallo_getter):
 
 
 async def test_passive_long_foof(mock_roller, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     mock_roller.answer = 0
     await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(

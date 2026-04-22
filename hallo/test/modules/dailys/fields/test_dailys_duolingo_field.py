@@ -14,8 +14,8 @@ TEST_PASSWORD = os.getenv("test_duo_password")
 
 
 @pytest.mark.external_integration
-def test_day_rollover(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_day_rollover(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
@@ -44,8 +44,8 @@ def test_day_rollover(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_create_from_input_no_username(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_no_username(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "duolingo"
@@ -71,8 +71,8 @@ def test_create_from_input_no_username(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_create_from_input_no_password(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_no_password(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "duolingo {}".format(TEST_USERNAME)
@@ -98,8 +98,8 @@ def test_create_from_input_no_password(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_create_from_input_invalid_password(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_invalid_password(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "duolingo {} {}".format(TEST_USERNAME, "NoTAreaLPasSWorD")
@@ -125,8 +125,8 @@ def test_create_from_input_invalid_password(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_create_from_input_username_first(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_username_first(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "duolingo {} {}".format(TEST_USERNAME, TEST_PASSWORD)
@@ -146,8 +146,8 @@ def test_create_from_input_username_first(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_create_from_input_password_first(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_password_first(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "duolingo {} {}".format(TEST_PASSWORD, TEST_USERNAME)

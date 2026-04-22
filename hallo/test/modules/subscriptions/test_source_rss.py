@@ -46,8 +46,8 @@ def test_title():
     assert "Example rss feed" in rf.title
 
 
-def test_from_input(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_from_input(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
 
     rf = RssSource.from_input(TEST_RSS, test_hallo.test_user, sub_repo)
@@ -113,8 +113,8 @@ def test_item_to_key__no_guid_or_link():
     assert key1 == key2
 
 
-def test_item_to_event(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_item_to_event(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     rf = RssSource(TEST_RSS, "feed title")
     rss_data = (
         """<item>
@@ -134,8 +134,8 @@ def test_item_to_event(hallo_getter):
     assert "http://example.com/item" in event.text
 
 
-def test_json(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_json(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
     rf = RssSource(TEST_RSS)
     rf.last_keys = ["item3", "item2", "item1"]

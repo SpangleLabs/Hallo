@@ -7,7 +7,7 @@ from hallo.user_group import UserGroup
 
 
 async def test_connect_specify_irc(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
@@ -25,7 +25,7 @@ async def test_connect_specify_irc(hallo_getter):
 
 
 async def test_port_in_url(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     test_port = 80
     # Run command
     await test_hallo.function_dispatcher.dispatch(
@@ -54,7 +54,7 @@ async def test_port_in_url(hallo_getter):
 
 
 async def test_port_by_argument(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     test_port = 80
     # Run command
     await test_hallo.function_dispatcher.dispatch(
@@ -83,7 +83,7 @@ async def test_port_by_argument(hallo_getter):
 
 
 async def test_address_in_argument(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     test_url = "www.example.com"
     # Run command
     await test_hallo.function_dispatcher.dispatch(
@@ -112,7 +112,7 @@ async def test_address_in_argument(hallo_getter):
 
 
 async def test_address_by_argument(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     test_url = "www.example.com"
     # Run command
     await test_hallo.function_dispatcher.dispatch(
@@ -141,7 +141,7 @@ async def test_address_by_argument(hallo_getter):
 
 
 async def test_inherit_port(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set things up
     test_port = 80
     test_serv_irc = ServerIRC(test_hallo)
@@ -174,7 +174,7 @@ async def test_inherit_port(hallo_getter):
 
 
 async def test_non_int_port_failure(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
@@ -193,7 +193,7 @@ async def test_non_int_port_failure(hallo_getter):
 
 
 async def test_null_address(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "connect irc")
@@ -207,7 +207,7 @@ async def test_null_address(hallo_getter):
 
 
 async def test_specified_server_name(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Test vars
     test_name = "test_server"
     test_server = "www.example.com"
@@ -242,7 +242,7 @@ async def test_specified_server_name(hallo_getter):
 
 
 async def test_get_server_name_from_domain(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Test vars
     test_name = "example"
     test_server = "www." + test_name + ".com"
@@ -274,7 +274,7 @@ async def test_get_server_name_from_domain(hallo_getter):
 
 
 async def test_auto_connect_default(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
@@ -302,7 +302,7 @@ async def test_auto_connect_default(hallo_getter):
 
 
 async def test_auto_connect_true(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
@@ -330,7 +330,7 @@ async def test_auto_connect_true(hallo_getter):
 
 
 async def test_auto_connect_false(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
@@ -358,7 +358,7 @@ async def test_auto_connect_false(hallo_getter):
 
 
 async def test_server_nick_inherit(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_nick = "test_hallo"
     test_hallo.test_server.nick = test_nick
@@ -389,7 +389,7 @@ async def test_server_nick_inherit(hallo_getter):
 
 
 async def test_server_nick_specified(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_nick = "test_hallo2"
     # Run command
@@ -419,7 +419,7 @@ async def test_server_nick_specified(hallo_getter):
 
 
 async def test_server_prefix_specified_string(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_prefix = "robot"
     # Run command
@@ -449,7 +449,7 @@ async def test_server_prefix_specified_string(hallo_getter):
 
 
 async def test_server_prefix_specified_none(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
@@ -477,7 +477,7 @@ async def test_server_prefix_specified_none(hallo_getter):
 
 
 async def test_server_prefix_inherit_string(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_prefix = "robot"
     test_hallo.test_server.prefix = test_prefix
@@ -508,7 +508,7 @@ async def test_server_prefix_inherit_string(hallo_getter):
 
 
 async def test_server_prefix_inherit_none(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_hallo.test_server.prefix = None
     test_hallo.default_prefix = ""
@@ -539,7 +539,7 @@ async def test_server_prefix_inherit_none(hallo_getter):
 
 
 async def test_full_name_specified_string(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_name = "Hallo_Robot"
     # Run command
@@ -569,7 +569,7 @@ async def test_full_name_specified_string(hallo_getter):
 
 
 async def test_full_name_inherit_string(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_name = "Hallo_Robot"
     test_hallo.test_server.full_name = test_name
@@ -600,7 +600,7 @@ async def test_full_name_inherit_string(hallo_getter):
 
 
 async def test_nickserv_nick_default(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
@@ -630,7 +630,7 @@ async def test_nickserv_nick_default(hallo_getter):
 
 
 async def test_nickserv_nick_inherit(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_nickserv_name = "nameserv"
     test_serv_irc = ServerIRC(test_hallo)
@@ -668,7 +668,7 @@ async def test_nickserv_nick_inherit(hallo_getter):
 
 
 async def test_nickserv_nick_specify(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_nickserv_name = "nameserv"
     # Run command
@@ -700,7 +700,7 @@ async def test_nickserv_nick_specify(hallo_getter):
 
 
 async def test_nickserv_identity_command_default(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
@@ -730,7 +730,7 @@ async def test_nickserv_identity_command_default(hallo_getter):
 
 
 async def test_nickserv_identity_command_inherit(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_nickserv_command = "identity"
     test_serv_irc = ServerIRC(test_hallo)
@@ -768,7 +768,7 @@ async def test_nickserv_identity_command_inherit(hallo_getter):
 
 
 async def test_nickserv_identity_command_specify(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_nickserv_command = "identity"
     # Run command
@@ -801,7 +801,7 @@ async def test_nickserv_identity_command_specify(hallo_getter):
 
 
 async def test_nickserv_identity_resp_default(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
@@ -831,7 +831,7 @@ async def test_nickserv_identity_resp_default(hallo_getter):
 
 
 async def test_nickserv_identity_response_inherit(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_nickserv_response = "identity"
     test_serv_irc = ServerIRC(test_hallo)
@@ -869,7 +869,7 @@ async def test_nickserv_identity_response_inherit(hallo_getter):
 
 
 async def test_nickserv_identity_response_specify(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_nickserv_response = "identity"
     # Run command
@@ -902,7 +902,7 @@ async def test_nickserv_identity_response_specify(hallo_getter):
 
 
 async def test_nickserv_password_default(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
@@ -930,7 +930,7 @@ async def test_nickserv_password_default(hallo_getter):
 
 
 async def test_nickserv_password_inherit(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_nickserv_pass = "hunter2"
     test_serv_irc = ServerIRC(test_hallo)
@@ -968,7 +968,7 @@ async def test_nickserv_password_inherit(hallo_getter):
 
 
 async def test_nickserv_password_specify(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_nickserv_pass = "hunter2"
     # Run command
@@ -1001,7 +1001,7 @@ async def test_nickserv_password_specify(hallo_getter):
 
 
 async def test_inherit_user_groups_default(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_user_group = UserGroup("test_group", test_hallo)
     test_hallo.test_user.add_user_group(test_user_group)
@@ -1036,7 +1036,7 @@ async def test_inherit_user_groups_default(hallo_getter):
 
 
 async def test_inherit_user_groups_specify_nick(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Set up
     test_user = "AzureDiamond"
     test_user_group = UserGroup("test_group", test_hallo)
@@ -1070,7 +1070,7 @@ async def test_inherit_user_groups_specify_nick(hallo_getter):
 
 
 async def test_server_added(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Pre flight check
     assert len(test_hallo.server_list) == 1, "Too many servers when starting test."
     # Run command
@@ -1099,7 +1099,7 @@ async def test_server_added(hallo_getter):
 
 
 async def test_thread_started(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Pre flight calc
     thread_count = threading.active_count()
     # Run command
@@ -1132,7 +1132,7 @@ async def test_thread_started(hallo_getter):
 
 
 async def test_server_started(hallo_getter):
-    test_hallo = hallo_getter({"server_control"})
+    test_hallo = await hallo_getter({"server_control"})
     # Run command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(

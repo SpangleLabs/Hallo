@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_invalid_dice(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll fd6")
     )
@@ -24,7 +24,7 @@ async def test_invalid_dice(hallo_getter):
 
 
 async def test_invalid_range(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 1-f")
     )
@@ -46,7 +46,7 @@ async def test_invalid_range(hallo_getter):
 
 
 async def test_zero_dice(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 0d6")
     )
@@ -57,7 +57,7 @@ async def test_zero_dice(hallo_getter):
 
 
 async def test_too_many_dice(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 100000d6")
     )
@@ -68,7 +68,7 @@ async def test_too_many_dice(hallo_getter):
 
 
 async def test_zero_sides(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 4d0")
     )
@@ -79,7 +79,7 @@ async def test_zero_sides(hallo_getter):
 
 
 async def test_too_many_sides(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "roll 4d99999999")
     )
@@ -90,7 +90,7 @@ async def test_too_many_sides(hallo_getter):
 
 
 async def test_one_die(mock_roller, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 4
     # Check function
@@ -109,7 +109,7 @@ async def test_one_die(mock_roller, hallo_getter):
 
 
 async def test_many_dice(mock_roller, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = [1, 2, 6]
     # Check function
@@ -133,7 +133,7 @@ async def test_many_dice(mock_roller, hallo_getter):
 
 
 async def test_roll_range(mock_roller, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set RNG
     mock_roller.answer = 47
     # Check function

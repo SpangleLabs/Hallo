@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_long_simple(hallo_getter):
-    test_hallo = hallo_getter({"ascii_art"})
+    test_hallo = await hallo_getter({"ascii_art"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "longcat")
     )
@@ -12,7 +12,7 @@ async def test_long_simple(hallo_getter):
 
 
 async def test_long_long(hallo_getter):
-    test_hallo = hallo_getter({"ascii_art"})
+    test_hallo = await hallo_getter({"ascii_art"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "longcat")
     )

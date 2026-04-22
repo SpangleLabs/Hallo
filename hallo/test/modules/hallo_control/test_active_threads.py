@@ -6,7 +6,7 @@ from hallo.events import EventMessage
 
 
 async def test_threads_simple(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "active threads")
     )
@@ -16,7 +16,7 @@ async def test_threads_simple(hallo_getter):
 
 
 async def test_threads_increase(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "active threads")
     )

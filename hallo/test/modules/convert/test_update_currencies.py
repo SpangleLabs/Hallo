@@ -20,7 +20,7 @@ class MockUpdate:
 
 
 async def test_run(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+    test_hallo = await hallo_getter({"convert"})
     update_all = hallo.modules.convert.update_currencies.UpdateCurrencies.update_all
     mock_update_all = MockUpdate(["Check method called"])
     hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = mock_update_all.method
@@ -36,7 +36,7 @@ async def test_run(hallo_getter):
 
 
 async def test_passive_run(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+    test_hallo = await hallo_getter({"convert"})
     update_all = hallo.modules.convert.update_currencies.UpdateCurrencies.update_all
     mock_update_all = MockUpdate(["Check method called"])
     hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = mock_update_all.method
@@ -49,7 +49,7 @@ async def test_passive_run(hallo_getter):
 
 
 async def test_update_all(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+    test_hallo = await hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate(None)
     mock_forex = MockUpdate(None)
@@ -93,7 +93,7 @@ async def test_update_all(hallo_getter):
 
 
 async def test_update_all_fail_ecb(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+    test_hallo = await hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate("HTTPException: 403")
     mock_forex = MockUpdate(None)
@@ -136,7 +136,7 @@ async def test_update_all_fail_ecb(hallo_getter):
 
 
 async def test_update_all_fail_forex(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+    test_hallo = await hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate(None)
     mock_forex = MockUpdate("HTTPException: 403")
@@ -183,7 +183,7 @@ async def test_update_all_fail_forex(hallo_getter):
 
 
 async def test_update_all_fail_cryptonator(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+    test_hallo = await hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate(None)
     mock_forex = MockUpdate(None)
@@ -228,7 +228,7 @@ async def test_update_all_fail_cryptonator(hallo_getter):
 
 
 async def test_update_all_fail_all(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+    test_hallo = await hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate("HTTPException: 403")
     mock_forex = MockUpdate("HTTPException: 500")

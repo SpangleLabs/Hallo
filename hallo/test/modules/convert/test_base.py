@@ -46,8 +46,8 @@ class TestBase(unittest.TestCase):
         # Clear any data in the server
         self.server.get_send_data()
 
-    def tearDown(self):
-        self.hallo.close()
+    async def tearDown(self):
+        await self.hallo.close()
         asyncio.get_event_loop().run_until_complete(self.hallo.end_task())
 
     @classmethod

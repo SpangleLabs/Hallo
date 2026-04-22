@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_protein_simple(hallo_getter):
-    test_hallo = hallo_getter({"bio"})
+    test_hallo = await hallo_getter({"bio"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "protein ATTCATCGATCGCTA")
     )
@@ -11,7 +11,7 @@ async def test_protein_simple(hallo_getter):
 
 
 async def test_protein_start(hallo_getter):
-    test_hallo = hallo_getter({"bio"})
+    test_hallo = await hallo_getter({"bio"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "protein ATTCATCGAATGTCGCTA")
     )
@@ -22,7 +22,7 @@ async def test_protein_start(hallo_getter):
 
 
 async def test_protein_stop(hallo_getter):
-    test_hallo = hallo_getter({"bio"})
+    test_hallo = await hallo_getter({"bio"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "protein ATTCATCGATAGTCGCTA")
     )
@@ -33,7 +33,7 @@ async def test_protein_stop(hallo_getter):
 
 
 async def test_protein_many_start(hallo_getter):
-    test_hallo = hallo_getter({"bio"})
+    test_hallo = await hallo_getter({"bio"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
@@ -49,7 +49,7 @@ async def test_protein_many_start(hallo_getter):
 
 
 async def test_protein_invalid(hallo_getter):
-    test_hallo = hallo_getter({"bio"})
+    test_hallo = await hallo_getter({"bio"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, None, test_hallo.test_user, "protein ATGCATCGAATGTCGFTCAGCATAUGCAGTCG"
@@ -62,7 +62,7 @@ async def test_protein_invalid(hallo_getter):
 
 
 async def test_protein_passive(hallo_getter):
-    test_hallo = hallo_getter({"bio"})
+    test_hallo = await hallo_getter({"bio"})
     await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "ATTCATCGATCGCTA")
     )

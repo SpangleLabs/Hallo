@@ -4,7 +4,7 @@ from hallo.events import EventMessage
 
 
 async def test_euler_list(hallo_getter):
-    test_hallo = hallo_getter({"euler"})
+    test_hallo = await hallo_getter({"euler"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "euler")
     )
@@ -89,7 +89,7 @@ async def test_euler_list(hallo_getter):
     }.items(),
 )
 async def test_euler_solutions(hallo_getter, problem, solution):
-    test_hallo = hallo_getter({"euler", "math", "games"})
+    test_hallo = await hallo_getter({"euler", "math", "games"})
     # Spoilers
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "euler " + problem)

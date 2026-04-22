@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_no_options(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "choose")
     )
@@ -13,7 +13,7 @@ async def test_no_options(hallo_getter):
 
 
 async def test_one_option(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "choose x")
     )
@@ -24,7 +24,7 @@ async def test_one_option(hallo_getter):
 
 
 async def test_x_or_y(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set mock value
     mock_chooser.choice = 0
     # Choose x
@@ -50,7 +50,7 @@ async def test_x_or_y(mock_chooser, hallo_getter):
 
 
 async def test_x_comma_y(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set mock value
     mock_chooser.choice = 0
     # Choose x
@@ -76,7 +76,7 @@ async def test_x_comma_y(mock_chooser, hallo_getter):
 
 
 async def test_x_or_comma_y(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set mock value
     mock_chooser.choice = 0
     # Choose x
@@ -102,7 +102,7 @@ async def test_x_or_comma_y(mock_chooser, hallo_getter):
 
 
 async def test_x_y_z(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set mock value
     mock_chooser.choice = 0
     # Choose x
@@ -139,7 +139,7 @@ async def test_x_y_z(mock_chooser, hallo_getter):
 
 
 async def test_multiple_separators(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set mock value
     mock_chooser.choice = 0
     # Choose x

@@ -4,7 +4,7 @@ from hallo.test.server_mock import ServerMock
 
 
 async def test_kick_not_irc(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = "NOT_IRC"
@@ -25,7 +25,7 @@ async def test_kick_not_irc(hallo_getter):
 
 
 async def test_kick_0_fail(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -50,7 +50,7 @@ async def test_kick_0_fail(hallo_getter):
 
 
 async def test_kick_1priv_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -71,7 +71,7 @@ async def test_kick_1priv_not_in_channel(hallo_getter):
 
 
 async def test_kick_1priv_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -95,7 +95,7 @@ async def test_kick_1priv_user_not_there(hallo_getter):
 
 
 async def test_kick_1priv_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -120,7 +120,7 @@ async def test_kick_1priv_no_power(hallo_getter):
 
 
 async def test_kick_1priv(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -149,14 +149,14 @@ async def test_kick_1priv(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_1chan_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_1chan_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: This doesn't function, if 1 argument, it's assumed to be a user, not a channel."""
     pass
 
 
 async def test_kick_1chan_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -186,7 +186,7 @@ async def test_kick_1chan_user_not_there(hallo_getter):
 
 
 async def test_kick_1chan_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -217,7 +217,7 @@ async def test_kick_1chan_no_power(hallo_getter):
 
 
 async def test_kick_1chan(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -252,14 +252,14 @@ async def test_kick_1chan(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_1user_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_1user_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: Does not make sense, hallo must be in channel to receive message on it."""
     pass
 
 
 async def test_kick_1user_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -285,7 +285,7 @@ async def test_kick_1user_user_not_there(hallo_getter):
 
 
 async def test_kick_1user_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -312,7 +312,7 @@ async def test_kick_1user_no_power(hallo_getter):
 
 
 async def test_kick_1user(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -344,7 +344,7 @@ async def test_kick_1user(hallo_getter):
 
 
 async def test_kick_2privchanuser_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -365,15 +365,15 @@ async def test_kick_2privchanuser_not_in_channel(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_2privchanuser_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_2privchanuser_user_not_there(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: If given 'channel user' in privmsg, and user is not in channel, function will assume it was
     given 'channel message'"""
     pass
 
 
 async def test_kick_2privchanuser_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -399,7 +399,7 @@ async def test_kick_2privchanuser_no_power(hallo_getter):
 
 
 async def test_kick_2privchanuser(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -430,7 +430,7 @@ async def test_kick_2privchanuser(hallo_getter):
 
 
 async def test_kick_2privchanmsg_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -452,7 +452,7 @@ async def test_kick_2privchanmsg_not_in_channel(hallo_getter):
 
 
 async def test_kick_2privchanmsg_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -476,7 +476,7 @@ async def test_kick_2privchanmsg_user_not_there(hallo_getter):
 
 
 async def test_kick_2privchanmsg_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -501,7 +501,7 @@ async def test_kick_2privchanmsg_no_power(hallo_getter):
 
 
 async def test_kick_2privchanmsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -532,7 +532,7 @@ async def test_kick_2privchanmsg(hallo_getter):
 
 
 async def test_kick_2privuserchan_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -555,7 +555,7 @@ async def test_kick_2privuserchan_not_in_channel(hallo_getter):
 
 
 async def test_kick_2privuserchan_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -580,7 +580,7 @@ async def test_kick_2privuserchan_user_not_there(hallo_getter):
 
 
 async def test_kick_2privuserchan_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -606,7 +606,7 @@ async def test_kick_2privuserchan_no_power(hallo_getter):
 
 
 async def test_kick_2privuserchan(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -636,20 +636,20 @@ async def test_kick_2privuserchan(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_2chanuser_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_2chanuser_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: If given 'channel user' and not in channel, will assume 'user msg'"""
     pass
 
 
-def test_kick_2chanuser_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_2chanuser_user_not_there(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: If given 'channel user' and user not there, will assume 'channel msg'"""
     pass
 
 
 async def test_kick_2chanuser_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -681,7 +681,7 @@ async def test_kick_2chanuser_no_power(hallo_getter):
 
 
 async def test_kick_2chanuser(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -717,14 +717,14 @@ async def test_kick_2chanuser(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_2chanmsg_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_2chanmsg_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: If given 'chan msg' and not in channel, will assume 'user msg'"""
     pass
 
 
 async def test_kick_2chanmsg_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -754,7 +754,7 @@ async def test_kick_2chanmsg_user_not_there(hallo_getter):
 
 
 async def test_kick_2chanmsg_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -785,7 +785,7 @@ async def test_kick_2chanmsg_no_power(hallo_getter):
 
 
 async def test_kick_2chanmsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -821,14 +821,14 @@ async def test_kick_2chanmsg(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_2userchan_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_2userchan_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: If given 'user channel' and not in channel, will assume 'user msg'"""
     pass
 
 
 async def test_kick_2userchan_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -859,7 +859,7 @@ async def test_kick_2userchan_user_not_there(hallo_getter):
 
 
 async def test_kick_2userchan_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -891,7 +891,7 @@ async def test_kick_2userchan_no_power(hallo_getter):
 
 
 async def test_kick_2userchan(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -927,14 +927,14 @@ async def test_kick_2userchan(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_2usermsg_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_2usermsg_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: Does not make sense, hallo must be in channel to receive message on it."""
     pass
 
 
 async def test_kick_2usermsg_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -960,7 +960,7 @@ async def test_kick_2usermsg_user_not_there(hallo_getter):
 
 
 async def test_kick_2usermsg_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -987,7 +987,7 @@ async def test_kick_2usermsg_no_power(hallo_getter):
 
 
 async def test_kick_2usermsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1020,7 +1020,7 @@ async def test_kick_2usermsg(hallo_getter):
 
 
 async def test_kick_3privchanusermsg_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1042,14 +1042,14 @@ async def test_kick_3privchanusermsg_not_in_channel(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_3privchanusermsg_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_3privchanusermsg_user_not_there(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: if given 'chan user msg' and user not in channel, will assume 'chan msg'"""
     pass
 
 
 async def test_kick_3privchanusermsg_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1075,7 +1075,7 @@ async def test_kick_3privchanusermsg_no_power(hallo_getter):
 
 
 async def test_kick_3privchanusermsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1107,7 +1107,7 @@ async def test_kick_3privchanusermsg(hallo_getter):
 
 
 async def test_kick_3privchanmsg_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1129,7 +1129,7 @@ async def test_kick_3privchanmsg_not_in_channel(hallo_getter):
 
 
 async def test_kick_3privchanmsg_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1153,7 +1153,7 @@ async def test_kick_3privchanmsg_user_not_there(hallo_getter):
 
 
 async def test_kick_3privchanmsg_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1178,7 +1178,7 @@ async def test_kick_3privchanmsg_no_power(hallo_getter):
 
 
 async def test_kick_3privchanmsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1209,7 +1209,7 @@ async def test_kick_3privchanmsg(hallo_getter):
 
 
 async def test_kick_3privuserchanmsg_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1232,7 +1232,7 @@ async def test_kick_3privuserchanmsg_not_in_channel(hallo_getter):
 
 
 async def test_kick_3privuserchanmsg_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1257,7 +1257,7 @@ async def test_kick_3privuserchanmsg_user_not_there(hallo_getter):
 
 
 async def test_kick_3privuserchanmsg_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1283,7 +1283,7 @@ async def test_kick_3privuserchanmsg_no_power(hallo_getter):
 
 
 async def test_kick_3privuserchanmsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1314,20 +1314,20 @@ async def test_kick_3privuserchanmsg(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_3chanusermsg_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_3chanusermsg_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: If given 'channel user msg' and not in channel, will assume 'user msg'"""
     pass
 
 
-def test_kick_3chanusermsg_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_3chanusermsg_user_not_there(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: If given 'chan user msg' and user not in channel, will assume 'chan msg'"""
     pass
 
 
 async def test_kick_3chanusermsg_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1359,7 +1359,7 @@ async def test_kick_3chanusermsg_no_power(hallo_getter):
 
 
 async def test_kick_3chanusermsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1396,14 +1396,14 @@ async def test_kick_3chanusermsg(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_3chanmsg_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_3chanmsg_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: If given 'channel msg' and not in channel, will assume 'user msg'"""
     pass
 
 
 async def test_kick_3chanmsg_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1433,7 +1433,7 @@ async def test_kick_3chanmsg_user_not_there(hallo_getter):
 
 
 async def test_kick_3chanmsg_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1464,7 +1464,7 @@ async def test_kick_3chanmsg_no_power(hallo_getter):
 
 
 async def test_kick_3chanmsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1500,14 +1500,14 @@ async def test_kick_3chanmsg(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_3userchanmsg_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_3userchanmsg_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: If given 'user channel msg' and not in channel, will assume 'user msg'"""
     pass
 
 
 async def test_kick_3userchanmsg_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1538,7 +1538,7 @@ async def test_kick_3userchanmsg_user_not_there(hallo_getter):
 
 
 async def test_kick_3userchanmsg_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1570,7 +1570,7 @@ async def test_kick_3userchanmsg_no_power(hallo_getter):
 
 
 async def test_kick_3userchanmsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1607,14 +1607,14 @@ async def test_kick_3userchanmsg(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_kick_3usermsg_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_kick_3usermsg_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     """Placeholder: Does not make sense, hallo must be in channel to receive message on it."""
     pass
 
 
 async def test_kick_3usermsg_user_not_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1640,7 +1640,7 @@ async def test_kick_3usermsg_user_not_there(hallo_getter):
 
 
 async def test_kick_3usermsg_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -1667,7 +1667,7 @@ async def test_kick_3usermsg_no_power(hallo_getter):
 
 
 async def test_kick_3usermsg(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC

@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_avg_simple(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "average 2 4")
     )
@@ -11,7 +11,7 @@ async def test_avg_simple(hallo_getter):
 
 
 async def test_avg_same(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "average 2 2 2 2 2")
     )
@@ -22,7 +22,7 @@ async def test_avg_same(hallo_getter):
 
 
 async def test_avg_many(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, None, test_hallo.test_user, "average 2 7 4 6 32 4 1 17 12 12 100"
@@ -35,7 +35,7 @@ async def test_avg_many(hallo_getter):
 
 
 async def test_avg_floats(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "average 2.4 3.2 6.6 1.2")
     )
@@ -46,7 +46,7 @@ async def test_avg_floats(hallo_getter):
 
 
 async def test_avg_negative(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "average -5 5 -10 10 -14 -16 13 17")
     )
@@ -57,7 +57,7 @@ async def test_avg_negative(hallo_getter):
 
 
 async def test_avg_fail(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     # Test that words fail
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(

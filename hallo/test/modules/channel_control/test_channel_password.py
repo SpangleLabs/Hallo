@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_pass_off(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan.password = "test_pass"
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "channel password")
@@ -14,7 +14,7 @@ async def test_pass_off(hallo_getter):
 
 
 async def test_pass_null(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan.password = "test_pass"
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "channel password none")
@@ -26,7 +26,7 @@ async def test_pass_null(hallo_getter):
 
 
 async def test_pass_set(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan.password = None
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "channel password test_pass")
@@ -38,7 +38,7 @@ async def test_pass_set(hallo_getter):
 
 
 async def test_pass_chan_null(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
@@ -57,7 +57,7 @@ async def test_pass_chan_null(hallo_getter):
 
 
 async def test_pass_chan_set(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+    test_hallo = await hallo_getter({"channel_control"})
     test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )

@@ -7,7 +7,7 @@ from hallo.events import EventMessage
 
 @pytest.mark.external_integration
 async def test_quote(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "random quote")
     )

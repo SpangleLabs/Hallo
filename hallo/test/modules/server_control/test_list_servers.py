@@ -4,7 +4,7 @@ from hallo.test.server_mock import ServerMock
 
 
 async def test_no_servers(hallo_getter):
-    test_hallo = hallo_getter({"server_control"}, disconnect_servers=True)
+    test_hallo = await hallo_getter({"server_control"}, disconnect_servers=True)
     # Send command
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "list servers")
@@ -16,7 +16,7 @@ async def test_no_servers(hallo_getter):
 
 
 async def test_one_server(hallo_getter):
-    test_hallo = hallo_getter({"server_control"}, disconnect_servers=True)
+    test_hallo = await hallo_getter({"server_control"}, disconnect_servers=True)
     # Add one server
     serv1 = ServerMock(test_hallo)
 
@@ -39,7 +39,7 @@ async def test_one_server(hallo_getter):
 
 
 async def test_two_mock_servers(hallo_getter):
-    test_hallo = hallo_getter({"server_control"}, disconnect_servers=True)
+    test_hallo = await hallo_getter({"server_control"}, disconnect_servers=True)
     # Add two servers
     serv1 = ServerMock(test_hallo)
     serv1.name = "server_list_test1"
@@ -81,7 +81,7 @@ async def test_two_mock_servers(hallo_getter):
 
 
 async def test_irc_server(hallo_getter):
-    test_hallo = hallo_getter({"server_control"}, disconnect_servers=True)
+    test_hallo = await hallo_getter({"server_control"}, disconnect_servers=True)
     # Add one server
     serv1 = ServerMock(test_hallo)
     serv1.type = Server.TYPE_IRC

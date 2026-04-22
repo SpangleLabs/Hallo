@@ -6,8 +6,8 @@ from hallo.modules.subscriptions.source_e621 import E621Source
 from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
 
-def test_init(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_init(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     rf = E621Source("cabinet", e6_client, test_hallo.test_user)
     keys = [
@@ -18,24 +18,24 @@ def test_init(hallo_getter):
         assert key in rf.__dict__, "Key is missing from E621Sub object: " + key
 
 
-def test_matches_name(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_matches_name(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     rf = E621Source("Cabinet ", e6_client, test_hallo.test_user)
 
     assert rf.matches_name("cabinet")
 
 
-def test_title(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_title(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     rf = E621Source("cabinet", e6_client, test_hallo.test_user)
 
     assert "\"cabinet\"" in rf.title
 
 
-def test_from_input(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_from_input(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
 
     rf = E621Source.from_input("cabinet", test_hallo.test_user, sub_repo)
@@ -44,8 +44,8 @@ def test_from_input(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_current_state(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_current_state(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     rf = E621Source("cabinet", e6_client, test_hallo.test_user)
 
@@ -66,8 +66,8 @@ def test_current_state(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_item_to_key(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_item_to_key(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     rf = E621Source("cabinet", e6_client, test_hallo.test_user)
     item = e6_client.post(1092773)
@@ -76,8 +76,8 @@ def test_item_to_key(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_item_to_event(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_item_to_event(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     rf = E621Source("chital", e6_client, test_hallo.test_user)
     item = e6_client.post(1092773)
@@ -95,8 +95,8 @@ def test_item_to_event(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_item_to_event__no_embed(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_item_to_event__no_embed(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     rf = E621Source("acrobatics", e6_client, test_hallo.test_user)
     item = e6_client.post(257069)
@@ -113,8 +113,8 @@ def test_item_to_event__no_embed(hallo_getter):
     assert "Safe" in event.text
 
 
-def test_json(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_json(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
     test_e621_search = "cabinet"

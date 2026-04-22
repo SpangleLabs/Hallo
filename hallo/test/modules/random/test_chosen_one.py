@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_not_a_channel(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "chosen one")
     )
@@ -13,7 +13,7 @@ async def test_not_a_channel(hallo_getter):
 
 
 async def test_one_person_in_channel(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     test_hallo.test_chan.remove_user(test_hallo.hallo_user)
     try:
         await test_hallo.function_dispatcher.dispatch(
@@ -33,7 +33,7 @@ async def test_one_person_in_channel(mock_chooser, hallo_getter):
 
 
 async def test_two_people_in_channel(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     # Set chooser option
     mock_chooser.choice = 0
     # Choose user
@@ -67,7 +67,7 @@ async def test_two_people_in_channel(mock_chooser, hallo_getter):
 
 
 async def test_five_in_channel(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+    test_hallo = await hallo_getter({"random"})
     chan = test_hallo.test_server.get_channel_by_address("test_chan", "test_chan")
     user1 = test_hallo.test_server.get_user_by_address("user1", "user1")
     user2 = test_hallo.test_server.get_user_by_address("user2", "user2")

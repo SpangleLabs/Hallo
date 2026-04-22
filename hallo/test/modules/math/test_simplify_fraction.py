@@ -2,7 +2,7 @@ from hallo.events import EventMessage
 
 
 async def test_fraction_simple(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 6/4")
     )
@@ -11,7 +11,7 @@ async def test_fraction_simple(hallo_getter):
 
 
 async def test_fraction_complex(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 360679/22")
     )
@@ -22,7 +22,7 @@ async def test_fraction_complex(hallo_getter):
 
 
 async def test_fraction_multi_slash(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 360679/22/2")
     )
@@ -33,7 +33,7 @@ async def test_fraction_multi_slash(hallo_getter):
 
 
 async def test_fraction_integer(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 22/2")
     )
@@ -44,7 +44,7 @@ async def test_fraction_integer(hallo_getter):
 
 
 async def test_fraction_one_arg(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 104779")
     )
@@ -55,7 +55,7 @@ async def test_fraction_one_arg(hallo_getter):
 
 
 async def test_fraction_unsimplify(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 17/3")
     )
@@ -64,7 +64,7 @@ async def test_fraction_unsimplify(hallo_getter):
 
 
 async def test_factors_float(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 17.5/2")
     )
@@ -89,7 +89,7 @@ async def test_factors_float(hallo_getter):
 
 
 async def test_factors_negative(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 24/-10")
     )
@@ -114,7 +114,7 @@ async def test_factors_negative(hallo_getter):
 
 
 async def test_factors_word(hallo_getter):
-    test_hallo = hallo_getter({"math"})
+    test_hallo = await hallo_getter({"math"})
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors hello/7")
     )

@@ -3,7 +3,7 @@ from hallo.hallo import Hallo
 
 
 async def test_shutdown(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+    test_hallo = await hallo_getter({"hallo_control"})
     mock_hallo = HalloMock()
     test_hallo.test_user.server.hallo = mock_hallo
     await test_hallo.function_dispatcher.dispatch(

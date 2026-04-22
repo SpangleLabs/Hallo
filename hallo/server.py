@@ -90,14 +90,6 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def disconnect_sync(selfself, forece: bool = False) -> None:
-        try:
-            asyncio.get_running_loop()
-        except RuntimeError:
-            asyncio.run(self.disconnect(force=force))
-        else:
-            asyncio.create_task(self.disconnect(force=force))
-
     async def disconnect(self, force: bool = False) -> None:
         """
         Disconnects from the server, shutting down remaining threads

@@ -7,14 +7,14 @@ from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.server_mock import ServerMock
 
 
-def test_init(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_init(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     rfl = SubscriptionRepo(test_hallo)
     assert rfl.sub_list == []
 
 
-def test_add_feed(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_add_feed(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
     assert sub_repo.sub_list == []
     # Create example rss feed
@@ -25,8 +25,8 @@ def test_add_feed(hallo_getter):
     assert sub_repo.sub_list[0] == sub
 
 
-def test_get_feeds_by_destination(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_get_feeds_by_destination(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv2 = ServerMock(test_hallo)
@@ -62,8 +62,8 @@ def test_get_feeds_by_destination(hallo_getter):
     assert sub5 in feed_list
 
 
-def test_get_feeds_by_title(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_get_feeds_by_title(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv2 = ServerMock(test_hallo)
@@ -110,8 +110,8 @@ def test_get_feeds_by_title(hallo_getter):
     assert sub5 in feed_list
 
 
-def test_get_feeds_by_url(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_get_feeds_by_url(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv2 = ServerMock(test_hallo)
@@ -160,8 +160,8 @@ def test_get_feeds_by_url(hallo_getter):
     assert sub5 in feed_list
 
 
-def test_remove_feed(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_remove_feed(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     # Setup a feed list
     sub_repo = SubscriptionRepo(test_hallo)
     rf1 = RssSource(
@@ -181,8 +181,8 @@ def test_remove_feed(hallo_getter):
     assert sub_repo.sub_list[0] == sub2
 
 
-def test_json(hallo_getter, tmp_path):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_json(hallo_getter, tmp_path):
+    test_hallo = await hallo_getter({"subscriptions"})
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
     # Setup a feed list
