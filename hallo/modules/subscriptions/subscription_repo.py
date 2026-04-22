@@ -1,5 +1,5 @@
+import asyncio
 import json
-from threading import Lock
 from typing import Type, TypeVar, TYPE_CHECKING
 
 from hallo.modules.subscriptions.subscription import Subscription
@@ -31,7 +31,7 @@ class SubscriptionRepo:
         self.hallo: 'Hallo' = hallo_obj
         self.sub_list: list[Subscription] = []
         self.common_list: list[SubscriptionCommon] = []
-        self.sub_lock: Lock = Lock()
+        self.sub_lock: asyncio.Lock = asyncio.Lock()
         self.menu_cache: MenuCache | None = None
         for sub_class in SubscriptionFactory.sub_sources:
             subscription_count.labels(source_type=sub_class.__name__).set_function(

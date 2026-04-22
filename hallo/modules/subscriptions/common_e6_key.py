@@ -1,4 +1,3 @@
-from threading import RLock
 from typing import TYPE_CHECKING, Optional
 
 from yippi import YippiClient

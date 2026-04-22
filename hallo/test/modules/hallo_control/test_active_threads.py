@@ -1,4 +1,4 @@
-from threading import Thread
+import asyncio
 
 import time
 
@@ -26,7 +26,7 @@ async def test_threads_increase(hallo_getter):
     )
     # Launch 10 threads
     for _ in range(10):
-        Thread(target=time.sleep, args=(10,)).start()
+        asyncio.create_task(asyncio.sleep(10))
     # Run function again
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "active threads")

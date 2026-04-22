@@ -1,5 +1,5 @@
+import asyncio
 import datetime
-from threading import RLock
 from typing import TYPE_CHECKING, Type
 
 import dateutil.parser
@@ -242,7 +242,7 @@ class Answer:
 class AnswersData:
     def __init__(self, spreadsheet: 'DailysSpreadsheet') -> None:
         self.spreadsheet = spreadsheet
-        self.lock = RLock()
+        self.lock = asyncio.Lock()
 
     def get_answer_for_question_at_time(
             self,
@@ -263,12 +263,11 @@ class AnswersData:
         return [Answer.from_dict(d) for d in answer_data]
 
     def save_answers_for_date(self, answer_date: datetime.date, answers: list[Answer]) -> None:
-        with self.lock:
-            date_data = {"answers": [a.to_dict() for a in answers]}
-            self.spreadsheet.save_field(QuestionsField, date_data, answer_date)
+        date_data = {"answers": [a.to_dict() for a in answers]}
+        self.spreadsheet.save_field(QuestionsField, date_data, answer_date)
 
-    def save_answer(self, answer: Answer) -> None:
-        with self.lock:
+    async def save_answer(self, answer: Answer) -> None:
+        async with self.lock:
             answer_date = answer.asked_time.date()
             date_answers = self.get_answers_for_date(answer_date)
             matching_answer = next(iter([a for a in date_answers if a.same_answer(answer)]), None)
@@ -419,11 +418,11 @@ class QuestionsField(DailysField):
         # Create message id setting callback
         def after_msg_sent(event: EventMessage):
             answer.question_msg_id = event.message_id
-            self.data.save_answer(answer)
+            await self.data.save_answer(answer)
         # Send message
         await self.message_channel(msg, after_msg_sent)
         # Save answer
-        self.data.save_answer(answer)
+        await self.data.save_answer(answer)
 
     async def _msg_trigger(self, evt: EventMessage) -> EventMessage | None:
         # Check if it's asking about open questions
@@ -450,7 +449,7 @@ class QuestionsField(DailysField):
         if reply_answer is None:
             return None
         reply_answer.add_answer(answer)
-        self.data.save_answer(reply_answer)
+        await self.data.save_answer(reply_answer)
         return await evt.reply(evt.create_response(
             f"Answer saved for question ID \"{reply_answer.question_id}\", at {reply_answer.asked_time.isoformat()}"
         ))
@@ -463,12 +462,12 @@ class QuestionsField(DailysField):
                 latest_time,
                 answer=answer
             )
-            self.data.save_answer(new_answer)
+            await self.data.save_answer(new_answer)
             return await evt.reply(evt.create_response(
                 f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
             ))
         current_answer.add_answer(answer)
-        self.data.save_answer(current_answer)
+        await self.data.save_answer(current_answer)
         return await evt.reply(evt.create_response(
             f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
         ))

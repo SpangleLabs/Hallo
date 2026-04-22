@@ -1,6 +1,6 @@
+import asyncio
 import functools
 from datetime import timedelta, time, date
-from threading import RLock
 from typing import TYPE_CHECKING, Type
 
 from hallo.events import EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound, Event
@@ -25,7 +25,7 @@ class DailysMoodField(DailysField):
         self.times = times
         self.time_list = MoodTimeList(times)
         self.moods = moods
-        self.lock = RLock()
+        self.lock = asyncio.Lock()
         self.triggered_cache = MoodTriggeredCache()
 
     @staticmethod
@@ -50,12 +50,12 @@ class DailysMoodField(DailysField):
     def passive_events() -> list[Type[Event]]:
         return [EventMessage, EventMinute]
 
-    def get_current_mood_data(self, mood_date: date) -> MoodDay:
+    async def get_current_mood_data(self, mood_date: date) -> MoodDay:
         """
         Returns the current mood data, and the day offset. Which might be today's or it could be yesterday's,
         if that is not done yet.
         """
-        with self.lock:
+        async with self.lock:
             # Get today's data, unless it's empty, then get yesterday's, unless it's full, then use today's.
             yesterday_date = mood_date - timedelta(1)
             today_raw = self.load_data(mood_date)
@@ -68,12 +68,12 @@ class DailysMoodField(DailysField):
                 return yesterday_data
             return today_data
 
-    def has_triggered_for_time(self, mood_date: date, time_val: MoodTime) -> bool:
+    async def has_triggered_for_time(self, mood_date: date, time_val: MoodTime) -> bool:
         # Check cache for true values
         if self.triggered_cache.has_triggered(mood_date, time_val):
             return True
         # Get the current data
-        mood_day = self.get_current_mood_data(mood_date)
+        mood_day = await self.get_current_mood_data(mood_date)
         # If sleep message, and today hasn't got previous mood measurements, return true (don't cache)
         if time_val.is_sleep() and len(self.times) > 1 and mood_day.is_empty():
             return True
@@ -86,7 +86,7 @@ class DailysMoodField(DailysField):
 
     async def passive_trigger(self, evt: Event) -> None:
         msg_date = evt.get_send_time().date()
-        mood_day = self.get_current_mood_data(msg_date)
+        mood_day = await self.get_current_mood_data(msg_date)
         if isinstance(evt, EventMinute):
             latest_time = self.time_list.most_recent_time(evt.get_send_time().time())
             if latest_time is None:
@@ -176,7 +176,7 @@ class DailysMoodField(DailysField):
         if isinstance(evt.raw_data, RawDataTelegramOutbound):
             sent_msg_id = evt.raw_data.sent_msg_object.message_id
         # Update data
-        with self.lock:
+        async with self.lock:
             mood_day.add_request(time_val, sent_msg_id)
             self.save_day(mood_day)
         return None
@@ -192,7 +192,7 @@ class DailysMoodField(DailysField):
             return await evt.reply(evt.create_response(
                 "This mood measurement doesn't seem to have the right number of datapoints"
             ))
-        with self.lock:
+        async with self.lock:
             measurement_data = {
                 mood_key: mood_val for mood_key, mood_val in zip(self.moods, [int(x) for x in mood_str])
             }

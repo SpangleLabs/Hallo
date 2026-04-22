@@ -85,7 +85,7 @@ class SubscriptionCheck(Function):
         clean_input = event.command_args.strip().lower()
         # Acquire lock
         sub_repo = self.get_sub_repo(hallo_obj)
-        with sub_repo.sub_lock:
+        async with sub_repo.sub_lock:
             # Check whether input is asking to update all subscriptions
             if clean_input in self.NAMES_ALL or clean_input == "":
                 matching_subs = sub_repo.sub_list
@@ -121,7 +121,7 @@ class SubscriptionCheck(Function):
             return
         if isinstance(event, EventMessage):
             sub_repo = self.get_sub_repo(hallo_obj)
-            with sub_repo.sub_lock:
+            async with sub_repo.sub_lock:
                 for sub in sub_repo.sub_list:
                     wants_update = await sub.passive_run(event, hallo_obj)
                     if wants_update:
@@ -130,7 +130,7 @@ class SubscriptionCheck(Function):
         if isinstance(event, EventMinute):
             # Check through all feeds to see which need updates
             sub_repo = self.get_sub_repo(hallo_obj)
-            with sub_repo.sub_lock:
+            async with sub_repo.sub_lock:
                 logger.debug("SubCheck - Got lock")
                 for search_sub in sub_repo.sub_list:
                     # Only check those which have been too long since last check

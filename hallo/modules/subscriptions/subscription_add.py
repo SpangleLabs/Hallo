@@ -61,7 +61,7 @@ class SubscriptionAdd(Function):
         sub_obj = Subscription.create_from_input(event, source_class, sub_repo)
         # No need to test subscription, that's done in create_from_input
         # Acquire lock and save sub
-        with sub_repo.sub_lock:
+        async with sub_repo.sub_lock:
             # Add new subscription to list
             sub_repo.add_sub(sub_obj)
             # Save list

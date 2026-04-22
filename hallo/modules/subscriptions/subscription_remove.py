@@ -57,7 +57,7 @@ class SubscriptionRemove(Function):
         # Clean up input
         clean_input = event.command_args.strip()
         # Acquire lock
-        with sub_repo.sub_lock:
+        async with sub_repo.sub_lock:
             # Find any feeds with specified title
             test_subs: list[Subscription] = sub_repo.get_subs_by_name(clean_input.lower(), event.destination,)
             if len(test_subs) > 0:

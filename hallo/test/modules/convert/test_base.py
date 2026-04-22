@@ -1,5 +1,4 @@
 import asyncio
-from threading import Thread
 
 import gc
 

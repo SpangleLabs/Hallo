@@ -1,10 +1,10 @@
+import asyncio
 from hallo.destination import Channel, User
 from hallo.events import EventMessage
 import random
 import time
 
 from hallo.inc.commons import Commons
-from threading import Thread
 
 import hallo.modules.games.cards
 
@@ -378,7 +378,7 @@ class DDRGame(Game):
 
     def start_game(self):
         """Launches the new thread to play the game."""
-        Thread(target=self.run).start()
+        asyncio.create_task(self.run)
 
     async def run(self):
         """Launched into a new thread, this function actually plays the DDR game."""
