@@ -81,7 +81,7 @@ async def hallo_getter():
         # Wait until hallo is open
         count = 0
         while not hallo.open:
-            time.sleep(0.01)
+            await time.sleep(0.01)
             count += 1
             assert count < 1000, "Hallo took too long to start."
             if count > 1000:

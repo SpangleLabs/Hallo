@@ -10,7 +10,7 @@ import time
 
 
 class TestBase(unittest.TestCase):
-    def setUp(self):
+    async def setUp(self):
         # Create a Hallo
         self.hallo = Hallo()
         # Only the required modules, only 1 (mock) server
@@ -37,7 +37,7 @@ class TestBase(unittest.TestCase):
         # Wait until hallo is open
         count = 0
         while not self.hallo.open:
-            time.sleep(0.01)
+            await asyncio.sleep(0.01)
             count += 1
             assert count < 1000, "Hallo took too long to start."
             if count > 1000:
