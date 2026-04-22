@@ -3,7 +3,6 @@ import datetime
 import logging
 import re
 import socket
-from threading import RLock, Lock, Thread
 from typing import Callable, TYPE_CHECKING
 
 from prometheus_client import Gauge
@@ -85,26 +84,19 @@ class ServerIRC(Server):
         self._welcome_message = (
             ""  # Server's welcome message when connecting. MOTD and all.
         )
-        self._check_channeluserlist_lock = (
-            Lock()
-        )  # Thread lock for checking a channel's user list
+        # Thread lock for checking a channel's user list
+        self._check_channeluserlist_lock = asyncio.Lock()
         self._check_channeluserlist_channel = None  # Channel to check user list of
         self._check_channeluserlist_done = False  # Whether the check is complete
-        self._check_usersonline_lock = (
-            Lock()
-        )  # Thread lock for checking which users are online
+        # Thread lock for checking which users are online
+        self._check_usersonline_lock = asyncio.Lock()
         self._check_usersonline_check_list = None  # List of users' names to check
-        self._check_usersonline_online_list = (
-            None  # List of users' names who are online
-        )
-        self._check_useridentity_lock = (
-            Lock()
-        )  # Thread lock for checking if a user is identified with nickserv
+        self._check_usersonline_online_list = None  # List of users' names who are online
+        # Thread lock for checking if a user is identified with nickserv
+        self._check_useridentity_lock = asyncio.Lock()
         self._check_useridentity_user = None  # User name which is being checked
-        self._check_useridentity_result = (
-            None  # Boolean, whether or not the user is identified
-        )
-        self._connect_lock = RLock()
+        self._check_useridentity_result = None  # Boolean, whether or not the user is identified
+        self._connect_lock = asyncio.Lock()
         # Configure from server parameters
         if server_name is not None:
             self.name = server_name
@@ -131,8 +123,7 @@ class ServerIRC(Server):
         if self.state != Server.STATE_CLOSED:
             raise ServerException("Already started.")
         self.state = Server.STATE_CONNECTING
-        with self._connect_lock:
-            asyncio.create_task(self.run())
+        asyncio.create_task(self.run())
 
     async def connect(self) -> None:
         """
@@ -252,7 +243,7 @@ class ServerIRC(Server):
                 error = ExceptionError(f'Failed to send quit message on "{self.name}" IRC server', e, self,)
                 logger.error(error.get_log_line())
                 pass
-        with self._connect_lock:
+        async with self._connect_lock:
             if self._writer is not None:
                 self._writer.close()
             self._writer = None
@@ -264,7 +255,7 @@ class ServerIRC(Server):
         Method to read from stream and process. Will connect and call internal parsing methods or whatnot.
         Needs to be started in it's own thread, only exits when the server connection ends
         """
-        with self._connect_lock:
+        async with self._connect_lock:
             await self.connect()
             while self.state == Server.STATE_OPEN:
                 next_line = None
@@ -1120,25 +1111,24 @@ class ServerIRC(Server):
         :param channel_obj: Channel to check user list of
         """
         # get lock
-        self._check_channeluserlist_lock.acquire()
-        try:
-            self._check_channeluserlist_channel = channel_obj
-            self._check_channeluserlist_done = False
-            # send request
-            await self.send_raw(f"NAMES {channel_obj.name}")
-            # loop for 5 seconds
-            for _ in range(10):
-                # sleep 0.5seconds
-                await asyncio.sleep(0.5)
-                # if reply is here
-                if self._check_channeluserlist_done:
-                    break
-            # return
-            return
-        finally:
-            self._check_channeluserlist_channel = None
-            self._check_channeluserlist_done = False
-            self._check_channeluserlist_lock.release()
+        async with self._check_channeluserlist_lock:
+            try:
+                self._check_channeluserlist_channel = channel_obj
+                self._check_channeluserlist_done = False
+                # send request
+                await self.send_raw(f"NAMES {channel_obj.name}")
+                # loop for 5 seconds
+                for _ in range(10):
+                    # sleep 0.5seconds
+                    await asyncio.sleep(0.5)
+                    # if reply is here
+                    if self._check_channeluserlist_done:
+                        break
+                # return
+                return
+            finally:
+                self._check_channeluserlist_channel = None
+                self._check_channeluserlist_done = False
 
     async def check_users_online(self, check_user_list: list[str]) -> list[str]:
         """
@@ -1146,37 +1136,36 @@ class ServerIRC(Server):
         :param check_user_list: List of names of users to check online status of
         """
         # get lock
-        self._check_usersonline_lock.acquire()
-        try:
-            self._check_usersonline_check_list = check_user_list
-            self._check_usersonline_online_list = None
-            # send request
-            await self.send_raw(f"ISON {' '.join(check_user_list)}")
-            # loop for 5 seconds
-            for _ in range(10):
-                # if reply is here
-                if self._check_usersonline_online_list is not None:
-                    # use response
-                    for user_name in self._check_usersonline_check_list:
-                        user_obj = self.get_user_by_address(
-                            user_name.lower(), user_name
-                        )
-                        if user_name in self._check_usersonline_online_list:
-                            user_obj.set_online(True)
-                        else:
-                            user_obj.set_online(False)
-                    # return response
-                    response = self._check_usersonline_online_list
-                    return response
-                # sleep 0.5 seconds
-                await asyncio.sleep(0.5)
-            # return empty list
-            return []
-        finally:
-            # release lock
-            self._check_usersonline_check_list = None
-            self._check_usersonline_online_list = None
-            self._check_usersonline_lock.release()
+        async with self._check_usersonline_lock:
+            try:
+                self._check_usersonline_check_list = check_user_list
+                self._check_usersonline_online_list = None
+                # send request
+                await self.send_raw(f"ISON {' '.join(check_user_list)}")
+                # loop for 5 seconds
+                for _ in range(10):
+                    # if reply is here
+                    if self._check_usersonline_online_list is not None:
+                        # use response
+                        for user_name in self._check_usersonline_check_list:
+                            user_obj = self.get_user_by_address(
+                                user_name.lower(), user_name
+                            )
+                            if user_name in self._check_usersonline_online_list:
+                                user_obj.set_online(True)
+                            else:
+                                user_obj.set_online(False)
+                        # return response
+                        response = self._check_usersonline_online_list
+                        return response
+                    # sleep 0.5 seconds
+                    await asyncio.sleep(0.5)
+                # return empty list
+                return []
+            finally:
+                # release lock
+                self._check_usersonline_check_list = None
+                self._check_usersonline_online_list = None
 
     async def check_user_identity(self, user_obj: User) -> bool:
         """
@@ -1190,36 +1179,35 @@ class ServerIRC(Server):
             self.nickserv_nick.lower(), self.nickserv_nick
         )
         # get check user lock
-        self._check_useridentity_lock.acquire()
-        try:
-            self._check_useridentity_user = user_obj.address
-            self._check_useridentity_result = None
-            # send whatever request
-            await self.send(
-                EventMessage(
-                    self,
-                    None,
-                    nickserv_obj,
-                    f"{self.nickserv_ident_command} {user_obj.address}",
-                    inbound=False,
+        async with self._check_useridentity_lock:
+            try:
+                self._check_useridentity_user = user_obj.address
+                self._check_useridentity_result = None
+                # send whatever request
+                await self.send(
+                    EventMessage(
+                        self,
+                        None,
+                        nickserv_obj,
+                        f"{self.nickserv_ident_command} {user_obj.address}",
+                        inbound=False,
+                    )
                 )
-            )
-            # loop for 5 seconds
-            for _ in range(10):
-                # if response
-                if self._check_useridentity_result is not None:
-                    # return
-                    response = self._check_useridentity_result
-                    return response
-                # sleep 0.5
-                await asyncio.sleep(0.5)
-            # return false
-            return False
-        finally:
-            # release lock
-            self._check_useridentity_user = None
-            self._check_useridentity_result = None
-            self._check_useridentity_lock.release()
+                # loop for 5 seconds
+                for _ in range(10):
+                    # if response
+                    if self._check_useridentity_result is not None:
+                        # return
+                        response = self._check_useridentity_result
+                        return response
+                    # sleep 0.5
+                    await asyncio.sleep(0.5)
+                # return false
+                return False
+            finally:
+                # release lock
+                self._check_useridentity_user = None
+                self._check_useridentity_result = None
 
     def handle_user_list(self, channel: Channel, user_name_list: str) -> None:
         """
