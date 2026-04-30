@@ -8,6 +8,7 @@ from collections.abc import Awaitable
 from datetime import timedelta
 from typing import TypeVar, Callable, Generic, Type
 
+import aiohttp
 import requests
 from prometheus_client import Gauge
 from publicsuffixlist import PublicSuffixList
@@ -161,15 +162,16 @@ class Commons(object):
             return loop.run_until_complete(awaitable)
 
     @staticmethod
-    def load_url_string(url: str, headers: list[list[str]] = None) -> str:
+    async def load_url_string(url: str, headers: list[list[str]] = None) -> str:
         """
         Takes a url, pulls it and returns the body of the page.
         :param url: URL to download
-        :param headers: List of HTTP headers to add to request
+        :param headers: List of HTTP headers to add to request, as a list of key-value pairs
         """
         headers_dict = Commons.create_headers_dict(headers)
-        resp = requests.get(url, headers=headers_dict, timeout=10)
-        return resp.text
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as resp:
+                return await resp.text()
 
     @staticmethod
     def parse_web_json(code: str, json_fix: bool) -> dict:
@@ -191,9 +193,7 @@ class Commons(object):
         :param headers: List of HTTP headers to add to request
         :param json_fix: Whether to "fix" the JSON being returned for parse errors
         """
-        if headers is None:
-            headers = []
-        code = Commons.load_url_string(url, headers)
+        code = Commons.sync_async(Commons.load_url_string(url, headers))
         return Commons.parse_web_json(code, json_fix)
 
     @staticmethod

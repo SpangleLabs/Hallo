@@ -48,11 +48,11 @@ class RssSource(StreamSource[ElementTree.Element]):
         super().__init__(last_keys)
         self.url = url
         if feed_title is None:
-            feed_title = self._get_feed_title()
+            feed_title = Commons.sync_async(self._get_feed_title())
         self.feed_title = feed_title
 
-    def _get_feed_title(self) -> str:
-        rss_data = self.get_rss_data()
+    async def _get_feed_title(self) -> str:
+        rss_data = await self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         channel_elem = rss_elem.find("channel")
         title = None
@@ -65,7 +65,7 @@ class RssSource(StreamSource[ElementTree.Element]):
             title = title_elem.text
         return title if title is not None else "No title"
 
-    def get_rss_data(self) -> str:
+    async def get_rss_data(self) -> str:
         headers = None
         # Tumblr feeds need "GoogleBot" in the URL, or they'll give a GDPR notice
         if "tumblr.com" in self.url:
@@ -73,7 +73,7 @@ class RssSource(StreamSource[ElementTree.Element]):
                 ["User-Agent", "Hallo IRCBot hallo@dr-spangle.com (GoogleBot/4.5.1)"]
             ]
         # Actually get the data
-        rss_data = Commons.load_url_string(self.url, headers)
+        rss_data = await Commons.load_url_string(self.url, headers)
         # PHDComics doesn't always escape ampersands correctly
         if "phdcomics" in self.url:
             rss_data = rss_data.replace("& ", "&amp; ")
@@ -83,10 +83,10 @@ class RssSource(StreamSource[ElementTree.Element]):
         return rss_data
 
     def current_state(self) -> list[ElementTree.Element]:
-        rss_data = self.get_rss_data()
+        rss_data = Commons.sync_async(self.get_rss_data())
         rss_elem = ElementTree.fromstring(rss_data)
         # Update title
-        self.feed_title = self._get_feed_title()
+        self.feed_title = Commons.sync_async(self._get_feed_title())
         return _get_feed_items(rss_elem)
 
     def item_to_key(self, item: ElementTree.Element) -> Key:
@@ -107,7 +107,7 @@ class RssSource(StreamSource[ElementTree.Element]):
             item: ElementTree.Element
     ) -> EventMessage:
         # Check custom formatting
-        custom_evt = self._format_custom_sites(server, channel, user, item)
+        custom_evt = Commons.sync_async(self._format_custom_sites(server, channel, user, item))
         if custom_evt is not None:
             return custom_evt
         # Load item xml
@@ -118,7 +118,7 @@ class RssSource(StreamSource[ElementTree.Element]):
         output_evt = EventMessage(server, channel, user, output, inbound=False)
         return output_evt
 
-    def _format_custom_sites(
+    async def _format_custom_sites(
             self, server: Server, channel: Channel | None, user: User | None,
             item: ElementTree.Element
     ) -> EventMessage | None:
@@ -141,7 +141,7 @@ class RssSource(StreamSource[ElementTree.Element]):
         if "smbc-comics.com" in self.url:
             item_title = item.find("title").text
             item_link = item.find("link").text
-            page_code = Commons.load_url_string(item_link)
+            page_code = await Commons.load_url_string(item_link)
             soup = BeautifulSoup(page_code, "html.parser")
             comic_img = soup.select_one("img#cc-comic")
             alt_text = comic_img["title"]
@@ -157,7 +157,7 @@ class RssSource(StreamSource[ElementTree.Element]):
         if "rss.app" in self.url:
             item_title = _get_item_title(item)
             item_link = get_rss_item_link(item)
-            page_code = Commons.load_url_string(item_link)
+            page_code = await Commons.load_url_string(item_link)
             soup = BeautifulSoup(page_code, "html.parser")
             head_script = soup.select_one("head script")
             if head_script is None:

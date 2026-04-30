@@ -75,7 +75,7 @@ class UpdateCurrencies(Function):
         # Update with the European Bank
         try:
             output_lines.append(
-                self.update_from_european_bank_data(repo)
+                await self.update_from_european_bank_data(repo)
                 or "Updated currency data from the European Central Bank."
             )
         except Exception as e:
@@ -85,7 +85,7 @@ class UpdateCurrencies(Function):
         # Update with Forex
         try:
             output_lines.append(
-                self.update_from_forex_data(repo) or "Updated currency data from Forex."
+                await self.update_from_forex_data(repo) or "Updated currency data from Forex."
             )
         except Exception as e:
             output_lines.append("Failed to update Forex data. {}".format(e))
@@ -101,16 +101,15 @@ class UpdateCurrencies(Function):
         repo.save_json()
         return output_lines
 
-    def update_from_european_bank_data(self, repo):
+    async def update_from_european_bank_data(self, repo: 'ConvertRepo') -> None:
         """
         Updates the value of conversion currency units using The European Bank data.
-        :type repo: ConvertRepo
         """
         # Get currency ConvertType
         currency_type = repo.get_type_by_name("currency")
         # Pull xml data from european bank website
         url = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
-        xml_string = Commons.load_url_string(url)
+        xml_string = await Commons.load_url_string(url)
         # Parse data
         doc = minidom.parseString(xml_string)
         root = doc.getElementsByTagName("gesmes:Envelope")[0]
@@ -131,16 +130,15 @@ class UpdateCurrencies(Function):
             # Set Value
             currency_unit.update_value(currency_value)
 
-    def update_from_forex_data(self, repo):
+    async def update_from_forex_data(self, repo: 'ConvertRepo') -> None:
         """
         Updates the value of conversion currency units using Forex data.
-        :type repo: ConvertRepo
         """
         # Get currency ConvertType
         currency_type = repo.get_type_by_name("currency")
         # Pull xml data from forex website
         url = "https://rates.fxcm.com/RatesXML3"
-        xml_string = Commons.load_url_string(url)
+        xml_string = await Commons.load_url_string(url)
         # Parse data
         doc = minidom.parseString(xml_string)
         rates_elem = doc.getElementsByTagName("Rates")[0]

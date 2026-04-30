@@ -275,7 +275,7 @@ async def test_update_all_fail_all(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_update_ecb():
+async def test_update_ecb():
     # Set up test repo
     test_repo = hallo.modules.convert.convert_repo.ConvertRepo()
     test_type = hallo.modules.convert.convert_repo.ConvertType(test_repo, "currency")
@@ -319,7 +319,7 @@ def test_update_ecb():
         test_type.add_unit(test_unit)
     # Run update_from_european_bank_data
     c = hallo.modules.convert.update_currencies.UpdateCurrencies()
-    c.update_from_european_bank_data(test_repo)
+    await c.update_from_european_bank_data(test_repo)
     # Check results
     for code in currency_codes:
         test_unit = test_type.get_unit_by_name(code)
@@ -327,7 +327,7 @@ def test_update_ecb():
 
 
 @pytest.mark.external_integration
-def test_update_forex():
+async def test_update_forex():
     # Set up test repo
     test_repo = hallo.modules.convert.convert_repo.ConvertRepo()
     test_type = hallo.modules.convert.convert_repo.ConvertType(test_repo, "currency")
@@ -350,7 +350,7 @@ def test_update_forex():
         test_type.add_unit(test_unit)
     # Run update_from_forex_data
     c = hallo.modules.convert.update_currencies.UpdateCurrencies()
-    c.update_from_forex_data(test_repo)
+    await c.update_from_forex_data(test_repo)
     # Check results
     for code in currency_codes:
         test_unit = test_type.get_unit_by_name(code)
