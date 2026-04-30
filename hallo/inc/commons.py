@@ -4,6 +4,7 @@ import logging
 import re
 import json
 import random
+from collections.abc import Awaitable
 from datetime import timedelta
 from typing import TypeVar, Callable, Generic, Type
 
@@ -148,6 +149,16 @@ class Commons(object):
         for header in headers:
             headers_dict[header[0]] = header[1]
         return headers_dict
+
+    @staticmethod
+    def sync_async(awaitable: Awaitable[T]) -> T:
+        # TODO (async): temporary, try and avoid this and replace it
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(awaitable)
+        else:
+            return loop.run_until_complete(awaitable)
 
     @staticmethod
     def load_url_string(url: str, headers: list[list[str]] = None) -> str:
