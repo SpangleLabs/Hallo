@@ -172,6 +172,18 @@ class Commons(object):
         return resp.text
 
     @staticmethod
+    def parse_web_json(code: str, json_fix: bool) -> dict:
+        if json_fix:
+            code = re.sub(",+", ",", code)
+            code = code.replace("[,", "[").replace(",]", "]")
+        try:
+            output_dict = json.loads(code)
+        except Exception as e:
+            logger.error("Failed to parse received JSON: %s", code, exc_info=e)
+            raise e
+        return output_dict
+
+    @staticmethod
     def load_url_json(url: str, headers: list[list[str]] = None, json_fix: bool = False) -> dict:
         """
         Takes a url to a json resource, pulls it and returns a dictionary.
@@ -182,15 +194,7 @@ class Commons(object):
         if headers is None:
             headers = []
         code = Commons.load_url_string(url, headers)
-        if json_fix:
-            code = re.sub(",+", ",", code)
-            code = code.replace("[,", "[").replace(",]", "]")
-        try:
-            output_dict = json.loads(code)
-        except Exception as e:
-            logger.error("Failed to parse received JSON: %s", code, exc_info=e)
-            raise e
-        return output_dict
+        return Commons.parse_web_json(code, json_fix)
 
     @staticmethod
     def put_json_to_url(url: str, data: dict, headers: list[list[str]] = None) -> None:
