@@ -34,7 +34,7 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def create_from_spreadsheet(spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
-        static_data = spreadsheet.read_path("stats/mood/static/")
+        static_data = Commons.sync_async(spreadsheet.read_path("stats/mood/static/"))
         if len(static_data) == 0:
             raise DailysException(
                 "Mood field static data has not been set up on dailys system."

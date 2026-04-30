@@ -55,7 +55,7 @@ class CurrentWeather(Function):
         url = "https://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(
             self.build_query(location_entry), api_key
         )
-        response = Commons.load_url_json(url)
+        response = await Commons.load_url_json(url)
         if str(response["cod"]) != "200":
             return event.create_response("Location not recognised.")
         city_name = response["name"]

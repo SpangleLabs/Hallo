@@ -21,7 +21,7 @@ class InSpace(Function):
         self.help_docs = "Returns the number of people in space right now, and their names. Format: in space"
 
     async def run(self, event):
-        space_dict = Commons.load_url_json(
+        space_dict = await Commons.load_url_json(
             "https://www.howmanypeopleareinspacerightnow.com/space.json"
         )
         space_number = str(space_dict["number"])

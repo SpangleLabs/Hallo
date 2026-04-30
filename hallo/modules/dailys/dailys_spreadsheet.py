@@ -39,27 +39,27 @@ class DailysSpreadsheet:
             headers,
         )
 
-    def read_path(self, path: str) -> list | dict:
+    async def read_path(self, path: str) -> list | dict:
         """
         Save given data in a specified column for the current date row.
         """
         headers = None
         if self.dailys_key is not None:
             headers = [["Authorization", self.dailys_key]]
-        return Commons.load_url_json(
+        return await Commons.load_url_json(
             "{}/{}".format(
                 self.dailys_url, path
             ),
             headers
         )
 
-    def read_field(self, dailys_field: 'DailysField', data_date: datetime.datetime) -> dict | None:
+    async def read_field(self, dailys_field: 'DailysField', data_date: datetime.datetime) -> dict | None:
         """
         Save given data in a specified column for the current date row.
         """
         if dailys_field.type_name is None:
             raise hallo.modules.dailys.dailys_field.DailysException("Cannot read from unassigned dailys field")
-        data = self.read_path("stats/{}/{}/".format(dailys_field.type_name, data_date.isoformat()))
+        data = await self.read_path("stats/{}/{}/".format(dailys_field.type_name, data_date.isoformat()))
         if len(data) == 0:
             return None
         return data[0]["data"]

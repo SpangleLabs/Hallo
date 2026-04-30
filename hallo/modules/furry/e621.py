@@ -20,7 +20,7 @@ class E621(Function):
         self.help_docs = "Returns a random e621 result using the search you specify. Format: e621 <tags>"
 
     async def run(self, event):
-        search_result = self.get_random_link_result(event.command_args)
+        search_result = await self.get_random_link_result(event.command_args)
         if search_result is None:
             return event.create_response("No results.")
         else:
@@ -40,13 +40,13 @@ class E621(Function):
                 )
             )
 
-    def get_random_link_result(self, search):
+    async def get_random_link_result(self, search):
         """Gets a random link from the e621 api."""
         line_clean = search.replace(" ", "%20")
         url = "https://e621.net/posts.json?tags=order:random%20score:%3E0%20{}%20&limit=1".format(
             line_clean
         )
-        return_list = Commons.load_url_json(url)
+        return_list = await Commons.load_url_json(url)
         if len(return_list["posts"]) == 0:
             return None
         else:

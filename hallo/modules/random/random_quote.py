@@ -22,7 +22,7 @@ class RandomQuote(Function):
     async def run(self, event):
         url = "https://type.fit/api/quotes"
         # Get api response
-        json_dict = Commons.load_url_json(url)
+        json_dict = await Commons.load_url_json(url)
         # Select a random quote from response
         quote = Commons.get_random_choice(json_dict)[0]
         # Construct response

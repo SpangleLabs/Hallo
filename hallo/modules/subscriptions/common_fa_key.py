@@ -100,8 +100,8 @@ class FAKey:
             url = f"{fa_api_url}/{path}"
             if needs_cookie:
                 cookie_string = "b=" + self.b + "; a=" + self.a
-                return Commons.load_url_json(url, [["FA_COOKIE", cookie_string]])
-            return Commons.load_url_json(url)
+                return Commons.sync_async(Commons.load_url_json(url, [["FA_COOKIE", cookie_string]]))
+            return Commons.sync_async(Commons.load_url_json(url))
 
         def get_notification_page(self) -> 'FAKey.FAReader.FANotificationsPage':
             return self.notification_page_cache.get()

@@ -186,14 +186,14 @@ class Commons(object):
         return output_dict
 
     @staticmethod
-    def load_url_json(url: str, headers: list[list[str]] = None, json_fix: bool = False) -> dict:
+    async def load_url_json(url: str, headers: list[list[str]] = None, json_fix: bool = False) -> dict:
         """
         Takes a url to a json resource, pulls it and returns a dictionary.
         :param url: URL of json to download
         :param headers: List of HTTP headers to add to request
         :param json_fix: Whether to "fix" the JSON being returned for parse errors
         """
-        code = Commons.sync_async(Commons.load_url_string(url, headers))
+        code = await Commons.load_url_string(url, headers)
         return Commons.parse_web_json(code, json_fix)
 
     @staticmethod

@@ -45,6 +45,6 @@ class Translate(Function):
                 trans_safe, lang_from, lang_to
             )
         )
-        trans_dict = Commons.load_url_json(url, [], True)
+        trans_dict = await Commons.load_url_json(url, [], True)
         translation_string = " ".join([x[0] for x in trans_dict[0]])
         return event.create_response("Translation: {}".format(translation_string))

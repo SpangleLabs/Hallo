@@ -24,7 +24,7 @@ class Butts(Function):
         function_dispatcher = event.server.hallo.function_dispatcher
         e621_class = function_dispatcher.get_function_by_name("e621")
         e621_obj = function_dispatcher.get_function_object(e621_class)  # type: E621
-        search_result = e621_obj.get_random_link_result("butt")
+        search_result = await e621_obj.get_random_link_result("butt")
         if search_result is None:
             return event.create_response("No results.")
         else:

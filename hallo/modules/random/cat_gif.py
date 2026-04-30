@@ -33,6 +33,6 @@ class CatGif(Function):
         url = "http://thecatapi.com/api/images/get?format=json&api_key={}&type=gif".format(
             api_key
         )
-        cat_obj = Commons.load_url_json(url)[0]
+        cat_obj = await Commons.load_url_json(url)[0]
         cat_url = cat_obj["url"]
         return event.create_response(cat_url)

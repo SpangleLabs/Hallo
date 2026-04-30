@@ -172,13 +172,13 @@ class UpdateCurrencies(Function):
         for code in currency_codes:
             # Get data
             try:
-                data = Commons.load_url_json(f"https://api.cryptonator.com/api/ticker/{code}-eur")
+                data = await Commons.load_url_json(f"https://api.cryptonator.com/api/ticker/{code}-eur")
             except Exception as e:
                 # If it fails, because it failed to parse the JSON, give it another go
                 # Cryptonator API returns HTML sometimes. I don't know why.
                 if "Expecting value:" in str(e):
                     await asyncio.sleep(5)
-                    data = Commons.load_url_json(f"https://api.cryptonator.com/api/ticker/{code}-eur")
+                    data = await Commons.load_url_json(f"https://api.cryptonator.com/api/ticker/{code}-eur")
                 else:
                     raise e
             # Get the ConvertUnit object for the currency reference

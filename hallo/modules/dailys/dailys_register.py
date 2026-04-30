@@ -55,7 +55,7 @@ class DailysRegister(Function):
                 spreadsheet = DailysSpreadsheet(
                     event.user, event.channel, clean_input[0], clean_input[1]
                 )
-                resp = spreadsheet.read_path("stats/")
+                resp = await spreadsheet.read_path("stats/")
                 if isinstance(resp, list):
                     spreadsheet = None
             except HTTPError:
@@ -69,7 +69,7 @@ class DailysRegister(Function):
                 "Please specify a dailys API URL and an optional auth key."
             )
         # Check the stats/ endpoint returns a list.
-        resp = spreadsheet.read_path("stats/")
+        resp = await spreadsheet.read_path("stats/")
         if not isinstance(resp, list):
             return event.create_response("Could not locate Dailys API at this URL.")
         # Save the spreadsheet

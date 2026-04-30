@@ -33,7 +33,7 @@ class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
         cookie = "b=" + fa_data.cookie_b + "; a=" + fa_data.cookie_a
         fa_api_url = os.getenv("FA_API_URL", "https://faexport.spangle.org.uk")
         try:
-            notifications_data = Commons.load_url_json(
+            notifications_data = await Commons.load_url_json(
                 "{}/notifications/others.json".format(fa_api_url),
                 [["FA_COOKIE", cookie]],
             )
@@ -42,7 +42,7 @@ class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
                 "FA key in storage is not currently logged in to FA."
             )
         profile_name = notifications_data["current_user"]["profile_name"]
-        profile_data = Commons.load_url_json("{}/user/{}.json".format(fa_api_url, profile_name))
+        profile_data = await Commons.load_url_json("{}/user/{}.json".format(fa_api_url, profile_name))
         notifications = {
             "submissions": notifications_data["notification_counts"]["submissions"],
             "comments": notifications_data["notification_counts"]["comments"],

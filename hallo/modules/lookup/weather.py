@@ -92,7 +92,7 @@ class Weather(Function):
             "https://api.openweathermap.org/data/2.5/forecast/daily{}"
             "&cnt=16&APPID={}".format(self.build_query(location_entry), api_key)
         )
-        response = Commons.load_url_json(url)
+        response = await Commons.load_url_json(url)
         # Check API responded well
         if str(response["cod"]) != "200":
             return event.create_response("Location not recognised.")

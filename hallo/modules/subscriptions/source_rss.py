@@ -127,7 +127,7 @@ class RssSource(StreamSource[ElementTree.Element]):
             item_link = item.find("link").text
             comic_number = item_link.strip("/").split("/")[-1]
             json_link = f"https://xkcd.com/{comic_number}/info.0.json"
-            comic_json = Commons.load_url_json(json_link)
+            comic_json = await Commons.load_url_json(json_link)
             alt_text = comic_json["alt"]
             output = f'Update on "{self.feed_title}" RSS feed. "{item_title}" {item_link}\nAlt text: {alt_text}'
             return EventMessage(server, channel, user, output, inbound=False)
