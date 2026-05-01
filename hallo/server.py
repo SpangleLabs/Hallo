@@ -56,17 +56,14 @@ class Server(metaclass=ABCMeta):
         self.auto_connect = (
             True  # Whether to automatically connect to this server when hallo starts
         )
-        self.channel_list = (
-            []
-        )  # List of channels on this server (which may or may not be currently active)
-        """ :type : list[Destination.Channel]"""
-        self.user_list = []  # Users on this server (not all of which are online)
-        """ :type : list[Destination.User]"""
+        # List of channels on this server (which may or may not be currently active)
+        self.channel_list: list[Channel] = []
+        # Users on this server (not all of which are online)
+        self.user_list: list[User] = []
         self.nick = None  # Nickname to use on this server
         self.prefix = None  # Prefix to use with functions on this server
         self.full_name = None  # Full name to use on this server
-        self.permission_mask = PermissionMask()  # PermissionMask for the server
-        """ :type : PermissionMask"""
+        self.permission_mask: PermissionMask = PermissionMask()  # PermissionMask for the server
         # Dynamic/unsaved class variables
         self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
         # Metrics

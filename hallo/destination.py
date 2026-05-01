@@ -279,7 +279,6 @@ class User(Destination):
         Returns the UserGroup with the matching name
         :param user_group_name: Returns the user group by the specified name that this user is in
         :type user_group_name: str
-        :rtype : user_group.UserGroup | None
         """
         for user_group in self.user_group_list:
             if user_group.name == user_group_name:
@@ -311,8 +310,7 @@ class User(Destination):
             self.identified = False
             for membership in self.memberships_list:
                 membership.channel.memberships_list.discard(membership)
-            self.memberships_list = set()
-            """:type : set[ChannelMembership]"""
+            self.memberships_list: set['ChannelMembership'] = set()
 
     def rights_check(self, right_name: str, channel_obj: Channel | None = None) -> bool:
         """
