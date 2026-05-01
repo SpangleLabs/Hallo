@@ -369,11 +369,11 @@ class QuestionsField(DailysField):
 
     @staticmethod
     async def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
-        return QuestionsField.create_from_spreadsheet(spreadsheet)
+        return await QuestionsField.create_from_spreadsheet(spreadsheet)
 
     @staticmethod
-    def create_from_spreadsheet(spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
-        static_data = Commons.sync_async(spreadsheet.read_path("stats/questions/static/"))
+    async def create_from_spreadsheet(spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
+        static_data = await spreadsheet.read_path("stats/questions/static/")
         if len(static_data) == 0:
             raise DailysException("Questions field static data has not been set up on dailys system.")
         question_data = static_data[0]["data"]["questions"]
@@ -495,4 +495,4 @@ class QuestionsField(DailysField):
 
     @staticmethod
     async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
-        return QuestionsField.create_from_spreadsheet(spreadsheet)
+        return await QuestionsField.create_from_spreadsheet(spreadsheet)
