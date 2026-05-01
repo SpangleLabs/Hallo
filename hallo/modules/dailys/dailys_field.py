@@ -44,7 +44,7 @@ class DailysField(metaclass=ABCMeta):
         raise NotImplementedError()
 
     def save_data(self, data: dict, data_date: datetime.datetime) -> None:
-        self.spreadsheet.save_field(self, data, data_date=data_date)
+        Commons.sync_async(self.spreadsheet.save_field(self, data, data_date=data_date))
 
     def load_data(self, data_date: date) -> dict | None:
         return Commons.sync_async(self.spreadsheet.read_field(self, data_date))

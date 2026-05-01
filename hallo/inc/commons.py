@@ -197,7 +197,7 @@ class Commons(object):
         return Commons.parse_web_json(code, json_fix)
 
     @staticmethod
-    def put_json_to_url(url: str, data: dict, headers: list[list[str]] = None) -> None:
+    async def put_json_to_url(url: str, data: dict, headers: list[list[str]] = None) -> None:
         """
         Converts data to JSON and PUT it to the specified URL
         :param url: URL to send PUT request to
@@ -205,7 +205,9 @@ class Commons(object):
         :param headers: List of HTTP headers to add to the request
         """
         headers_dict = Commons.create_headers_dict(headers)
-        requests.put(url, headers=headers_dict, json=data)
+        async with aiohttp.ClientSession() as session:
+            async with session.put(url, headers=headers_dict, json=data) as resp:
+                return
 
     @staticmethod
     def check_numbers(message: str) -> bool:

@@ -24,7 +24,7 @@ class DailysSpreadsheet:
     def add_field(self, field: 'DailysField') -> None:
         self.fields_list.append(field)
 
-    def save_field(self, dailys_field: 'DailysField', data: dict, data_date: datetime.datetime) -> None:
+    async def save_field(self, dailys_field: 'DailysField', data: dict, data_date: datetime.datetime) -> None:
         """
         Save given data in a specified column for the current date row.
         """
@@ -33,7 +33,7 @@ class DailysSpreadsheet:
         headers = None
         if self.dailys_key is not None:
             headers = [["Authorization", self.dailys_key]]
-        Commons.put_json_to_url(
+        await Commons.put_json_to_url(
             f"{self.dailys_url}/stats/{dailys_field.type_name}/{data_date.isoformat()}/?source=Hallo",
             data,
             headers,

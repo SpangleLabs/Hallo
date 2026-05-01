@@ -262,9 +262,9 @@ class AnswersData:
         answer_data = date_data[0]["data"]["answers"]
         return [Answer.from_dict(d) for d in answer_data]
 
-    def save_answers_for_date(self, answer_date: datetime.date, answers: list[Answer]) -> None:
+    async def save_answers_for_date(self, answer_date: datetime.date, answers: list[Answer]) -> None:
         date_data = {"answers": [a.to_dict() for a in answers]}
-        self.spreadsheet.save_field(QuestionsField, date_data, answer_date)
+        await self.spreadsheet.save_field(QuestionsField, date_data, answer_date)
 
     async def save_answer(self, answer: Answer) -> None:
         async with self.lock:
@@ -276,7 +276,7 @@ class AnswersData:
                 date_answers.append(answer)
             else:
                 date_answers.append(answer)
-            self.save_answers_for_date(answer_date, date_answers)
+            await self.save_answers_for_date(answer_date, date_answers)
 
 
 class AnswerCache:
