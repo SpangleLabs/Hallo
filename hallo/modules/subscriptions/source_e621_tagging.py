@@ -259,7 +259,7 @@ class E621TaggingSource(E621Source):
     def item_text_prefix(self) -> str:
         return f'Update on "{self.search}" tagging e621 search.'
 
-    def item_to_event(
+    async def item_to_event(
             self,
             server: Server,
             channel: Channel | None,

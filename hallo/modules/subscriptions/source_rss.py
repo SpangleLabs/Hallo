@@ -102,12 +102,12 @@ class RssSource(StreamSource[ElementTree.Element]):
                 item_hash = hashlib.md5(item_xml).hexdigest()
         return item_hash
 
-    def item_to_event(
+    async def item_to_event(
             self, server: Server, channel: Channel | None, user: User | None,
             item: ElementTree.Element
     ) -> EventMessage:
         # Check custom formatting
-        custom_evt = Commons.sync_async(self._format_custom_sites(server, channel, user, item))
+        custom_evt = await self._format_custom_sites(server, channel, user, item)
         if custom_evt is not None:
             return custom_evt
         # Load item xml

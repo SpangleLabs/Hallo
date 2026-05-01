@@ -28,7 +28,7 @@ class FASubmissionCommentSource(StreamSource[FAKey.FAReader.FANotificationCommen
     def item_to_key(self, item: FAKey.FAReader.FANotificationCommentSubmission) -> Key:
         return item.comment_id
 
-    def item_to_event(
+    async def item_to_event(
             self, server: Server, channel: Channel | None, user: User | None,
             item: FAKey.FAReader.FANotificationCommentSubmission
     ) -> EventMessage:
@@ -98,7 +98,7 @@ class FAJournalCommentSource(StreamSource[FAKey.FAReader.FANotificationCommentJo
     def item_to_key(self, item: FAKey.FAReader.FANotificationCommentJournal) -> Key:
         return item.comment_id
 
-    def item_to_event(
+    async def item_to_event(
             self, server: Server, channel: Channel | None, user: User | None,
             item: FAKey.FAReader.FANotificationCommentJournal
     ) -> EventMessage:
@@ -168,7 +168,7 @@ class FAShoutSource(StreamSource[FAKey.FAReader.FANotificationShout]):
     def item_to_key(self, item: FAKey.FAReader.FANotificationShout) -> Key:
         return item.shout_id
 
-    def item_to_event(
+    async def item_to_event(
             self, server: Server, channel: Channel | None, user: User | None,
             item: FAKey.FAReader.FANotificationShout
     ) -> EventMessage:

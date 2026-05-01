@@ -34,7 +34,7 @@ class FAUserWatchersSource(StreamSource[FAKey.FAReader.FAWatch]):
     def item_to_key(self, item: FAKey.FAReader.FAWatch) -> Key:
         return item.watcher_username
 
-    def item_to_event(
+    async def item_to_event(
             self, server: Server, channel: Channel | None, user: User | None,
             item: FAKey.FAReader.FAWatch
     ) -> EventMessage:

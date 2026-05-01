@@ -55,7 +55,7 @@ class StreamSource(Source[list[Item], list[Item]], Generic[Item]):
         pass
 
     @abstractmethod
-    def item_to_event(
+    async def item_to_event(
             self,
             server: Server,
             channel: Channel | None,

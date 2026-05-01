@@ -27,7 +27,7 @@ class FANotesInboxSource(StreamSource[FAKey.FAReader.FANote]):
     def item_to_key(self, item: FAKey.FAReader.FANote) -> Key:
         return item.note_id
 
-    def item_to_event(
+    async def item_to_event(
             self,
             server: Server,
             channel: Channel | None,
@@ -86,7 +86,7 @@ class FANotesOutboxSource(StreamSource[FAKey.FAReader.FANote]):
     def item_to_key(self, item: FAKey.FAReader.FANote) -> Key:
         return item.note_id
 
-    def item_to_event(
+    async def item_to_event(
             self,
             server: Server,
             channel: Channel | None,

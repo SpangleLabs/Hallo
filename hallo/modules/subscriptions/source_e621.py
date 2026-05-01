@@ -57,7 +57,7 @@ class E621Source(StreamSource[Post]):
     def item_to_key(self, item: Post) -> Key:
         return item.id
 
-    def item_to_event(
+    async def item_to_event(
             self,
             server: Server,
             channel: Channel | None,

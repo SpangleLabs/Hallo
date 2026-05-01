@@ -63,7 +63,7 @@ class FAFavsSource(StreamSource[SubmissionId]):
     def item_to_key(self, item: SubmissionId) -> Key:
         return item
 
-    def item_to_event(
+    async def item_to_event(
             self,
             server: Server,
             channel: Channel | None,

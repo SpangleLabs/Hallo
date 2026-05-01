@@ -34,7 +34,7 @@ class FAFavNotificationsSource(StreamSource[FAKey.FAReader.FANotificationFavouri
     def item_to_key(self, item: FAKey.FAReader.FANotificationFavourite) -> Key:
         return item.fav_id
 
-    def item_to_event(
+    async def item_to_event(
             self, server: Server, channel: Channel | None, user: User | None,
             item: FAKey.FAReader.FANotificationFavourite
     ) -> EventMessage:
