@@ -22,7 +22,8 @@ class FASubmissionCommentSource(StreamSource[FAKey.FAReader.FANotificationCommen
         self.fa_key = fa_key
 
     async def current_state(self) -> list[FAKey.FAReader.FANotificationCommentSubmission]:
-        notif_page = self.fa_key.get_fa_reader().get_notification_page()
+        fa_reader = self.fa_key.get_fa_reader()
+        notif_page = await fa_reader.get_notification_page()
         return notif_page.submission_comments
 
     def item_to_key(self, item: FAKey.FAReader.FANotificationCommentSubmission) -> Key:
@@ -91,7 +92,8 @@ class FAJournalCommentSource(StreamSource[FAKey.FAReader.FANotificationCommentJo
         self.fa_key = fa_key
 
     async def current_state(self) -> list[FAKey.FAReader.FANotificationCommentJournal]:
-        notif_page = self.fa_key.get_fa_reader().get_notification_page()
+        fa_reader = self.fa_key.get_fa_reader()
+        notif_page = await fa_reader.get_notification_page()
         return notif_page.journal_comments
 
     def item_to_key(self, item: FAKey.FAReader.FANotificationCommentJournal) -> Key:
@@ -160,7 +162,8 @@ class FAShoutSource(StreamSource[FAKey.FAReader.FANotificationShout]):
         self.fa_key = fa_key
 
     async def current_state(self) -> list[FAKey.FAReader.FANotificationShout]:
-        notif_page = self.fa_key.get_fa_reader().get_notification_page()
+        fa_reader = self.fa_key.get_fa_reader()
+        notif_page = await fa_reader.get_notification_page()
         return notif_page.shouts
 
     def item_to_key(self, item: FAKey.FAReader.FANotificationShout) -> Key:

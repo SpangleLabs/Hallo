@@ -70,28 +70,20 @@ class FAKey:
             self.a = cookie_a
             self.b = cookie_b
             self.timeout: timedelta = timedelta(seconds=60)
-            self.notification_page_cache = CachedObject(
-                lambda: FAKey.FAReader.FANotificationsPage(
-                    Commons.sync_async(self._get_api_data("notifications/others.json", True))
-                ),
+            self.notification_page_cache: CachedObject[FAKey.FAReader.FANotificationsPage] = CachedObject(
+                self._new_notification_page,
                 self.timeout,
             )
-            self.submissions_page_cache = CachedObject(
-                lambda: FAKey.FAReader.FASubmissionsPage(
-                    Commons.sync_async(self._get_api_data("notifications/submissions.json", True))
-                ),
+            self.submissions_page_cache: CachedObject[FAKey.FAReader.FASubmissionsPage] = CachedObject(
+                self._new_submissions_page,
                 self.timeout,
             )
-            self.notes_page_inbox_cache = CachedObject(
-                lambda: FAKey.FAReader.FANotesPage(
-                    Commons.sync_async(self._get_api_data("notes/inbox.json", True), self.NOTES_INBOX)
-                ),
+            self.notes_page_inbox_cache: CachedObject[FAKey.FAReader.FANotesPage] = CachedObject(
+                self._new_notes_page_inbox,
                 self.timeout,
             )
-            self.notes_page_outbox_cache = CachedObject(
-                lambda: FAKey.FAReader.FANotesPage(
-                    Commons.sync_async(self._get_api_data("notes/outbox.json", True), self.NOTES_OUTBOX)
-                ),
+            self.notes_page_outbox_cache: CachedObject[FAKey.FAReader.FANotesPage] = CachedObject(
+                self._new_notes_page_outbox,
                 self.timeout,
             )
 
@@ -103,17 +95,33 @@ class FAKey:
                 return await  Commons.load_url_json(url, [["FA_COOKIE", cookie_string]])
             return await Commons.load_url_json(url)
 
-        def get_notification_page(self) -> 'FAKey.FAReader.FANotificationsPage':
-            return self.notification_page_cache.get()
+        async def _new_notification_page(self) -> 'FAKey.FAReader.FANotificationsPage':
+            page_data = await self._get_api_data("notifications/others.json", True)
+            return FAKey.FAReader.FANotificationsPage(page_data)
 
-        def get_submissions_page(self) -> 'FAKey.FAReader.FASubmissionsPage':
-            return self.submissions_page_cache.get()
+        async def get_notification_page(self) -> 'FAKey.FAReader.FANotificationsPage':
+            return await self.notification_page_cache.get()
 
-        def get_notes_page(self, folder: str) -> 'FAKey.FAReader.FANotesPage':
+        async def _new_submissions_page(self) -> 'FAKey.FAReader.FASubmissionsPage':
+            page_data = await self._get_api_data("notifications/submissions.json", True)
+            return FAKey.FAReader.FASubmissionsPage(page_data)
+
+        async def get_submissions_page(self) -> 'FAKey.FAReader.FASubmissionsPage':
+            return await self.submissions_page_cache.get()
+
+        async def _new_notes_page_inbox(self) -> 'FAKey.FAReader.FANotesPage':
+            page_data = await self._get_api_data("notes/inbox.json", True)
+            return FAKey.FAReader.FANotesPage(page_data, self.NOTES_INBOX)
+
+        async def _new_notes_page_outbox(self) -> 'FAKey.FAReader.FANotesPage':
+            page_data = await self._get_api_data("notes/outbox.json", True)
+            return FAKey.FAReader.FANotesPage(page_data, self.NOTES_OUTBOX)
+
+        async def get_notes_page(self, folder: str) -> 'FAKey.FAReader.FANotesPage':
             if folder == self.NOTES_INBOX:
-                return self.notes_page_inbox_cache.get()
+                return await self.notes_page_inbox_cache.get()
             if folder == self.NOTES_OUTBOX:
-                return self.notes_page_outbox_cache.get()
+                return await self.notes_page_outbox_cache.get()
             raise ValueError("Invalid FA note folder.")
 
         async def get_user_page(self, username: str) -> 'FAKey.FAReader.FAUserPage':

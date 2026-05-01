@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING
 
+from hallo.inc.commons import Commons
 from hallo.modules.subscriptions.subscription_exception import SubscriptionException
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage
@@ -93,7 +94,9 @@ class FAWatchersSource(FAUserWatchersSource):
     ]
 
     def __init__(self, fa_key: FAKey, last_keys: list[Key] | None = None) -> None:
-        username = fa_key.get_fa_reader().get_notification_page().username
+        fa_reader = fa_key.get_fa_reader()
+        notifications_page = Commons.sync_async(fa_reader.get_notification_page())
+        username = notifications_page.username
         super().__init__(fa_key, username, last_keys)
 
     def matches_name(self, name_clean: str) -> bool:

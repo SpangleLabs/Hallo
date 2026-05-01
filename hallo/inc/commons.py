@@ -417,24 +417,24 @@ class Commons(object):
 
 
 class CachedObject(Generic[S]):
-    def __init__(self, setter: Callable[[], S], cache_expiry: timedelta | None = None) -> None:
+    def __init__(self, setter: Callable[[], Awaitable[S]], cache_expiry: timedelta | None = None) -> None:
         """
         :type setter: Callable
         :type cache_expiry: timedelta
         """
-        self.setter: Callable[[], S] = setter
+        self.setter: Callable[[], Awaitable[S]] = setter
         self.cache_expiry: timedelta = (
             cache_expiry if cache_expiry is not None else timedelta(minutes=5)
         )
         self.cache_time: datetime.datetime | None = None
         self.value: S | None = None
 
-    def get(self) -> S:
+    async def get(self) -> S:
         if (
             self.cache_time is None
             or (self.cache_time + self.cache_expiry) < datetime.datetime.now()
         ):
-            self.value = self.setter()
+            self.value = await self.setter()
             self.cache_time = datetime.datetime.now()
         return self.value
 
