@@ -1,9 +1,9 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Awaitable
 
 from hallo.server import Server
 
 if TYPE_CHECKING:
-    from hallo.events import ChannelUserTextEvent
+    from hallo.events import ChannelUserTextEvent, ServerEvent
 
 
 class ServerMock(Server):
@@ -35,7 +35,12 @@ class ServerMock(Server):
         await super().leave_channel(channel_obj)
         self.left_channels.append(channel_obj)
 
-    async def send(self, event, *, after_sent_callback=None):
+    async def send(
+            self,
+            event: 'ServerEvent',
+            *,
+            after_sent_callback: Awaitable[None] | None = None,
+    ) -> None:
         self.send_data.append(event)
         if after_sent_callback:
             after_sent_callback(event)

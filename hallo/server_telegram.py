@@ -18,7 +18,7 @@ from hallo.events import (
     EventMessageWithPhoto,
     RawDataTelegramOutbound, EventMenuCallback, ServerEvent, ChannelUserTextEvent,
 )
-from hallo.inc.commons import all_subclasses
+from hallo.inc.commons import all_subclasses, Commons
 from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
 
@@ -293,7 +293,7 @@ class ServerTelegram(Server):
             self,
             event: ServerEvent,
             *,
-            after_sent_callback: Callable[[ServerEvent], None] | None = None,
+            after_sent_callback: Awaitable[None] | None = None,
             reply_to_id: int | None = None
     ) -> None:
         is_group = False
@@ -304,17 +304,17 @@ class ServerTelegram(Server):
             event_type=event.__class__.__name__
         ).inc()
         prom = promise.Promise(
-            self._send_raw,
-            (event, ),
-            {"after_sent_callback": after_sent_callback, "reply_to_id": reply_to_id}
+            lambda: Commons.sync_async(
+                self._send_raw(event, after_sent_callback=after_sent_callback, reply_to_id=reply_to_id),
+            )
         )
         self._msg_queue(prom, is_group)
 
-    def _send_raw(
+    async def _send_raw(
             self,
             event: ServerEvent,
             *,
-            after_sent_callback: Callable[[ServerEvent], None] | None = None,
+            after_sent_callback: Awaitable[None] | None = None,
             reply_to_id: int | None = None
     ) -> None:
         if isinstance(event, EventMessageWithPhoto):
@@ -382,8 +382,8 @@ class ServerTelegram(Server):
             logger.error(error.get_log_line())
             raise NotImplementedError()
         event.log()
-        if after_sent_callback:
-            after_sent_callback(event)
+        if after_sent_callback is not None:
+            await after_sent_callback
         return
 
     async def reply(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage | None:

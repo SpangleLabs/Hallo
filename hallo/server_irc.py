@@ -3,7 +3,7 @@ import datetime
 import logging
 import re
 import socket
-from typing import Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Awaitable
 
 from prometheus_client import Gauge
 
@@ -284,7 +284,7 @@ class ServerIRC(Server):
             self,
             event: 'ServerEvent',
             *,
-            after_sent_callback: Callable[['ServerEvent'], None] | None = None
+            after_sent_callback: Awaitable[None] | None = None,
     ) -> None:
         self.outgoing.labels(
             server_type=self.__class__.__name__,
@@ -323,7 +323,7 @@ class ServerIRC(Server):
                 f"MODE {event.channel.address} {event.mode_changes}"
             )
             event.log()
-            after_sent_callback(event)
+            await after_sent_callback
             return
         elif isinstance(event, ChannelUserTextEvent):
             msg_type_name = "PRIVMSG"
@@ -373,8 +373,8 @@ class ServerIRC(Server):
             logger.error(error.get_log_line())
             raise NotImplementedError()
         event.log()
-        if after_sent_callback:
-            after_sent_callback(event)
+        if after_sent_callback is not None:
+            await after_sent_callback
         return
 
     async def reply(self, old_event, new_event):

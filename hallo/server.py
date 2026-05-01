@@ -1,6 +1,6 @@
 import asyncio
 from abc import ABCMeta, abstractmethod
-from typing import Optional, TYPE_CHECKING, Callable
+from typing import Optional, TYPE_CHECKING, Awaitable
 
 from prometheus_client import Counter
 
@@ -107,7 +107,7 @@ class Server(metaclass=ABCMeta):
             self,
             event: 'ServerEvent',
             *,
-            after_sent_callback: Callable[['ServerEvent'], None] | None = None,
+            after_sent_callback: Awaitable[None] | None = None,
     ) -> None:
         """
         Sends a message to the server, or a specific channel in the server
