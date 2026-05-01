@@ -126,14 +126,14 @@ class FAKey:
             user_page = FAKey.FAReader.FAUserPage(data, shout_data_getter, username)
             return user_page
 
-        def get_user_fav_page(self, username: str) -> 'FAKey.FAReader.FAUserFavouritesPage':
+        async def get_user_fav_page(self, username: str) -> 'FAKey.FAReader.FAUserFavouritesPage':
             # This endpoint returns a list of submission IDs
-            id_list: list[int] = Commons.sync_async(self._get_api_data(f"/user/{username}/favorites.json"))
+            id_list: list[int] = await self._get_api_data(f"/user/{username}/favorites.json")
             fav_page = FAKey.FAReader.FAUserFavouritesPage(id_list, username)
             return fav_page
 
-        def get_submission_page(self, submission_id: int | str) -> 'FAKey.FAReader.FAViewSubmissionPage':
-            data = Commons.sync_async(self._get_api_data(f"/submission/{submission_id}.json"))
+        async def get_submission_page(self, submission_id: int | str) -> 'FAKey.FAReader.FAViewSubmissionPage':
+            data = await self._get_api_data(f"/submission/{submission_id}.json")
 
             async def comment_data_getter():
                 return await self._get_api_data(f"/submission/{submission_id}/comments.json?include_hidden=1")
@@ -141,8 +141,8 @@ class FAKey:
             sub_page = FAKey.FAReader.FAViewSubmissionPage(data, comment_data_getter, submission_id)
             return sub_page
 
-        def get_journal_page(self, journal_id: int | str) -> 'FAKey.FAReader.FAViewJournalPage':
-            data = Commons.sync_async(self._get_api_data(f"/journal/{journal_id}.json"))
+        async def get_journal_page(self, journal_id: int | str) -> 'FAKey.FAReader.FAViewJournalPage':
+            data = await self._get_api_data(f"/journal/{journal_id}.json")
 
             async def comment_data_getter():
                 return await self._get_api_data(f"/journal/{journal_id}/comments.json?include_hidden=1")

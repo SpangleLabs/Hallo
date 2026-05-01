@@ -71,7 +71,7 @@ class FAFavsSource(StreamSource[SubmissionId]):
             item: SubmissionId
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()
-        submission = fa_reader.get_submission_page(item)
+        submission = await fa_reader.get_submission_page(item)
         link = f"https://furaffinity.net/view/{item}"
         title = submission.title
         posted_by = submission.name
@@ -101,7 +101,7 @@ class FAFavsSource(StreamSource[SubmissionId]):
 
     async def current_state(self) -> list[SubmissionId]:
         fa_reader = self.fa_key.get_fa_reader()
-        favs_page = fa_reader.get_user_fav_page(self.username)
+        favs_page = await fa_reader.get_user_fav_page(self.username)
         return [SubmissionId(x) for x in favs_page.submission_ids]
 
     @classmethod

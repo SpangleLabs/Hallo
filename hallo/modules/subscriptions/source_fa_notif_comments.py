@@ -36,7 +36,7 @@ class FASubmissionCommentSource(StreamSource[FAKey.FAReader.FANotificationCommen
         response_str = "in response to your comment " if item.comment_on else ""
         owner_str = "your" if item.submission_yours else "their"
         try:
-            submission_page = fa_reader.get_submission_page(item.submission_id)
+            submission_page = await fa_reader.get_submission_page(item.submission_id)
             comments_section = await submission_page.comments_section()
             comment = comments_section.get_comment_by_id(item.comment_id)
             return EventMessage(
@@ -105,7 +105,7 @@ class FAJournalCommentSource(StreamSource[FAKey.FAReader.FANotificationCommentJo
         response_str = "in response to your comment " if item.comment_on else ""
         owner_str = "your" if item.journal_yours else "their"
         try:
-            journal_page = fa_reader.get_journal_page(item.journal_id)
+            journal_page = await fa_reader.get_journal_page(item.journal_id)
             comments_section = await journal_page.comments_section()
             comment = comments_section.get_comment_by_id(item.comment_id)
             return EventMessage(
