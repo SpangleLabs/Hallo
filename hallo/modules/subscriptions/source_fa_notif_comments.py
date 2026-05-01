@@ -172,7 +172,8 @@ class FAShoutSource(StreamSource[FAKey.FAReader.FANotificationShout]):
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()
         try:
-            user_page_shouts = fa_reader.get_user_page(item.page_username).shouts
+            user_page = fa_reader.get_user_page(item.page_username)
+            user_page_shouts = await user_page.shouts()
             shout = [
                 shout
                 for shout in user_page_shouts

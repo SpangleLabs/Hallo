@@ -120,8 +120,8 @@ class FAKey:
             # Needs shout list, for checking own shouts
             data = Commons.sync_async(self._get_api_data(f"/user/{username}.json"))
 
-            def shout_data_getter():
-                return Commons.sync_async(self._get_api_data(f"/user/{username}/shouts.json"))
+            async def shout_data_getter():
+                return await self._get_api_data(f"/user/{username}/shouts.json")
 
             user_page = FAKey.FAReader.FAUserPage(data, shout_data_getter, username)
             return user_page
@@ -363,7 +363,7 @@ class FAKey:
                 self.is_read: bool = is_read
 
         class FAUserPage:
-            def __init__(self, data: dict, shout_data_getter: Callable[[], dict], username: str) -> None:
+            def __init__(self, data: dict, shout_data_getter: Callable[[], Awaitable[dict]], username: str) -> None:
                 self.username: str = username
                 self.name: str = data["full_name"]
                 self.user_title: str | None = (
@@ -381,7 +381,7 @@ class FAKey:
                 # artist_info
                 # contact_info
                 # featured_submission
-                self._shout_data_getter: Callable[[], dict] = shout_data_getter
+                self._shout_data_getter: Callable[[], Awaitable[dict]] = shout_data_getter
                 self._shout_cache: list[FAKey.FAReader.FAShout] | None = None
                 # watcher lists
                 self.watched_by: list[FAKey.FAReader.FAWatch] = []
@@ -401,11 +401,10 @@ class FAKey:
                     )
                     self.is_watching.append(new_watch)
 
-            @property
-            def shouts(self) -> list['FAKey.FAReader.FAShout']:
+            async def shouts(self) -> list['FAKey.FAReader.FAShout']:
                 if self._shout_cache is None:
                     self._shout_cache = []
-                    shout_data = self._shout_data_getter()
+                    shout_data = await self._shout_data_getter()
                     for shout in shout_data:
                         shout_id = shout["id"].replace("shout-", "")
                         username = shout["profile_name"]
