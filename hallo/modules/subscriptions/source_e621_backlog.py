@@ -62,7 +62,7 @@ class E621BacklogTaggingSource(E621TaggingSource):
     def item_text_prefix(self) -> str:
         return f'New backlog tagging item on "{self.search}" e621 search.'
 
-    def current_state(self) -> list[Post]:
+    async def current_state(self) -> list[Post]:
         if self.start_id is None:
             self.start_id = self.find_start_id()
             self.generate_next_batch()

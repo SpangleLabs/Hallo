@@ -16,7 +16,7 @@ class StreamSource(Source[list[Item], list[Item]], Generic[Item]):
         self.last_keys: list[Key] = last_keys or []
 
     @abstractmethod
-    def current_state(self) -> list[Item]:
+    async def current_state(self) -> list[Item]:
         pass
 
     def state_change(self, state: list[Item]) -> list[Item]:

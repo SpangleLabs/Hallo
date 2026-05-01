@@ -99,7 +99,7 @@ class FAFavsSource(StreamSource[SubmissionId]):
         fa_key = fa_key_from_input(user, sub_repo)
         return FAFavsSource(fa_key, argument)
 
-    def current_state(self) -> list[SubmissionId]:
+    async def current_state(self) -> list[SubmissionId]:
         fa_reader = self.fa_key.get_fa_reader()
         favs_page = fa_reader.get_user_fav_page(self.username)
         return [SubmissionId(x) for x in favs_page.submission_ids]

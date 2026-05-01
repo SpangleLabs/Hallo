@@ -51,7 +51,7 @@ class E621Source(StreamSource[Post]):
             user
         )
 
-    def current_state(self) -> list[Post]:
+    async def current_state(self) -> list[Post]:
         return self.e6_client.posts(self.search)
 
     def item_to_key(self, item: Post) -> Key:

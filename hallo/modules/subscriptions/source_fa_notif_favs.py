@@ -26,7 +26,7 @@ class FAFavNotificationsSource(StreamSource[FAKey.FAReader.FANotificationFavouri
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> list[FAKey.FAReader.FANotificationFavourite]:
+    async def current_state(self) -> list[FAKey.FAReader.FANotificationFavourite]:
         fa_reader = self.fa_key.get_fa_reader()
         notif_page = fa_reader.get_notification_page()
         return notif_page.favourites

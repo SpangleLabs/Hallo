@@ -26,7 +26,7 @@ class FAUserWatchersSource(StreamSource[FAKey.FAReader.FAWatch]):
         self.fa_key = fa_key
         self.username = username
 
-    def current_state(self) -> list[FAKey.FAReader.FAWatch]:
+    async def current_state(self) -> list[FAKey.FAReader.FAWatch]:
         fa_reader = self.fa_key.get_fa_reader()
         user_page = fa_reader.get_user_page(self.username)
         return user_page.watched_by

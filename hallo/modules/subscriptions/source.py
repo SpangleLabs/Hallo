@@ -36,7 +36,7 @@ class Source(ABC, Generic[State, Update]):
         pass
 
     @abstractmethod
-    def current_state(self) -> State:
+    async def current_state(self) -> State:
         pass
 
     @abstractmethod

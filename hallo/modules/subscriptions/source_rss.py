@@ -82,11 +82,11 @@ class RssSource(StreamSource[ElementTree.Element]):
             rss_data = rss_data[2:]
         return rss_data
 
-    def current_state(self) -> list[ElementTree.Element]:
-        rss_data = Commons.sync_async(self.get_rss_data())
+    async def current_state(self) -> list[ElementTree.Element]:
+        rss_data = await self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         # Update title
-        self.feed_title = Commons.sync_async(self._get_feed_title())
+        self.feed_title = await self._get_feed_title()
         return _get_feed_items(rss_elem)
 
     def item_to_key(self, item: ElementTree.Element) -> Key:

@@ -20,7 +20,7 @@ class FANotesInboxSource(StreamSource[FAKey.FAReader.FANote]):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> list[FAKey.FAReader.FANote]:
+    async def current_state(self) -> list[FAKey.FAReader.FANote]:
         fa_reader = self.fa_key.get_fa_reader()
         return fa_reader.get_notes_page(FAKey.FAReader.NOTES_INBOX).notes
 
@@ -75,7 +75,7 @@ class FANotesOutboxSource(StreamSource[FAKey.FAReader.FANote]):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> list[FAKey.FAReader.FANote]:
+    async def current_state(self) -> list[FAKey.FAReader.FANote]:
         fa_reader = self.fa_key.get_fa_reader()
         return [
             note for note in
@@ -162,7 +162,7 @@ class FANotesSource(Source[FANotesState, FANotesUpdate]):
         outbox_source = FANotesOutboxSource(fa_key)
         return FANotesSource(fa_key, inbox_source, outbox_source)
 
-    def current_state(self) -> FANotesState:
+    async def current_state(self) -> FANotesState:
         return FANotesState(
             inbox=self.inbox_source.current_state(),
             outbox=self.outbox_source.current_state(),

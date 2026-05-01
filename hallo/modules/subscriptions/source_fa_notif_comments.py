@@ -21,7 +21,7 @@ class FASubmissionCommentSource(StreamSource[FAKey.FAReader.FANotificationCommen
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> list[FAKey.FAReader.FANotificationCommentSubmission]:
+    async def current_state(self) -> list[FAKey.FAReader.FANotificationCommentSubmission]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         return notif_page.submission_comments
 
@@ -91,7 +91,7 @@ class FAJournalCommentSource(StreamSource[FAKey.FAReader.FANotificationCommentJo
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> list[FAKey.FAReader.FANotificationCommentJournal]:
+    async def current_state(self) -> list[FAKey.FAReader.FANotificationCommentJournal]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         return notif_page.journal_comments
 
@@ -161,7 +161,7 @@ class FAShoutSource(StreamSource[FAKey.FAReader.FANotificationShout]):
         super().__init__(last_keys)
         self.fa_key = fa_key
 
-    def current_state(self) -> list[FAKey.FAReader.FANotificationShout]:
+    async def current_state(self) -> list[FAKey.FAReader.FANotificationShout]:
         notif_page = self.fa_key.get_fa_reader().get_notification_page()
         return notif_page.shouts
 
@@ -275,7 +275,7 @@ class FACommentNotificationsSource(Source[FACommentNotificationsState, FAComment
         shout_source = FAShoutSource(fa_key)
         return FACommentNotificationsSource(fa_key, submission_source, journal_source, shout_source)
 
-    def current_state(self) -> FACommentNotificationsState:
+    async def current_state(self) -> FACommentNotificationsState:
         return FACommentNotificationsState(
             submissions=self.submission_source.current_state(),
             journals=self.journal_source.current_state(),
