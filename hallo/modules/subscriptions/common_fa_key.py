@@ -116,9 +116,9 @@ class FAKey:
                 return self.notes_page_outbox_cache.get()
             raise ValueError("Invalid FA note folder.")
 
-        def get_user_page(self, username: str) -> 'FAKey.FAReader.FAUserPage':
+        async def get_user_page(self, username: str) -> 'FAKey.FAReader.FAUserPage':
             # Needs shout list, for checking own shouts
-            data = Commons.sync_async(self._get_api_data(f"/user/{username}.json"))
+            data = await self._get_api_data(f"/user/{username}.json")
 
             async def shout_data_getter():
                 return await self._get_api_data(f"/user/{username}/shouts.json")

@@ -95,7 +95,7 @@ class FAFavsSource(StreamSource[SubmissionId]):
         return f'Favourites subscription for "{self.username}"'
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAFavsSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAFavsSource':
         fa_key = fa_key_from_input(user, sub_repo)
         return FAFavsSource(fa_key, argument)
 

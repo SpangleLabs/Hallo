@@ -43,7 +43,7 @@ class E621Source(StreamSource[Post]):
         return f"search for \"{self.search}\""
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'E621Source':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'E621Source':
         e6_client = e6_client_from_input(user, sub_repo)
         return E621Source(
             argument,

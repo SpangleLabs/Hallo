@@ -38,7 +38,7 @@ class Subscription(Generic[State, Update]):
         self.last_update: datetime | None = last_update
 
     @classmethod
-    def create_from_input(
+    async def create_from_input(
             cls,
             input_evt: EventMessage,
             source_class: Type['Source'],
@@ -60,7 +60,7 @@ class Subscription(Generic[State, Update]):
                 except isodate.isoerror.ISO8601Error:
                     pass
         try:
-            source = source_class.from_input(argument, input_evt.user, sub_repo)
+            source = await source_class.from_input(argument, input_evt.user, sub_repo)
             subscription = Subscription(
                 server,
                 input_evt.destination,

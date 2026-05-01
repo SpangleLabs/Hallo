@@ -175,7 +175,7 @@ async def test_sub_classes_added_to_factory(hallo_getter):
             sub_repo = SubscriptionRepo(test_hallo)
             # noinspection PyBroadException
             try:
-                function_class.from_input(
+                await function_class.from_input(
                     "hello",
                     test_hallo.test_user,
                     sub_repo,

@@ -50,7 +50,7 @@ class FANotesInboxSource(StreamSource[FAKey.FAReader.FANote]):
         return "inbox notes"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FANotesInboxSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FANotesInboxSource':
         fa_key = fa_key_from_input(user, sub_repo)
         return FANotesInboxSource(fa_key)
 
@@ -106,7 +106,7 @@ class FANotesOutboxSource(StreamSource[FAKey.FAReader.FANote]):
         return "outbox notes"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo) -> 'FANotesOutboxSource':
+    async def from_input(cls, argument: str, user: User, sub_repo) -> 'FANotesOutboxSource':
         fa_key = fa_key_from_input(user, sub_repo)
         return FANotesOutboxSource(fa_key)
 
@@ -156,7 +156,7 @@ class FANotesSource(Source[FANotesState, FANotesUpdate]):
         return f"FA notes for {self.fa_key.user.name}"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FANotesSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FANotesSource':
         fa_key = fa_key_from_input(user, sub_repo)
         inbox_source = FANotesInboxSource(fa_key)
         outbox_source = FANotesOutboxSource(fa_key)

@@ -52,7 +52,7 @@ class FAFavNotificationsSource(StreamSource[FAKey.FAReader.FANotificationFavouri
         return f"FA favourite notifications for {self.fa_key.user.name}"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAFavNotificationsSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAFavNotificationsSource':
         fa_key = fa_key_from_input(user, sub_repo)
         return FAFavNotificationsSource(fa_key)
 

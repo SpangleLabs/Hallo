@@ -215,7 +215,7 @@ class E621TaggingSource(E621Source):
         self.tags: list[str] = tags
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'E621TaggingSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'E621TaggingSource':
         parsed = InputParser(argument)
         tags_arg = parsed.get_arg_by_names(
             ["tags", "watched_tags", "to_tag", "watched tags", "to tag", "watch"]

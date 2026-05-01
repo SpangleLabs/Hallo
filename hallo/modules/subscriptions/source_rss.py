@@ -202,8 +202,11 @@ class RssSource(StreamSource[ElementTree.Element]):
         return f"{feed_title} ({self.url})"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'RssSource':
-        return RssSource(argument)
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'RssSource':
+        source = RssSource(argument)
+        # Initialise the feed title
+        await source.get_feed_title()
+        return source
 
     @classmethod
     def from_json(cls, json_data: dict, destination: Destination, sub_repo: 'SubscriptionRepo') -> 'RssSource':

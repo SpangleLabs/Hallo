@@ -63,7 +63,7 @@ class FASubmissionCommentSource(StreamSource[FAKey.FAReader.FANotificationCommen
         return f"FA submission comments for {self.fa_key.user.name}"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FASubmissionCommentSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FASubmissionCommentSource':
         fa_key = fa_key_from_input(user, sub_repo)
         return FASubmissionCommentSource(fa_key)
 
@@ -132,7 +132,7 @@ class FAJournalCommentSource(StreamSource[FAKey.FAReader.FANotificationCommentJo
         return f"FA journal comments for {self.fa_key.user.name}"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAJournalCommentSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAJournalCommentSource':
         fa_key = fa_key_from_input(user, sub_repo)
         return FAJournalCommentSource(fa_key)
 
@@ -172,7 +172,7 @@ class FAShoutSource(StreamSource[FAKey.FAReader.FANotificationShout]):
     ) -> EventMessage:
         fa_reader = self.fa_key.get_fa_reader()
         try:
-            user_page = fa_reader.get_user_page(item.page_username)
+            user_page = await fa_reader.get_user_page(item.page_username)
             user_page_shouts = await user_page.shouts()
             shout = [
                 shout
@@ -209,7 +209,7 @@ class FAShoutSource(StreamSource[FAKey.FAReader.FANotificationShout]):
         return f"FA shouts for {self.fa_key.user.name}"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAShoutSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAShoutSource':
         fa_key = fa_key_from_input(user, sub_repo)
         return FAShoutSource(fa_key)
 
@@ -267,7 +267,7 @@ class FACommentNotificationsSource(Source[FACommentNotificationsState, FAComment
         return f"FA comments for {self.fa_key.user.name}"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FACommentNotificationsSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FACommentNotificationsSource':
         fa_key = fa_key_from_input(user, sub_repo)
         submission_source = FASubmissionCommentSource(fa_key)
         journal_source = FAJournalCommentSource(fa_key)

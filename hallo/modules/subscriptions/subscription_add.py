@@ -58,7 +58,7 @@ class SubscriptionAdd(Function):
         )  # type: hallo.modules.new_subscriptions.subscription_check.SubscriptionCheck
         sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
         # Create new subscription
-        sub_obj = Subscription.create_from_input(event, source_class, sub_repo)
+        sub_obj = await Subscription.create_from_input(event, source_class, sub_repo)
         # No need to test subscription, that's done in create_from_input
         # Acquire lock and save sub
         async with sub_repo.sub_lock:

@@ -32,7 +32,7 @@ class Source(ABC, Generic[State, Update]):
 
     @classmethod
     @abstractmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'Source':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'Source':
         pass
 
     @abstractmethod

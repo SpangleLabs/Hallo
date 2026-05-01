@@ -28,7 +28,7 @@ class FAUserWatchersSource(StreamSource[FAKey.FAReader.FAWatch]):
 
     async def current_state(self) -> list[FAKey.FAReader.FAWatch]:
         fa_reader = self.fa_key.get_fa_reader()
-        user_page = fa_reader.get_user_page(self.username)
+        user_page = await fa_reader.get_user_page(self.username)
         return user_page.watched_by
 
     def item_to_key(self, item: FAKey.FAReader.FAWatch) -> Key:
@@ -53,11 +53,11 @@ class FAUserWatchersSource(StreamSource[FAKey.FAReader.FAWatch]):
         return f'New watchers subscription for "{self.username}"'
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAUserWatchersSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAUserWatchersSource':
         fa_key = fa_key_from_input(user, sub_repo)
         # Check if it's a valid user
         try:
-            fa_key.get_fa_reader().get_user_page(argument)
+            await fa_key.get_fa_reader().get_user_page(argument)
         except Exception:
             raise SubscriptionException("This does not appear to be a valid username.")
         return FAUserWatchersSource(fa_key, argument)
@@ -104,7 +104,7 @@ class FAWatchersSource(FAUserWatchersSource):
         return f"New watchers notifications for {self.fa_key.user.name}"
 
     @classmethod
-    def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAWatchersSource':
+    async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAWatchersSource':
         fa_key = fa_key_from_input(user, sub_repo)
         return FAWatchersSource(fa_key)
 
