@@ -47,12 +47,16 @@ class RssSource(StreamSource[ElementTree.Element]):
     def __init__(self, url: str, feed_title: str | None = None, last_keys: list[Key] | None = None) -> None:
         super().__init__(last_keys)
         self.url = url
-        if feed_title is None:
-            feed_title = Commons.sync_async(self._get_feed_title())
-        self.feed_title = feed_title
+        self._feed_title: str | None = feed_title
 
-    async def _get_feed_title(self) -> str:
-        rss_data = await self.get_rss_data()
+    async def get_feed_title(self) -> str:
+        if self._feed_title is None:
+            self._feed_title = await self._get_feed_title()
+        return self._feed_title
+
+    async def _get_feed_title(self, rss_data: str | None = None) -> str:
+        if rss_data is None:
+            rss_data = await self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         channel_elem = rss_elem.find("channel")
         title = None
@@ -86,7 +90,7 @@ class RssSource(StreamSource[ElementTree.Element]):
         rss_data = await self.get_rss_data()
         rss_elem = ElementTree.fromstring(rss_data)
         # Update title
-        self.feed_title = await self._get_feed_title()
+        self._feed_title = await self._get_feed_title(rss_data=rss_data)
         return _get_feed_items(rss_elem)
 
     def item_to_key(self, item: ElementTree.Element) -> Key:
@@ -113,8 +117,9 @@ class RssSource(StreamSource[ElementTree.Element]):
         # Load item xml
         item_title = _get_item_title(item)
         item_link = get_rss_item_link(item)
+        feed_title = await self.get_feed_title()
         # Construct output
-        output = f'Update on "{self.feed_title}" RSS feed. "{item_title}" {item_link}'
+        output = f'Update on "{feed_title}" RSS feed. "{item_title}" {item_link}'
         output_evt = EventMessage(server, channel, user, output, inbound=False)
         return output_evt
 
@@ -123,22 +128,25 @@ class RssSource(StreamSource[ElementTree.Element]):
             item: ElementTree.Element
     ) -> EventMessage | None:
         if "xkcd.com" in self.url:
+            feed_title = await self.get_feed_title()
             item_title = item.find("title").text
             item_link = item.find("link").text
             comic_number = item_link.strip("/").split("/")[-1]
             json_link = f"https://xkcd.com/{comic_number}/info.0.json"
             comic_json = await Commons.load_url_json(json_link)
             alt_text = comic_json["alt"]
-            output = f'Update on "{self.feed_title}" RSS feed. "{item_title}" {item_link}\nAlt text: {alt_text}'
+            output = f'Update on "{feed_title}" RSS feed. "{item_title}" {item_link}\nAlt text: {alt_text}'
             return EventMessage(server, channel, user, output, inbound=False)
-        if "awoocomic" in self.feed_title:
+        if "awoocomic" in self.url:
+            feed_title = await self.get_feed_title()
             item_title = item.find("title").text
             if " - " in item_title:
                 item_title = item_title.split(" - ")[0]
             item_link = item.find("link").text
-            output = f'Update on "{self.feed_title}" RSS feed. "{item_title}" {item_link}'
+            output = f'Update on "{feed_title}" RSS feed. "{item_title}" {item_link}'
             return EventMessage(server, channel, user, output, inbound=False)
         if "smbc-comics.com" in self.url:
+            feed_title = await self.get_feed_title()
             item_title = item.find("title").text
             item_link = item.find("link").text
             page_code = await Commons.load_url_string(item_link)
@@ -150,11 +158,12 @@ class RssSource(StreamSource[ElementTree.Element]):
                 server,
                 channel,
                 user,
-                f'Update on "{self.feed_title}" RSS feed. "{item_title}" {item_link}\nAlt text: {alt_text}',
+                f'Update on "{feed_title}" RSS feed. "{item_title}" {item_link}\nAlt text: {alt_text}',
                 [comic_img["src"], after_comic_img["src"]],
                 inbound=False
             )
         if "rss.app" in self.url:
+            feed_title = await self.get_feed_title()
             item_title = _get_item_title(item)
             item_link = get_rss_item_link(item)
             page_code = await Commons.load_url_string(item_link)
@@ -166,27 +175,31 @@ class RssSource(StreamSource[ElementTree.Element]):
             url_result = url_regex.search(head_script.text)
             if url_result is None:
                 return None
-            output = f'Update on "{self.feed_title}" RSS feed. "{item_title}" {url_result.group(1)}'
+            output = f'Update on "{feed_title}" RSS feed. "{item_title}" {url_result.group(1)}'
             return EventMessage(server, channel, user, output, inbound=False)
         if "nitter.net" in self.url:
+            feed_title = self.get_feed_title()
             item_title = _get_item_title(item)
             item_link = get_rss_item_link(item).replace("nitter.net", "twitter.com")
             # Construct output
-            output = f'Update on "{self.feed_title}" RSS feed. "{item_title}" {item_link}'
+            output = f'Update on "{feed_title}" RSS feed. "{item_title}" {item_link}'
             output_evt = EventMessage(server, channel, user, output, inbound=False)
             return output_evt
         return None
 
     def matches_name(self, name_clean: str) -> bool:
-        return name_clean in [
-            self.feed_title.lower().strip(),
+        possible_names = [
             self.url.lower().strip(),
             self.title.lower().strip(),
         ]
+        if self._feed_title is not None:
+            possible_names.append(self._feed_title.lower().strip())
+        return name_clean in possible_names
 
     @property
     def title(self) -> str:
-        return f"{self.feed_title} ({self.url})"
+        feed_title = self._feed_title or "{title unknown}"
+        return f"{feed_title} ({self.url})"
 
     @classmethod
     def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'RssSource':
@@ -204,6 +217,6 @@ class RssSource(StreamSource[ElementTree.Element]):
         return {
             "type": self.type_name,
             "url": self.url,
-            "title": self.feed_title,
+            "title": self._feed_title,
             "last_keys": self.last_keys
         }

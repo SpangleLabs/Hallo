@@ -53,7 +53,7 @@ async def test_from_input(hallo_getter):
     rf = RssSource.from_input(TEST_RSS, test_hallo.test_user, sub_repo)
 
     assert rf.url == TEST_RSS
-    assert rf.feed_title == "Example rss feed"
+    assert rf._feed_title == "Example rss feed"
 
 
 @pytest.mark.external_integration
@@ -139,6 +139,7 @@ async def test_json(hallo_getter):
     sub_repo = SubscriptionRepo(test_hallo)
     rf = RssSource(TEST_RSS)
     rf.last_keys = ["item3", "item2", "item1"]
+    feed_title1 = await rf.get_feed_title()
 
     rf_json = rf.to_json()
 
@@ -148,7 +149,8 @@ async def test_json(hallo_getter):
     assert "title" in rf_json
 
     rf2 = RssSource.from_json(rf_json, test_hallo.test_chan, sub_repo)
+    feed_title = await rf2.get_feed_title()
 
     assert rf2.url == TEST_RSS
-    assert rf2.feed_title == rf.feed_title
+    assert feed_title2 == feed_title1
     assert rf2.last_keys == rf.last_keys
