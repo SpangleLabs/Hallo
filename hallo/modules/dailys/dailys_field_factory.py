@@ -24,11 +24,11 @@ class DailysFieldFactory:
     ]
 
     @staticmethod
-    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'hallo.modules.dailys.dailys_field.DailysField':
+    async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'hallo.modules.dailys.dailys_field.DailysField':
         type_name = json_obj["type_name"]
         for field in DailysFieldFactory.fields:
             if field.type_name == type_name:
-                return field.from_json(json_obj, spreadsheet)
+                return await field.from_json(json_obj, spreadsheet)
         raise hallo.modules.dailys.dailys_field.DailysException(
             "Could not load dailys field of type {}".format(type_name)
         )

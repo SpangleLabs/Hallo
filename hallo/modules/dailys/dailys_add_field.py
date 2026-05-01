@@ -32,7 +32,7 @@ class DailysAddField(Function):
         sub_check_obj = function_dispatcher.get_function_object(
             sub_check_function
         )
-        dailys_repo = sub_check_obj.get_dailys_repo(hallo_obj)
+        dailys_repo = await sub_check_obj.get_dailys_repo(hallo_obj)
         # Get the active spreadsheet for this person and destination
         spreadsheet = dailys_repo.get_by_location(event)
         if spreadsheet is None:

@@ -76,5 +76,5 @@ class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysFAField':
+    async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysFAField':
         return DailysFAField(spreadsheet)

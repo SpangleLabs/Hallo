@@ -7,6 +7,7 @@ import isodate
 
 from hallo.modules.dailys.dailys_field import DailysField, DailysException
 from hallo.events import EventMessage, EventMinute, Event, RawDataTelegram
+from hallo.inc.commons import Commons
 
 if TYPE_CHECKING:
     from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
@@ -493,5 +494,5 @@ class QuestionsField(DailysField):
         }
 
     @staticmethod
-    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
+    async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
         return QuestionsField.create_from_spreadsheet(spreadsheet)

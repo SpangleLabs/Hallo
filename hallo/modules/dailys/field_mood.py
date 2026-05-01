@@ -31,11 +31,11 @@ class DailysMoodField(DailysField):
 
     @staticmethod
     def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
-        return DailysMoodField.create_from_spreadsheet(spreadsheet)
+        return Commons.sync_async(DailysMoodField.create_from_spreadsheet(spreadsheet))
 
     @staticmethod
-    def create_from_spreadsheet(spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
-        static_data = Commons.sync_async(spreadsheet.read_path("stats/mood/static/"))
+    async def create_from_spreadsheet(spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
+        static_data = await spreadsheet.read_path("stats/mood/static/")
         if len(static_data) == 0:
             raise DailysException(
                 "Mood field static data has not been set up on dailys system."
@@ -213,5 +213,5 @@ class DailysMoodField(DailysField):
         }
 
     @staticmethod
-    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
-        return DailysMoodField.create_from_spreadsheet(spreadsheet)
+    async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
+        return await DailysMoodField.create_from_spreadsheet(spreadsheet)

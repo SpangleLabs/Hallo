@@ -79,7 +79,7 @@ class DailysSpreadsheet:
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: dict, hallo_obj: Hallo) -> 'DailysSpreadsheet':
+    async def from_json(json_obj: dict, hallo_obj: Hallo) -> 'DailysSpreadsheet':
         server = hallo_obj.get_server_by_name(json_obj["server_name"])
         if server is None:
             raise hallo.modules.dailys.dailys_field.DailysException(
@@ -106,6 +106,6 @@ class DailysSpreadsheet:
         new_spreadsheet = DailysSpreadsheet(user, dest_chan, dailys_url, dailys_key)
         for field_json in json_obj["fields"]:
             new_spreadsheet.add_field(
-                hallo.modules.dailys.dailys_field_factory.DailysFieldFactory.from_json(field_json, new_spreadsheet)
+                await hallo.modules.dailys.dailys_field_factory.DailysFieldFactory.from_json(field_json, new_spreadsheet)
             )
         return new_spreadsheet

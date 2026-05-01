@@ -27,7 +27,7 @@ class DailysRepo:
             json.dump(json_obj, f, indent=2)
 
     @staticmethod
-    def load_json(hallo_obj: 'Hallo') -> 'DailysRepo':
+    async def load_json(hallo_obj: 'Hallo') -> 'DailysRepo':
         new_dailys_repo = DailysRepo()
         # Try loading json file, otherwise return blank list
         try:
@@ -36,6 +36,6 @@ class DailysRepo:
         except (OSError, IOError):
             return new_dailys_repo
         for spreadsheet_json in json_obj["spreadsheets"]:
-            spreadsheet = DailysSpreadsheet.from_json(spreadsheet_json, hallo_obj)
+            spreadsheet = await DailysSpreadsheet.from_json(spreadsheet_json, hallo_obj)
             new_dailys_repo.add_spreadsheet(spreadsheet)
         return new_dailys_repo

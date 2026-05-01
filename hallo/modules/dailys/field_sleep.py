@@ -92,5 +92,5 @@ class DailysSleepField(DailysField):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysSleepField':
+    async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysSleepField':
         return DailysSleepField(spreadsheet)

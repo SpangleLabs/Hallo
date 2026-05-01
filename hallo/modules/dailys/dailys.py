@@ -31,9 +31,9 @@ class Dailys(Function):
         self.dailys_repo = None
         """ :type : DailysRepo | None"""
 
-    def get_dailys_repo(self, hallo_obj: 'Hallo') -> 'DailysRepo':
+    async def get_dailys_repo(self, hallo_obj: 'Hallo') -> 'DailysRepo':
         if self.dailys_repo is None:
-            self.dailys_repo = DailysRepo.load_json(hallo_obj)
+            self.dailys_repo = await DailysRepo.load_json(hallo_obj)
         return self.dailys_repo
 
     @staticmethod
@@ -64,12 +64,12 @@ class Dailys(Function):
         if event.text.strip().lower() in ["reload", "redeploy", "refresh"]:
             self.dailys_repo.save_json()
             self.dailys_repo = None
-            self.get_dailys_repo(event.server.hallo)
+            await self.get_dailys_repo(event.server.hallo)
             return await event.reply(event.create_response("Dailys repository reloaded."))
         return await event.reply(event.create_response("Dailys system does not understand this command."))
 
     async def passive_run(self, event: Event, hallo_obj: 'Hallo') -> ServerEvent | None:
-        repo = self.get_dailys_repo(hallo_obj)
+        repo = await self.get_dailys_repo(hallo_obj)
         spreadsheets = repo.spreadsheets
         if isinstance(event, EventMessage):
             msg_spreadsheet = repo.get_by_location(event)

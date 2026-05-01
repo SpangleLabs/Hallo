@@ -82,7 +82,7 @@ class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
         }
 
     @staticmethod
-    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysDuolingoField':
+    async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysDuolingoField':
         password = None
         if "password" in json_obj:
             password = json_obj["password"]

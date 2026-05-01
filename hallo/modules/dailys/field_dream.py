@@ -45,5 +45,5 @@ class DailysDreamField(hallo.modules.dailys.dailys_field.DailysField):
         }
 
     @staticmethod
-    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysDreamField':
+    async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysDreamField':
         return DailysDreamField(spreadsheet)

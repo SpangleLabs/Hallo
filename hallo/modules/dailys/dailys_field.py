@@ -40,7 +40,7 @@ class DailysField(metaclass=ABCMeta):
         raise NotImplementedError()
 
     @staticmethod
-    def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysField':
+    async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysField':
         raise NotImplementedError()
 
     async def save_data(self, data: dict, data_date: datetime.datetime) -> None:
