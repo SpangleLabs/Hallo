@@ -2228,4 +2228,4 @@ sphinxcontrib-napoleon = {version = ">=0.7,<0.8", extras = ["docs"]}
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "033f8c5467d4a5f9f8eec4500851d88185efe3bf160b8cde728ccc9e0cd816ee"
+content-hash = "bb21546d69d10e997d52028eee2210d816237db454334ab4c8e2e1fdf97b7416"

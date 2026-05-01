@@ -9,7 +9,6 @@ from datetime import timedelta
 from typing import TypeVar, Callable, Generic, Type
 
 import aiohttp
-import requests
 from prometheus_client import Gauge
 from publicsuffixlist import PublicSuffixList
 
