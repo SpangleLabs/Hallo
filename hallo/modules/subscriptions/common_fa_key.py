@@ -152,8 +152,8 @@ class FAKey:
             journal_page = FAKey.FAReader.FAViewJournalPage(data, comment_data_getter, journal_id)
             return journal_page
 
-        def get_search_page(self, search_term: str) -> 'FAKey.FAReader.FASearchPage':
-            id_list = Commons.sync_async(self._get_api_data(f"/search.json?q={search_term}"))
+        async def get_search_page(self, search_term: str) -> 'FAKey.FAReader.FASearchPage':
+            id_list = await self._get_api_data(f"/search.json?q={search_term}")
             search_page = FAKey.FAReader.FASearchPage(id_list, search_term)
             return search_page
 
