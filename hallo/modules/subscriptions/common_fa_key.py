@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import timedelta, datetime
-from typing import Optional, Callable, TYPE_CHECKING
+from typing import Optional, Callable, TYPE_CHECKING, Awaitable
 
 import dateutil.parser
 
@@ -135,10 +135,8 @@ class FAKey:
         def get_submission_page(self, submission_id: int | str) -> 'FAKey.FAReader.FAViewSubmissionPage':
             data = Commons.sync_async(self._get_api_data(f"/submission/{submission_id}.json"))
 
-            def comment_data_getter():
-                return Commons.sync_async(
-                    self._get_api_data(f"/submission/{submission_id}/comments.json?include_hidden=1")
-                )
+            async def comment_data_getter():
+                return await self._get_api_data(f"/submission/{submission_id}/comments.json?include_hidden=1")
 
             sub_page = FAKey.FAReader.FAViewSubmissionPage(data, comment_data_getter, submission_id)
             return sub_page
@@ -146,8 +144,8 @@ class FAKey:
         def get_journal_page(self, journal_id: int | str) -> 'FAKey.FAReader.FAViewJournalPage':
             data = Commons.sync_async(self._get_api_data(f"/journal/{journal_id}.json"))
 
-            def comment_data_getter():
-                return Commons.sync_async(self._get_api_data(f"/journal/{journal_id}/comments.json?include_hidden=1"))
+            async def comment_data_getter():
+                return await self._get_api_data(f"/journal/{journal_id}/comments.json?include_hidden=1")
 
             journal_page = FAKey.FAReader.FAViewJournalPage(data, comment_data_getter, journal_id)
             return journal_page
@@ -443,7 +441,7 @@ class FAKey:
                 self.submission_ids: list[int] = id_list
 
         class FAViewSubmissionPage:
-            def __init__(self, data: dict, comments_data_getter: Callable[[], dict], submission_id: str) -> None:
+            def __init__(self, data: dict, comments_data_getter: Callable[[], Awaitable[dict]], submission_id: str) -> None:
                 self.submission_id: str = submission_id
                 self.title: str = data["title"]
                 self.full_image: str = data["download"]
@@ -464,13 +462,12 @@ class FAKey:
                 # resolution_y = None
                 self.keywords: list[str] = data["keywords"]
                 self.rating: str = data["rating"]
-                self._comments_section_getter: Callable[[], dict] = comments_data_getter
+                self._comments_section_getter: Callable[[], Awaitable[dict]] = comments_data_getter
                 self._comments_section_cache: FAKey.FAReader.FACommentsSection | None = None
 
-            @property
-            def comments_section(self) -> 'FAKey.FAReader.FACommentsSection':
+            async def comments_section(self) -> 'FAKey.FAReader.FACommentsSection':
                 if self._comments_section_cache is None:
-                    comments_data = self._comments_section_getter()
+                    comments_data = await self._comments_section_getter()
                     self._comments_section_cache = FAKey.FAReader.FACommentsSection(
                         comments_data
                     )
@@ -542,7 +539,7 @@ class FAKey:
                 self.reply_comments: list[FAKey.FAReader.FAComment] = []
 
         class FAViewJournalPage:
-            def __init__(self, data: dict, comments_data_getter: Callable[[], dict], journal_id: str) -> None:
+            def __init__(self, data: dict, comments_data_getter: Callable[[], Awaitable[dict]], journal_id: str) -> None:
                 self.journal_id: str = journal_id
                 self.username: str = data["profile_name"]
                 self.name: str = data["name"]
@@ -552,16 +549,13 @@ class FAKey:
                 self.journal_header: str | None = data["journal_header"]
                 self.journal_text: str = data["journal_body"]
                 self.journal_footer: str | None = data["journal_footer"]
-                self._comments_section_getter: Callable[[], dict] = comments_data_getter
+                self._comments_section_getter: Callable[[], Awaitable[dict]] = comments_data_getter
                 self._comments_section_cache: FAKey.FAReader.FACommentsSection | None = None
 
-            @property
-            def comments_section(self) -> 'FAKey.FAReader.FACommentsSection':
+            async def comments_section(self) -> 'FAKey.FAReader.FACommentsSection':
                 if self._comments_section_cache is None:
-                    comments_data = self._comments_section_getter()
-                    self._comments_section_cache = FAKey.FAReader.FACommentsSection(
-                        comments_data
-                    )
+                    comments_data = await self._comments_section_getter()
+                    self._comments_section_cache = FAKey.FAReader.FACommentsSection(comments_data)
                 return self._comments_section_cache
 
         class FASearchPage:

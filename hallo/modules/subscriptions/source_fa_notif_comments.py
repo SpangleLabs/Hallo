@@ -37,9 +37,8 @@ class FASubmissionCommentSource(StreamSource[FAKey.FAReader.FANotificationCommen
         owner_str = "your" if item.submission_yours else "their"
         try:
             submission_page = fa_reader.get_submission_page(item.submission_id)
-            comment = submission_page.comments_section.get_comment_by_id(
-                item.comment_id
-            )
+            comments_section = await submission_page.comments_section()
+            comment = comments_section.get_comment_by_id(item.comment_id)
             return EventMessage(
                 server, channel, user,
                 "You have a submission comment notification. "
@@ -107,9 +106,8 @@ class FAJournalCommentSource(StreamSource[FAKey.FAReader.FANotificationCommentJo
         owner_str = "your" if item.journal_yours else "their"
         try:
             journal_page = fa_reader.get_journal_page(item.journal_id)
-            comment = journal_page.comments_section.get_comment_by_id(
-                item.comment_id
-            )
+            comments_section = await journal_page.comments_section()
+            comment = comments_section.get_comment_by_id(item.comment_id)
             return EventMessage(
                 server, channel, user,
                 f"You have a journal comment notification. {item.name} has made a new comment "
