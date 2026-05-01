@@ -72,36 +72,36 @@ class FAKey:
             self.timeout: timedelta = timedelta(seconds=60)
             self.notification_page_cache = CachedObject(
                 lambda: FAKey.FAReader.FANotificationsPage(
-                    self._get_api_data("notifications/others.json", True)
+                    Commons.sync_async(self._get_api_data("notifications/others.json", True))
                 ),
                 self.timeout,
             )
             self.submissions_page_cache = CachedObject(
                 lambda: FAKey.FAReader.FASubmissionsPage(
-                    self._get_api_data("notifications/submissions.json", True)
+                    Commons.sync_async(self._get_api_data("notifications/submissions.json", True))
                 ),
                 self.timeout,
             )
             self.notes_page_inbox_cache = CachedObject(
                 lambda: FAKey.FAReader.FANotesPage(
-                    self._get_api_data("notes/inbox.json", True), self.NOTES_INBOX
+                    Commons.sync_async(self._get_api_data("notes/inbox.json", True), self.NOTES_INBOX)
                 ),
                 self.timeout,
             )
             self.notes_page_outbox_cache = CachedObject(
                 lambda: FAKey.FAReader.FANotesPage(
-                    self._get_api_data("notes/outbox.json", True), self.NOTES_OUTBOX
+                    Commons.sync_async(self._get_api_data("notes/outbox.json", True), self.NOTES_OUTBOX)
                 ),
                 self.timeout,
             )
 
-        def _get_api_data(self, path: str, needs_cookie: bool = False) -> dict | list:
+        async def _get_api_data(self, path: str, needs_cookie: bool = False) -> dict | list:
             fa_api_url = os.getenv("FA_API_URL", "https://faexport.spangle.org.uk")
             url = f"{fa_api_url}/{path}"
             if needs_cookie:
                 cookie_string = "b=" + self.b + "; a=" + self.a
-                return Commons.sync_async(Commons.load_url_json(url, [["FA_COOKIE", cookie_string]]))
-            return Commons.sync_async(Commons.load_url_json(url))
+                return await  Commons.load_url_json(url, [["FA_COOKIE", cookie_string]])
+            return await Commons.load_url_json(url)
 
         def get_notification_page(self) -> 'FAKey.FAReader.FANotificationsPage':
             return self.notification_page_cache.get()
@@ -118,40 +118,42 @@ class FAKey:
 
         def get_user_page(self, username: str) -> 'FAKey.FAReader.FAUserPage':
             # Needs shout list, for checking own shouts
-            data = self._get_api_data(f"/user/{username}.json")
+            data = Commons.sync_async(self._get_api_data(f"/user/{username}.json"))
 
             def shout_data_getter():
-                return self._get_api_data(f"/user/{username}/shouts.json")
+                return Commons.sync_async(self._get_api_data(f"/user/{username}/shouts.json"))
 
             user_page = FAKey.FAReader.FAUserPage(data, shout_data_getter, username)
             return user_page
 
         def get_user_fav_page(self, username: str) -> 'FAKey.FAReader.FAUserFavouritesPage':
             # This endpoint returns a list of submission IDs
-            id_list: list[int] = self._get_api_data(f"/user/{username}/favorites.json")
+            id_list: list[int] = Commons.sync_async(self._get_api_data(f"/user/{username}/favorites.json"))
             fav_page = FAKey.FAReader.FAUserFavouritesPage(id_list, username)
             return fav_page
 
         def get_submission_page(self, submission_id: int | str) -> 'FAKey.FAReader.FAViewSubmissionPage':
-            data = self._get_api_data(f"/submission/{submission_id}.json")
+            data = Commons.sync_async(self._get_api_data(f"/submission/{submission_id}.json"))
 
             def comment_data_getter():
-                return self._get_api_data(f"/submission/{submission_id}/comments.json?include_hidden=1")
+                return Commons.sync_async(
+                    self._get_api_data(f"/submission/{submission_id}/comments.json?include_hidden=1")
+                )
 
             sub_page = FAKey.FAReader.FAViewSubmissionPage(data, comment_data_getter, submission_id)
             return sub_page
 
         def get_journal_page(self, journal_id: int | str) -> 'FAKey.FAReader.FAViewJournalPage':
-            data = self._get_api_data(f"/journal/{journal_id}.json")
+            data = Commons.sync_async(self._get_api_data(f"/journal/{journal_id}.json"))
 
             def comment_data_getter():
-                return self._get_api_data(f"/journal/{journal_id}/comments.json?include_hidden=1")
+                return Commons.sync_async(self._get_api_data(f"/journal/{journal_id}/comments.json?include_hidden=1"))
 
             journal_page = FAKey.FAReader.FAViewJournalPage(data, comment_data_getter, journal_id)
             return journal_page
 
         def get_search_page(self, search_term: str) -> 'FAKey.FAReader.FASearchPage':
-            id_list = self._get_api_data(f"/search.json?q={search_term}")
+            id_list = Commons.sync_async(self._get_api_data(f"/search.json?q={search_term}"))
             search_page = FAKey.FAReader.FASearchPage(id_list, search_term)
             return search_page
 
