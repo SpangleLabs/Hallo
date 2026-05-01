@@ -93,12 +93,6 @@ class FAWatchersSource(FAUserWatchersSource):
         for notifications in ["", " notifications"]
     ]
 
-    def __init__(self, fa_key: FAKey, last_keys: list[Key] | None = None) -> None:
-        fa_reader = fa_key.get_fa_reader()
-        notifications_page = Commons.sync_async(fa_reader.get_notification_page())
-        username = notifications_page.username
-        super().__init__(fa_key, username, last_keys)
-
     def matches_name(self, name_clean: str) -> bool:
         return name_clean in [s.lower().strip() for s in self.type_names + ["watchers"]]
 
@@ -109,16 +103,20 @@ class FAWatchersSource(FAUserWatchersSource):
     @classmethod
     async def from_input(cls, argument: str, user: User, sub_repo: 'SubscriptionRepo') -> 'FAWatchersSource':
         fa_key = fa_key_from_input(user, sub_repo)
-        return FAWatchersSource(fa_key)
+        fa_reader = fa_key.get_fa_reader()
+        notifications_page = await fa_reader.get_notification_page()
+        username = notifications_page.username
+        return FAWatchersSource(fa_key, username)
 
     @classmethod
     def from_json(cls, json_data: dict, destination: Destination, sub_repo: 'SubscriptionRepo') -> 'FAWatchersSource':
         fa_key = fa_key_from_json(json_data["fa_key_user_address"], destination.server, sub_repo)
-        return FAWatchersSource(fa_key, json_data["last_keys"])
+        return FAWatchersSource(fa_key, json_data["username"], json_data["last_keys"])
 
     def to_json(self) -> dict:
         return {
             "type": self.type_name,
             "fa_key_user_address": self.fa_key.user.address,
+            "username": self.username,
             "last_keys": self.last_keys
         }

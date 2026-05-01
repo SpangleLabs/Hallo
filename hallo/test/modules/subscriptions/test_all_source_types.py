@@ -45,7 +45,7 @@ async def source_objects(hallo_getter) -> list[Source]:
     sub_objs.append(FANotesSource(fa_key, FANotesInboxSource(fa_key), FANotesOutboxSource(fa_key)))
     sub_objs.append(FAFavsSource(fa_key, "zephyr42"))
     sub_objs.append(FAUserWatchersSource(fa_key, "zephyr42"))
-    sub_objs.append(FAWatchersSource(fa_key))
+    sub_objs.append(FAWatchersSource(fa_key), "dr-spangle")
     sub_objs.append(FAFavNotificationsSource(fa_key))
     sub_objs.append(FACommentNotificationsSource(
         fa_key,
