@@ -71,7 +71,7 @@ async def test_field_classes_added_to_factory(hallo_getter):
         spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
         # noinspection PyBroadException
         try:
-            function_class.create_from_input(
+            await function_class.create_from_input(
                 EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "hello"),
                 spreadsheet,
             )

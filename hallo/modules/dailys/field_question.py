@@ -368,7 +368,7 @@ class QuestionsField(DailysField):
         self.data = AnswersData(spreadsheet)
 
     @staticmethod
-    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
+    async def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
         return QuestionsField.create_from_spreadsheet(spreadsheet)
 
     @staticmethod

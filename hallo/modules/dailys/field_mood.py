@@ -30,8 +30,8 @@ class DailysMoodField(DailysField):
         self.triggered_cache = MoodTriggeredCache()
 
     @staticmethod
-    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
-        return Commons.sync_async(DailysMoodField.create_from_spreadsheet(spreadsheet))
+    async def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':
+        return await DailysMoodField.create_from_spreadsheet(spreadsheet)
 
     @staticmethod
     async def create_from_spreadsheet(spreadsheet: 'DailysSpreadsheet') -> 'DailysMoodField':

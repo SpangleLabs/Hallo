@@ -60,7 +60,7 @@ class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
         await self.message_channel(notif_str)
 
     @staticmethod
-    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysFAField':
+    async def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysFAField':
         # Check user has an FA login
         user_parser = hallo.modules.user_data.UserDataParser()
         fa_data = user_parser.get_data_by_user_and_type(spreadsheet.user, hallo.modules.user_data.FAKeyData)

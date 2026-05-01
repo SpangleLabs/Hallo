@@ -55,7 +55,7 @@ class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
             return False
 
     @staticmethod
-    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysDuolingoField':
+    async def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysDuolingoField':
         clean_input = (
             event.command_args[len(DailysDuolingoField.type_name):].strip().split()
         )

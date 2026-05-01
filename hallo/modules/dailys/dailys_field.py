@@ -26,7 +26,7 @@ class DailysField(metaclass=ABCMeta):
         self.spreadsheet: 'DailysSpreadsheet' = spreadsheet
 
     @staticmethod
-    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysField':
+    async def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysField':
         raise NotImplementedError()
 
     @staticmethod

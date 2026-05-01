@@ -13,7 +13,7 @@ class DailysDreamField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "dreams"
 
     @staticmethod
-    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysDreamField':
+    async def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysDreamField':
         return DailysDreamField(spreadsheet)
 
     @staticmethod

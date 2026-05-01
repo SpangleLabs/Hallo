@@ -18,7 +18,7 @@ class DailysSleepField(DailysField):
     json_key_interruptions = "interruptions"
 
     @staticmethod
-    def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysSleepField':
+    async def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysSleepField':
         return DailysSleepField(spreadsheet)
 
     @staticmethod

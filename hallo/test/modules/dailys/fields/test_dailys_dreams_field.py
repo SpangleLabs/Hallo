@@ -119,7 +119,7 @@ async def test_create_from_input(hallo_getter):
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
 
     # Create from input
-    field = DailysDreamField.create_from_input(evt, spreadsheet)
+    field = await DailysDreamField.create_from_input(evt, spreadsheet)
 
     assert field.spreadsheet == spreadsheet
     assert field.type_name == "dreams"

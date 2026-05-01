@@ -61,7 +61,7 @@ async def test_create_from_input(hallo_getter, requests_mock):
     )
 
     # Try and create dailys field
-    field = DailysMoodField.create_from_input(evt, spreadsheet)
+    field = await DailysMoodField.create_from_input(evt, spreadsheet)
 
     assert field.spreadsheet == spreadsheet
     assert isinstance(field.times, list)
@@ -94,7 +94,7 @@ async def test_create_from_input__no_static_data(hallo_getter, requests_mock):
 
     # Try and create dailys field
     with pytest.raises(hallo.modules.dailys.dailys_field.DailysException) as e:
-        DailysMoodField.create_from_input(evt, spreadsheet)
+        await DailysMoodField.create_from_input(evt, spreadsheet)
     assert "mood field static data has not been set up on dailys system" in str(e.value).lower()
 
 

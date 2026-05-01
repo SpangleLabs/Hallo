@@ -59,7 +59,7 @@ async def test_create_from_input_no_username(hallo_getter):
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
     try:
-        DailysDuolingoField.create_from_input(evt, spreadsheet)
+        await DailysDuolingoField.create_from_input(evt, spreadsheet)
         assert (
             False
         ), "Should have failed to create DailysDuolingoField due to missing username."
@@ -86,7 +86,7 @@ async def test_create_from_input_no_password(hallo_getter):
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
     try:
-        DailysDuolingoField.create_from_input(evt, spreadsheet)
+        await DailysDuolingoField.create_from_input(evt, spreadsheet)
         assert (
             False
         ), "Should have failed to create DailysDuolingoField due to missing password."
@@ -113,7 +113,7 @@ async def test_create_from_input_invalid_password(hallo_getter):
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
     try:
-        DailysDuolingoField.create_from_input(evt, spreadsheet)
+        await DailysDuolingoField.create_from_input(evt, spreadsheet)
         assert (
             False
         ), "Should have failed to create DailysDuolingoField due to incorrect password."
@@ -139,7 +139,7 @@ async def test_create_from_input_username_first(hallo_getter):
     evt.split_command_text(cmd_name, cmd_args)
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
-    field = DailysDuolingoField.create_from_input(evt, spreadsheet)
+    field = await DailysDuolingoField.create_from_input(evt, spreadsheet)
     assert field.spreadsheet == spreadsheet
     assert field.username == TEST_USERNAME
     assert field.password == TEST_PASSWORD
@@ -160,7 +160,7 @@ async def test_create_from_input_password_first(hallo_getter):
     evt.split_command_text(cmd_name, cmd_args)
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
-    field = DailysDuolingoField.create_from_input(evt, spreadsheet)
+    field = await DailysDuolingoField.create_from_input(evt, spreadsheet)
     assert field.spreadsheet == spreadsheet
     assert field.username == TEST_USERNAME
     assert field.password == TEST_PASSWORD
