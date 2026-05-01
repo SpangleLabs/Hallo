@@ -5,6 +5,7 @@ from datetime import date
 from typing import Callable, Type, TYPE_CHECKING
 
 from hallo.events import Event, EventMessage
+from hallo.inc.commons import Commons
 
 if TYPE_CHECKING:
     from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
@@ -46,8 +47,8 @@ class DailysField(metaclass=ABCMeta):
     def save_data(self, data: dict, data_date: datetime.datetime) -> None:
         Commons.sync_async(self.spreadsheet.save_field(self, data, data_date=data_date))
 
-    def load_data(self, data_date: date) -> dict | None:
-        return Commons.sync_async(self.spreadsheet.read_field(self, data_date))
+    async def load_data(self, data_date: date) -> dict | None:
+        return await self.spreadsheet.read_field(self, data_date)
 
     async def message_channel(
             self,

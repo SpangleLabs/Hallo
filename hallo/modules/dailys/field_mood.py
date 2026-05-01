@@ -7,6 +7,7 @@ from hallo.events import EventMessage, EventMinute, RawDataTelegram, RawDataTele
 from hallo.modules.dailys.dailys_field import DailysField, DailysException
 from hallo.modules.dailys.field_sleep import DailysSleepField
 from hallo.modules.dailys.field_mood_models import MoodTime, MoodDay, MoodTriggeredCache, MoodTimeList
+from hallo.inc.commons import Commons
 
 if TYPE_CHECKING:
     from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
@@ -58,10 +59,10 @@ class DailysMoodField(DailysField):
         async with self.lock:
             # Get today's data, unless it's empty, then get yesterday's, unless it's full, then use today's.
             yesterday_date = mood_date - timedelta(1)
-            today_raw = self.load_data(mood_date)
+            today_raw = await self.load_data(mood_date)
             today_data = MoodDay.from_dict(today_raw, mood_date)
             if today_data.is_empty():
-                yesterday_raw = self.load_data(yesterday_date)
+                yesterday_raw = await self.load_data(yesterday_date)
                 yesterday_data = MoodDay.from_dict(yesterday_raw, yesterday_date)
                 if yesterday_data.is_empty() or yesterday_data.is_full(self.times):
                     return today_data

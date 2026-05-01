@@ -30,11 +30,11 @@ class DailysSleepField(DailysField):
         now = evt.get_send_time()
         time_str = now.isoformat()
         sleep_date = evt.get_send_time().date()
-        current_data = self.load_data(sleep_date)
+        current_data = await self.load_data(sleep_date)
         if current_data is None:
             current_data = dict()
         yesterday_date = sleep_date - timedelta(1)
-        yesterday_data = self.load_data(yesterday_date)
+        yesterday_data = await self.load_data(yesterday_date)
         if yesterday_data is None:
             yesterday_data = dict()
         # If user is waking up

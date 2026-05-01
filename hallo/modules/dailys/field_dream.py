@@ -28,7 +28,7 @@ class DailysDreamField(hallo.modules.dailys.dailys_field.DailysField):
         data_date = evt.get_send_time().date()
         dream_text = evt.text
         new_dream = {"text": dream_text}
-        dream_data = self.load_data(data_date)
+        dream_data = await self.load_data(data_date)
         if dream_data is None:
             dream_data = {"dreams": []}
         dream_data["dreams"].append(new_dream)
