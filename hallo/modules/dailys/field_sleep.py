@@ -50,7 +50,7 @@ class DailysSleepField(DailysField):
             # If not, add a wake time to sleep data
             else:
                 current_data[self.json_key_wake_time] = time_str
-                self.save_data(current_data, sleep_date)
+                await self.save_data(current_data, sleep_date)
                 await self.message_channel("Good morning!")
                 return
         # If user is going to sleep
@@ -64,7 +64,7 @@ class DailysSleepField(DailysField):
                 # Did they already wake? If not, they're updating their sleep time.
                 if self.json_key_wake_time not in current_data:
                     current_data[self.json_key_sleep_time] = time_str
-                    self.save_data(current_data, sleep_date)
+                    await self.save_data(current_data, sleep_date)
                     await self.message_channel("Good night again!")
                     return
                 # Move the last wake time to interruptions
@@ -76,13 +76,13 @@ class DailysSleepField(DailysField):
                 if self.json_key_interruptions not in current_data:
                     current_data[self.json_key_interruptions] = []
                 current_data[self.json_key_interruptions].append(interruption)
-                self.save_data(current_data, sleep_date)
+                await self.save_data(current_data, sleep_date)
                 await self.message_channel("Oh, going back to sleep? Sleep well!")
                 return
             # Otherwise they're headed to sleep
             else:
                 current_data[self.json_key_sleep_time] = time_str
-                self.save_data(current_data, sleep_date)
+                await self.save_data(current_data, sleep_date)
                 await self.message_channel("Goodnight!")
                 return
 

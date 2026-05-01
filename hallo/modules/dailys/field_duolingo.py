@@ -41,7 +41,7 @@ class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
             result[friend["username"]] = friend["points"]
         result_str = json.dumps(result)
         d = (evt.get_send_time() - timedelta(1)).date()
-        self.save_data(result, d)
+        await self.save_data(result, d)
         # Send date to destination
         await self.message_channel(result_str)
 

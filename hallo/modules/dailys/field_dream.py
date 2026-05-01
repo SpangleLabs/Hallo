@@ -33,7 +33,7 @@ class DailysDreamField(hallo.modules.dailys.dailys_field.DailysField):
             dream_data = {"dreams": []}
         dream_data["dreams"].append(new_dream)
         dream_count = len(dream_data["dreams"])
-        self.save_data(dream_data, data_date)
+        await self.save_data(dream_data, data_date)
         # Send date to destination
         dream_ordinal = Commons.ordinal(dream_count)
         await evt.reply(evt.create_response(f"Logged dream. {dream_ordinal} of the day."))

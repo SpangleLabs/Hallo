@@ -54,7 +54,7 @@ class DailysFAField(hallo.modules.dailys.dailys_field.DailysField):
             "watching_count": profile_data["watching"]["count"]
         }
         d = (evt.get_send_time() - timedelta(1)).date()
-        self.save_data(notifications, d)
+        await self.save_data(notifications, d)
         # Send date to destination
         notif_str = json.dumps(notifications)
         await self.message_channel(notif_str)

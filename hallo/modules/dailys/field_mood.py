@@ -179,7 +179,7 @@ class DailysMoodField(DailysField):
         # Update data
         async with self.lock:
             mood_day.add_request(time_val, sent_msg_id)
-            self.save_day(mood_day)
+            await self.save_day(mood_day)
         return None
 
     async def process_mood_response(
@@ -198,14 +198,14 @@ class DailysMoodField(DailysField):
                 mood_key: mood_val for mood_key, mood_val in zip(self.moods, [int(x) for x in mood_str])
             }
             mood_day.set_measurement(time_val, measurement_data)
-            self.save_day(mood_day)
+            await self.save_day(mood_day)
         return await evt.reply(evt.create_response(
             f"Added mood stat {mood_str} for time: {time_val} and date: {mood_day.mood_date.isoformat()}"
         ))
 
-    def save_day(self, mood_day: MoodDay) -> None:
+    async def save_day(self, mood_day: MoodDay) -> None:
         data = mood_day.to_dict()
-        self.save_data(data, mood_day.mood_date)
+        await self.save_data(data, mood_day.mood_date)
 
     def to_json(self) -> dict:
         return {
