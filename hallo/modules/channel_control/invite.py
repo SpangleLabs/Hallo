@@ -1,6 +1,7 @@
 from hallo.events import EventInvite
 from hallo.function import Function
 import hallo.modules.channel_control.channel_control
+from hallo.destination import Channel, User
 from hallo.server import Server
 
 

@@ -414,4 +414,4 @@ class ChannelMembership:
         )
 
     def __hash__(self) -> int:
-        return hash(self.channel, self.user)
+        return hash((self.channel, self.user))

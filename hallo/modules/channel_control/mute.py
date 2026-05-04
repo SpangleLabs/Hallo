@@ -1,6 +1,7 @@
 from hallo.events import EventMode
 from hallo.function import Function
 import hallo.modules.channel_control.channel_control
+from hallo.destination import Channel
 from hallo.server import Server
 
 
