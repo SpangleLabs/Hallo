@@ -4,9 +4,11 @@ from abc import ABCMeta
 from datetime import datetime
 from typing import Any, Optional, TYPE_CHECKING, Type
 
+from telethon import events
+
 if TYPE_CHECKING:
     from hallo.hallo import Hallo
-    from telegram import Update, Message
+    from telegram import Message
     from hallo.destination import Destination, User, Channel
     from hallo.server import Server
 
@@ -106,11 +108,11 @@ class RawDataIRC(RawData):
 
 
 class RawDataTelegram(RawData):
-    def __init__(self, update_obj: 'Update') -> None:
+    def __init__(self, event_obj: events.NewMessage.Event) -> None:
         """
-        :param update_obj: Update object from telegram server
+        :param event_obj: New message event object from telegram server
         """
-        self.update_obj = update_obj
+        self.event_obj = event_obj
 
 
 class RawDataTelegramOutbound(RawData):
@@ -179,7 +181,7 @@ class ServerEvent(Event, metaclass=ABCMeta):
 
     def get_send_time(self) -> datetime:
         if isinstance(self.raw_data, RawDataTelegram):
-            return self.raw_data.update_obj.message.date
+            return self.raw_data.event_obj.message.date
         return super().get_send_time()
 
     def _get_log_extras(self) -> list[dict[str, Any]]:
@@ -518,10 +520,22 @@ class EventMessage(ChannelUserTextEvent):
     @property
     def message_id(self) -> int | None:
         if isinstance(self.raw_data, RawDataTelegram):
-            return self.raw_data.update_obj.message.message_id
+            return self.raw_data.event_obj.message.id
         if isinstance(self.raw_data, RawDataTelegramOutbound):
             return self.raw_data.sent_msg_object.message_id
         return self._message_id
+
+    @property
+    def reply_to_msg_id(self) -> int | None:
+        if isinstance(self.raw_data, RawDataTelegram):
+            if self.raw_data.event_obj.reply_to is None:
+                return None
+            return self.raw_data.event_obj.reply_to.reply_to_msg_id
+        if isinstance(self.raw_data, RawDataTelegramOutbound):
+            if self.raw_data.sent_msg_object.reply_to_message is None:
+                return None
+            return self.raw_data.sent_msg_object.reply_to_message.message_id
+        return None
 
     @property
     def has_keyboard(self) -> bool:

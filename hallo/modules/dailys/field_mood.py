@@ -117,13 +117,8 @@ class DailysMoodField(DailysField):
             ) or input_clean.isdigit():
                 unanswered_requests = mood_day.list_unanswered_requests()
                 # Check if telegram message, and reply to a message
-                if (
-                    isinstance(evt.raw_data, RawDataTelegram)
-                    and evt.raw_data.update_obj.message.reply_to_message is not None
-                ):
-                    reply_id = (
-                        evt.raw_data.update_obj.message.reply_to_message.message_id
-                    )  # TODO: This should just be a method in event.
+                if evt.reply_to_msg_id is not None:
+                    reply_id = evt.reply_to_msg_id
                     unanswered_ids = {
                         request.message_id: request for request in unanswered_requests
                     }

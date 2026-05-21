@@ -17,7 +17,7 @@ def get_telegram_time(date_time_val):
     fake_telegram_obj = Obj()
     fake_telegram_obj.message = Obj()
     fake_telegram_obj.message.date = date_time_val
-    fake_telegram_obj.message.reply_to_message = None
+    fake_telegram_obj.message.reply_to = None
     return fake_telegram_obj
 
 
@@ -25,8 +25,8 @@ def get_telegram_time_reply(date_time_val, message_id):
     fake_telegram_obj = Obj()
     fake_telegram_obj.message = Obj()
     fake_telegram_obj.message.date = date_time_val
-    fake_telegram_obj.message.reply_to_message = Obj()
-    fake_telegram_obj.message.reply_to_message.message_id = message_id
+    fake_telegram_obj.message.reply_to = Obj()
+    fake_telegram_obj.message.reply_to.reply_to_msg_id = message_id
     return fake_telegram_obj
 
 
