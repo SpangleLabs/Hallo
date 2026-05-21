@@ -70,6 +70,8 @@ class ServerTelegram(Server):
         """
         self.hallo = hallo  # The hallo object that created this server
         # Persistent/saved class variables
+        self.api_id = api_id
+        self.api_hash = api_hash
         self.bot_token = bot_token
         self.name = "Telegram"  # Server name #TODO: needs to be configurable!
         # Whether to automatically connect to this server when hallo starts
@@ -467,7 +469,9 @@ class ServerTelegram(Server):
             json_obj["prefix"] = self.prefix
         if not self.permission_mask.is_empty():
             json_obj["permission_mask"] = self.permission_mask.to_json()
-        json_obj["api_key"] = self.api_key
+        json_obj["api_id"] = self.api_id
+        json_obj["api_hash"] = self.api_hash
+        json_obj["bot_token"] = self.bot_token
         return json_obj
 
     @staticmethod
