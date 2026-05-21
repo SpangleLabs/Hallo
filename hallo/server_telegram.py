@@ -361,8 +361,11 @@ class ServerTelegram(Server):
             server_type=self.__class__.__name__,
             event_type=new_event.__class__.__name__
         ).inc()
+        msg_id = old_event.message_id
+        if msg_id is None:
+            raise ServerException("Can't edit a message which does not have an associated message ID")
         # Edit event
-        return self.edit_by_id(old_event.message_id, new_event, has_photo=isinstance(old_event, EventMessageWithPhoto))
+        return await self.edit_by_id(msg_id, new_event, has_photo=isinstance(old_event, EventMessageWithPhoto))
 
     async def edit_by_id(
             self,
