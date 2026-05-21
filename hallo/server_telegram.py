@@ -3,8 +3,8 @@ from typing import TYPE_CHECKING, Awaitable
 
 import telegram
 import telethon
-from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Update, Message, TelegramError
-from telegram.ext import BaseFilter, CallbackContext
+from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Message, TelegramError
+from telegram.ext import BaseFilter
 import logging
 from telegram.ext import messagequeue as mq
 from telegram.utils import promise
@@ -211,7 +211,7 @@ class ServerTelegram(Server):
         else:
             await function_dispatcher.dispatch_passive(message_evt)
 
-    def parse_join(self, update: Update, context: CallbackContext) -> None:
+    def parse_join(self, event: events.ChatAction.Event) -> None:
         # TODO
         pass
 
