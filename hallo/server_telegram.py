@@ -344,16 +344,9 @@ class ServerTelegram(Server):
         return
 
     async def reply(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage | None:
-        """
-        :type old_event: events.ChannelUserTextEvent
-        :param new_event:
-        :return:
-        """
         # Do checks
         await super().reply(old_event, new_event)
-        if old_event.raw_data is None or not isinstance(
-            old_event.raw_data, RawDataTelegram
-        ):
+        if old_event.raw_data is None or not isinstance(old_event.raw_data, RawDataTelegram):
             raise ServerException("Old event has no telegram data associated with it")
         reply_to_id = old_event.message_id
         # Send event
