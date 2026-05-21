@@ -5,10 +5,10 @@ from datetime import datetime
 from typing import Any, Optional, TYPE_CHECKING, Type
 
 from telethon import events
+from telethon.tl.types import Message
 
 if TYPE_CHECKING:
     from hallo.hallo import Hallo
-    from telegram import Message
     from hallo.destination import Destination, User, Channel
     from hallo.server import Server
 
@@ -116,7 +116,7 @@ class RawDataTelegram(RawData):
 
 
 class RawDataTelegramOutbound(RawData):
-    def __init__(self, sent_msg_object: 'Message') -> None:
+    def __init__(self, sent_msg_object: Message) -> None:
         """
         :param sent_msg_object: Sent message object returned when sending message on telegram
         """
@@ -522,19 +522,19 @@ class EventMessage(ChannelUserTextEvent):
         if isinstance(self.raw_data, RawDataTelegram):
             return self.raw_data.event_obj.message.id
         if isinstance(self.raw_data, RawDataTelegramOutbound):
-            return self.raw_data.sent_msg_object.message_id
+            return self.raw_data.sent_msg_object.id
         return self._message_id
 
     @property
     def reply_to_msg_id(self) -> int | None:
         if isinstance(self.raw_data, RawDataTelegram):
-            if self.raw_data.event_obj.reply_to is None:
+            if self.raw_data.event_obj.message.reply_to is None:
                 return None
-            return self.raw_data.event_obj.reply_to.reply_to_msg_id
+            return self.raw_data.event_obj.message.reply_to.reply_to_msg_id
         if isinstance(self.raw_data, RawDataTelegramOutbound):
-            if self.raw_data.sent_msg_object.reply_to_message is None:
+            if self.raw_data.sent_msg_object.reply_to.reply_to_msg_id is None:
                 return None
-            return self.raw_data.sent_msg_object.reply_to_message.message_id
+            return self.raw_data.sent_msg_object.reply_to.reply_to_msg_id
         return None
 
     @property
