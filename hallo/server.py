@@ -168,7 +168,7 @@ class Server(metaclass=ABCMeta):
         return
 
     @abstractmethod
-    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
+    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent'):
         raise NotImplementedError
 
     def to_json(self) -> dict:

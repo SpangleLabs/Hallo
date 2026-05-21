@@ -2,9 +2,7 @@ import asyncio
 from typing import TYPE_CHECKING, Awaitable
 
 import telethon
-from telegram import TelegramError
 import logging
-from telegram.utils import promise
 from telethon import TelegramClient, events, Button
 from telethon.tl.types import KeyboardButtonCallback
 
@@ -365,55 +363,51 @@ class ServerTelegram(Server):
         if msg_id is None:
             raise ServerException("Can't edit a message which does not have an associated message ID")
         # Edit event
-        return await self.edit_by_id(msg_id, new_event, has_photo=isinstance(old_event, EventMessageWithPhoto))
+        return await self.edit_by_id(msg_id, new_event)
 
-    async def edit_by_id(
-            self,
-            message_id: int,
-            new_event: EventMessage,
-            *,
-            has_photo: bool = False
-    ) -> EventMessage:
+    async def edit_by_id(self, message_id: int, new_event: EventMessage) -> EventMessage:
         if not message_id:
-            raise ServerException("Old event has no message id associated with it")
+            raise ServerException("Old event has no message id specified")
         self.outgoing.labels(
             server_type=self.__class__.__name__,
             event_type=new_event.__class__.__name__
         ).inc()
-        prom = promise.Promise(self._edit_by_id_raw, (message_id, new_event), {"has_photo": has_photo})
-        self._msg_queue(prom, False)
+        return await self._edit_by_id_raw(message_id, new_event)
 
-    def _edit_by_id_raw(
+    async def _edit_by_id_raw(
             self,
             message_id: int,
             new_event: EventMessage,
-            *,
-            has_photo: bool = False
     ) -> EventMessage:
         destination = new_event.destination
-        if has_photo or isinstance(new_event, EventMessageWithPhoto):
+        if isinstance(new_event, EventMessageWithPhoto):
             try:
-                msg = self.bot.edit_message_caption(
-                    chat_id=destination.address,
-                    message_id=message_id,
-                    caption=new_event.text,
-                    reply_markup=event_menu_for_telegram(new_event),
-                    parse_mode=formatting_to_telegram_mode(new_event.formatting)
-                )
-            except TelegramError:
-                msg = self.bot.edit_message_text(
-                    chat_id=destination.address,
-                    message_id=message_id,
+                msg = await self.client.edit_message(
+                    entity=destination.address,
+                    message=message_id,
                     text=new_event.text,
-                    reply_markup=event_menu_for_telegram(new_event),
+                    buttons=event_menu_for_telegram(new_event),
+                    parse_mode=formatting_to_telegram_mode(new_event.formatting),
+                    file=new_event.photo_id,
+                )
+            except Exception as e:
+                logger.warning(
+                    "Failed to edit message with picture. Editing without. Picture path %s",
+                    new_event.photo_id, exc_info=e
+                )
+                msg = await self.client.edit_message(
+                    entity=destination.address,
+                    message=message_id,
+                    text=new_event.text,
+                    buttons=event_menu_for_telegram(new_event),
                     parse_mode=formatting_to_telegram_mode(new_event.formatting)
                 )
         else:
-            msg = self.bot.edit_message_text(
-                chat_id=destination.address,
-                message_id=message_id,
+            msg = await self.client.edit_message(
+                entity=destination.address,
+                message=message_id,
                 text=new_event.text,
-                reply_markup=event_menu_for_telegram(new_event),
+                buttons=event_menu_for_telegram(new_event),
                 parse_mode=formatting_to_telegram_mode(new_event.formatting)
             )
         new_event.with_raw_data(RawDataTelegramOutbound(msg))

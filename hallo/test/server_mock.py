@@ -43,14 +43,14 @@ class ServerMock(Server):
     ) -> None:
         self.send_data.append(event)
         if after_sent_callback:
-            after_sent_callback(event)
+            await after_sent_callback
 
     async def reply(self, old_event, new_event):
         await super().reply(old_event, new_event)
         await self.send(new_event)
 
-    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
-        self.send(new_event)
+    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent'):
+        await self.send(new_event)
 
     async def reconnect(self):
         pass
