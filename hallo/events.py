@@ -674,7 +674,7 @@ class EventMenuCallback(ChannelUserEvent):
     def __init__(
             self,
             server: 'Server',
-            channel: 'Channel',
+            channel: Optional['Channel'],
             user: 'User',
             message_id: int,
             callback_data: str
