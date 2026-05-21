@@ -6,8 +6,7 @@ import dateutil.parser
 import isodate
 
 from hallo.modules.dailys.dailys_field import DailysField, DailysException
-from hallo.events import EventMessage, EventMinute, Event, RawDataTelegram
-from hallo.inc.commons import Commons
+from hallo.events import EventMessage, EventMinute, Event
 
 if TYPE_CHECKING:
     from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
