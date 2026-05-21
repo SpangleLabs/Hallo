@@ -1,14 +1,12 @@
 import asyncio
 from typing import TYPE_CHECKING, Awaitable
 
-import telegram
 import telethon
-from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Message, TelegramError
-from telegram.ext import BaseFilter
+from telegram import TelegramError
 import logging
-from telegram.ext import messagequeue as mq
 from telegram.utils import promise
-from telethon import TelegramClient, events
+from telethon import TelegramClient, events, Button
+from telethon.tl.types import KeyboardButtonCallback
 
 from hallo.destination import User, Channel
 from hallo.errors import MessageError
@@ -16,9 +14,9 @@ from hallo.events import (
     EventMessage,
     RawDataTelegram,
     EventMessageWithPhoto,
-    RawDataTelegramOutbound, EventMenuCallback, ServerEvent, ChannelUserTextEvent,
+    RawDataTelegramOutbound, EventMenuCallback, ServerEvent
 )
-from hallo.inc.commons import all_subclasses, Commons
+from hallo.inc.commons import all_subclasses
 from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
 
@@ -29,22 +27,22 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def event_menu_for_telegram(event: EventMessage) -> InlineKeyboardMarkup | None:
+def event_menu_for_telegram(event: EventMessage) -> list[list[KeyboardButtonCallback]] | None:
     if not event.menu_buttons:
         return None
     menu = []
     for row in event.menu_buttons:
         menu.append([
-            InlineKeyboardButton(button.text, callback_data=button.data)
+            Button.inline(button.text, data=button.data)
             for button in row
         ])
-    return InlineKeyboardMarkup(menu)
+    return menu
 
 
 def formatting_to_telegram_mode(event_formatting: EventMessage.Formatting) -> str | None:
     return {
-        EventMessage.Formatting.MARKDOWN: telegram.ParseMode.MARKDOWN,
-        EventMessage.Formatting.HTML: telegram.ParseMode.HTML,
+        EventMessage.Formatting.MARKDOWN: "markdown",
+        EventMessage.Formatting.HTML: "html",
     }.get(event_formatting)
 
 
@@ -93,8 +91,6 @@ class ServerTelegram(Server):
         self.client.add_event_handler(self.parse_menu_callback, events.CallbackQuery())
         # Catch-all message handler for anything not already handled.
         self.client.add_event_handler(self.parse_unhandled, None)
-        # Message queue, for flood control. Half group limit, because retries might double it
-        self._msg_queue = mq.MessageQueue(group_burst_limit=10, autostart=False)
         # Initialise labels
         for evt_class in all_subclasses(ServerEvent):
             self.incoming.labels(
@@ -274,12 +270,7 @@ class ServerTelegram(Server):
             server_type=self.__class__.__name__,
             event_type=event.__class__.__name__
         ).inc()
-        prom = promise.Promise(
-            lambda: Commons.sync_async(
-                self._send_raw(event, after_sent_callback=after_sent_callback, reply_to_id=reply_to_id),
-            )
-        )
-        self._msg_queue(prom, is_group)
+        await self._send_raw(event, after_sent_callback=after_sent_callback, reply_to_id=reply_to_id)
 
     async def _send_raw(
             self,
@@ -289,67 +280,62 @@ class ServerTelegram(Server):
             reply_to_id: int | None = None
     ) -> None:
         if isinstance(event, EventMessageWithPhoto):
-            destination = event.destination
             try:
                 if isinstance(event.photo_id, list):
-                    media = [InputMediaPhoto(x) for x in event.photo_id]
-                    media[0].caption = event.text
-                    media[0].parse_mode = formatting_to_telegram_mode(event.formatting)
-                    msg = self.bot.send_media_group(
-                        chat_id=destination.address,
-                        media=media,
-                        reply_to_message_id=reply_to_id,
+                    msgs = await self.client.send_file(
+                        entity=event.destination.address,
+                        file=event.photo_id,
+                        caption=event.text,
+                        parse_mode=formatting_to_telegram_mode(event.formatting),
+                        reply_to=reply_to_id,
                     )
+                    msg = msgs[0]
                 elif any(
                     [
                         event.photo_id.lower().endswith("." + x)
                         for x in ServerTelegram.image_extensions
                     ]
                 ):
-                    msg = self.bot.send_photo(
-                        chat_id=destination.address,
-                        photo=event.photo_id,
+                    msg = await self.client.send_file(
+                        entity=event.destination.address,
+                        file=event.photo_id,
                         caption=event.text,
-                        reply_markup=event_menu_for_telegram(event),
+                        buttons=event_menu_for_telegram(event),
                         parse_mode=formatting_to_telegram_mode(event.formatting),
-                        reply_to_message_id=reply_to_id,
+                        reply_to=reply_to_id,
                     )
                 else:
-                    msg = self.bot.send_document(
-                        chat_id=destination.address,
-                        document=event.photo_id,
+                    msg = await self.client.send_file(
+                        entity=event.destination.address,
+                        file=event.photo_id,
                         caption=event.text,
-                        reply_markup=event_menu_for_telegram(event),
+                        buttons=event_menu_for_telegram(event),
                         parse_mode=formatting_to_telegram_mode(event.formatting),
-                        reply_to_message_id=reply_to_id,
+                        reply_to=reply_to_id,
                     )
             except Exception as e:
                 logger.warning(
                     "Failed to send message with picture. Sending without. Picture path %s", event.photo_id, exc_info=e
                 )
-                msg = self.bot.send_message(
-                    chat_id=destination.address,
-                    text=event.text,
-                    reply_markup=event_menu_for_telegram(event),
+                msg = await self.client.send_message(
+                    entity=event.destination.address,
+                    message=event.text,
+                    buttons=event_menu_for_telegram(event),
                     parse_mode=formatting_to_telegram_mode(event.formatting),
-                    reply_to_message_id=reply_to_id,
+                    reply_to=reply_to_id,
                 )
             event.with_raw_data(RawDataTelegramOutbound(msg))
         elif isinstance(event, EventMessage):
-            msg = self.bot.send_message(
-                chat_id=event.destination.address,
-                text=event.text,
+            msg = await self.client.send_message(
+                entity=event.destination.address,
+                message=event.text,
                 parse_mode=formatting_to_telegram_mode(event.formatting),
-                reply_markup=event_menu_for_telegram(event),
-                reply_to_message_id=reply_to_id,
+                buttons=event_menu_for_telegram(event),
+                reply_to=reply_to_id,
             )
             event.with_raw_data(RawDataTelegramOutbound(msg))
         else:
-            error = MessageError(
-                "Unsupported event type, {}, sent to Telegram server".format(
-                    event.__class__.__name__
-                )
-            )
+            error = MessageError(f"Unsupported event type, {event.__class__.__name__}, sent to Telegram server")
             logger.error(error.get_log_line())
             raise NotImplementedError()
         event.log()
