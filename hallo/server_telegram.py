@@ -53,7 +53,7 @@ class ServerTelegram(Server):
     type = Server.TYPE_TELEGRAM
     image_extensions = ["jpg", "jpeg", "png"]
 
-    def __init__(self, hallo: 'Hallo', api_key: str) -> None:
+    def __init__(self, hallo: 'Hallo', api_id: int, api_hash: str, bot_token: str) -> None:
         super().__init__(hallo)
         """
         Constructor for server object
@@ -62,11 +62,10 @@ class ServerTelegram(Server):
         """
         self.hallo = hallo  # The hallo object that created this server
         # Persistent/saved class variables
-        self.api_key = api_key
+        self.bot_token = bot_token
         self.name = "Telegram"  # Server name #TODO: needs to be configurable!
-        self.auto_connect = (
-            True  # Whether to automatically connect to this server when hallo starts
-        )
+        # Whether to automatically connect to this server when hallo starts
+        self.auto_connect = True
         # List of channels on this server (which may or may not be currently active)
         self.channel_list: list[Channel] = []
         self.user_list: list[User] = []  # Users on this server (not all of which are online)
@@ -75,16 +74,9 @@ class ServerTelegram(Server):
         self.full_name = None  # Full name to use on this server
         self.permission_mask = PermissionMask()  # PermissionMask for the server
         # Dynamic/unsaved class variables
-        self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
-        request = Request(con_pool_size=8)
-        self.bot = telegram.Bot(token=self.api_key, request=request)
-        self.bot.logger.setLevel(logging.INFO)
-        self.updater = Updater(bot=self.bot)
-        self.dispatcher = self.updater.dispatcher
-        logging.basicConfig(
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            level=logging.ERROR,
-        )
+        self.state = Server.STATE_CLOSED  # Current state of the server connection
+        session_name = f"{type(self).__name__}_{self.name}"
+        self.client = TelegramClient(session_name, api_id, api_hash)
         # Message handlers
         self.private_msg_handler = MessageHandler(
             Filters.private, self.parse_private_message
@@ -496,8 +488,10 @@ class ServerTelegram(Server):
 
     @staticmethod
     def from_json(json_obj: dict, hallo: 'Hallo') -> 'ServerTelegram':
-        api_key = json_obj["api_key"]
-        new_server = ServerTelegram(hallo, api_key)
+        api_id = json_obj["api_id"]
+        api_hash = json_obj["api_hash"]
+        bot_token = json_obj["bot_token"]
+        new_server = ServerTelegram(hallo, api_id, api_hash, bot_token)
         new_server.name = json_obj["name"]
         new_server.auto_connect = json_obj["auto_connect"]
         if "nick" in json_obj:
