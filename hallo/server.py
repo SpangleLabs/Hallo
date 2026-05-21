@@ -1,4 +1,3 @@
-import asyncio
 from abc import ABCMeta, abstractmethod
 from typing import Optional, TYPE_CHECKING, Awaitable
 
