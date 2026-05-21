@@ -2,7 +2,7 @@ import asyncio
 from datetime import timedelta, time, date
 from typing import TYPE_CHECKING, Type
 
-from hallo.events import EventMessage, EventMinute, RawDataTelegramOutbound, Event
+from hallo.events import EventMessage, EventMinute, Event
 from hallo.modules.dailys.dailys_field import DailysField, DailysException
 from hallo.modules.dailys.field_sleep import DailysSleepField
 from hallo.modules.dailys.field_mood_models import MoodTime, MoodDay, MoodTriggeredCache, MoodTimeList
@@ -166,9 +166,7 @@ class DailysMoodField(DailysField):
         # Send message
         evt = await self.message_channel(msg)
         # Get message_id, if telegram outbound message
-        sent_msg_id = -1
-        if isinstance(evt.raw_data, RawDataTelegramOutbound):
-            sent_msg_id = evt.raw_data.sent_msg_object.message_id
+        sent_msg_id = evt.message_id
         # Update data
         async with self.lock:
             mood_day.add_request(time_val, sent_msg_id)
