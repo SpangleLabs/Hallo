@@ -1317,7 +1317,7 @@ class ServerIRC(Server):
                 )
             )
 
-    def get_name_by_address(self, address: str) -> str:
+    async def get_name_by_address(self, address: str) -> str:
         return address
 
     def to_json(self) -> dict:

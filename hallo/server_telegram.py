@@ -412,12 +412,11 @@ class ServerTelegram(Server):
         new_event.log()
         return new_event
 
-    def get_name_by_address(self, address: str) -> str:
-        chat = self.bot.get_chat(address)
-        if chat.type == chat.PRIVATE:
-            return " ".join([chat.first_name, chat.last_name])
-        if chat.type in [chat.GROUP, chat.SUPERGROUP, chat.CHANNEL]:
-            return chat.title
+    async def get_name_by_address(self, address: str) -> str:
+        address_id = int(address)
+        input_entity = await self.client.get_input_entity(address_id)
+        entity = await self.client.get_entity(input_entity)
+        return entity_name(entity)
 
     def to_json(self) -> dict:
         """

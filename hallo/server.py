@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABCMeta, abstractmethod
 from typing import Optional, TYPE_CHECKING, Awaitable
 
@@ -256,12 +257,13 @@ class Server(metaclass=ABCMeta):
             if channel.address == address:
                 return channel
         if channel_name is None:
-            channel_name = self.get_name_by_address(address)
+            loop = asyncio.get_running_loop() # TODO(async): remove this
+            channel_name =  loop.run_until_complete(self.get_name_by_address(address))
         new_channel = Channel(self, address, channel_name)
         self.add_channel(new_channel)
         return new_channel
 
-    def get_name_by_address(self, address: str) -> str:
+    async def get_name_by_address(self, address: str) -> str:
         """
         Returns the name of a destination, based on the address
         """
@@ -316,7 +318,8 @@ class Server(metaclass=ABCMeta):
             if user.address == address:
                 return user
         if user_name is None:
-            user_name = self.get_name_by_address(address)
+            loop = asyncio.get_running_loop() # TODO(async): remove this
+            user_name = loop.run_until_complete(self.get_name_by_address(address))
         # No user by that name exists, so create one
         new_user = User(self, address, user_name)
         self.add_user(new_user)
