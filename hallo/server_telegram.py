@@ -107,25 +107,23 @@ class ServerTelegram(Server):
         if self.state != Server.STATE_CLOSED:
             raise ServerException("Already started.")
         self.state = Server.STATE_CONNECTING
-        asyncio.create_task(self.connect)
+        asyncio.create_task(self.connect())
 
-    def connect(self) -> None:
+    async def connect(self) -> None:
         """
         Internal method
         Method to read from stream and process. Will connect and call internal parsing methods or whatnot.
         Needs to be started in it's own thread, only exits when the server connection ends
         """
-        with self._connect_lock:
-            self.updater.start_polling()
-            self.state = Server.STATE_OPEN
-            self._msg_queue.start()
+        # noinspection PyUnresolvedReferences
+        await self.client.start(bot_token=self.bot_token)
+        self.state = Server.STATE_OPEN
 
     async def disconnect(self, force: bool = False) -> None:
         self.state = Server.STATE_DISCONNECTING
-        with self._connect_lock:
-            self.updater.stop()
-            self._msg_queue.stop()
-            self.state = Server.STATE_CLOSED
+        # noinspection PyUnresolvedReferences
+        await self.client.disconnect()
+        self.state = Server.STATE_CLOSED
 
     async def parse_private_message(self, event: events.NewMessage.Event) -> None:
         """
