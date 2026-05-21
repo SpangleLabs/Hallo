@@ -106,10 +106,6 @@ class ServerTelegram(Server):
                 event_type=evt_class.__name__
             )
 
-    class ChannelFilter(BaseFilter):
-        def filter(self, message: Message) -> bool:
-            return message.chat.type in [Chat.CHANNEL]
-
     def start(self) -> None:
         """
         Starts up the server and launches the new thread
