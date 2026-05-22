@@ -52,11 +52,13 @@ class SubscriptionCheck(Function):
         self.help_docs: str = "Checks a specified feed for updates and returns them. Format: subscription check <feed name>"
         self.subscription_repo: SubscriptionRepo | None = None
 
-    def get_sub_repo(self, hallo_obj: Hallo) -> SubscriptionRepo:
+    async def get_sub_repo(self, hallo_obj: Hallo) -> SubscriptionRepo:
         if self.subscription_repo is None:
-            self.subscription_repo = SubscriptionRepo.load_json(hallo_obj)
+            subscription_repo = await SubscriptionRepo.load_json(hallo_obj)
             # Add menus last, after common config
-            self.subscription_repo.load_menu_cache(hallo_obj)
+            subscription_repo.load_menu_cache(hallo_obj)
+            self.subscription_repo = subscription_repo
+            return subscription_repo
         return self.subscription_repo
 
     @staticmethod
@@ -84,7 +86,7 @@ class SubscriptionCheck(Function):
         # Clean up input
         clean_input = event.command_args.strip().lower()
         # Acquire lock
-        sub_repo = self.get_sub_repo(hallo_obj)
+        sub_repo = await self.get_sub_repo(hallo_obj)
         async with sub_repo.sub_lock:
             # Check whether input is asking to update all subscriptions
             if clean_input in self.NAMES_ALL or clean_input == "":
@@ -115,12 +117,12 @@ class SubscriptionCheck(Function):
 
     async def passive_run(self, event: Event, hallo_obj: Hallo) -> ServerEvent | None:
         if isinstance(event, EventMenuCallback):
-            sub_repo = self.get_sub_repo(hallo_obj)
+            sub_repo = await self.get_sub_repo(hallo_obj)
             await sub_repo.handle_menu_callback(event)
             sub_repo.menu_cache.save_to_json()
             return
         if isinstance(event, EventMessage):
-            sub_repo = self.get_sub_repo(hallo_obj)
+            sub_repo = await self.get_sub_repo(hallo_obj)
             async with sub_repo.sub_lock:
                 for sub in sub_repo.sub_list:
                     wants_update = await sub.passive_run(event, hallo_obj)
@@ -129,7 +131,7 @@ class SubscriptionCheck(Function):
             return
         if isinstance(event, EventMinute):
             # Check through all feeds to see which need updates
-            sub_repo = self.get_sub_repo(hallo_obj)
+            sub_repo = await self.get_sub_repo(hallo_obj)
             async with sub_repo.sub_lock:
                 logger.debug("SubCheck - Got lock")
                 for search_sub in sub_repo.sub_list:

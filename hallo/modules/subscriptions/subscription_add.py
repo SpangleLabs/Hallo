@@ -56,7 +56,7 @@ class SubscriptionAdd(Function):
         sub_check_obj = function_dispatcher.get_function_object(
             sub_check_class
         )  # type: hallo.modules.new_subscriptions.subscription_check.SubscriptionCheck
-        sub_repo = sub_check_obj.get_sub_repo(event.server.hallo)
+        sub_repo = await sub_check_obj.get_sub_repo(event.server.hallo)
         # Create new subscription
         sub_obj = await Subscription.create_from_input(event, source_class, sub_repo)
         # No need to test subscription, that's done in create_from_input

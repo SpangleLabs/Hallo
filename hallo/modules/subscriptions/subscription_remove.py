@@ -53,7 +53,7 @@ class SubscriptionRemove(Function):
         function_dispatcher = hallo_obj.function_dispatcher
         sub_check_function = function_dispatcher.get_function_by_name("check subscription")
         sub_check_obj: SubscriptionCheck = function_dispatcher.get_function_object(sub_check_function)
-        sub_repo = sub_check_obj.get_sub_repo(hallo_obj)
+        sub_repo = await sub_check_obj.get_sub_repo(hallo_obj)
         # Clean up input
         clean_input = event.command_args.strip()
         # Acquire lock

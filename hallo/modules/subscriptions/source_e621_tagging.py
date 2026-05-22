@@ -1,3 +1,4 @@
+import asyncio
 from typing import TYPE_CHECKING
 
 from yippi import Post, Rating, YippiClient
@@ -173,7 +174,8 @@ class E621TaggingMenu(Menu):
         function_dispatcher = hallo_obj.function_dispatcher
         sub_check_class = function_dispatcher.get_function_by_name("check subscription")
         sub_check_obj: 'SubscriptionCheck' = function_dispatcher.get_function_object(sub_check_class)
-        sub_repo = sub_check_obj.get_sub_repo(hallo_obj)
+        loop = asyncio.get_running_loop() # TODO(async)
+        sub_repo = loop.run_until_complete(sub_check_obj.get_sub_repo(hallo_obj))
         e6_keys = sub_repo.get_common_config_by_type(E6KeysCommon)
         e6_client = e6_keys.get_client_by_user(user)
         return cls(

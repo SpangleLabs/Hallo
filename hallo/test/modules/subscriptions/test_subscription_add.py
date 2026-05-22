@@ -21,7 +21,7 @@ async def test_invalid_subscription(tmp_path, hallo_getter):
 
 async def test_add_search(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
-    mock_sub_repo(tmp_path, test_hallo)
+    await mock_sub_repo(tmp_path, test_hallo)
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "add e621 sub cabinet"
@@ -38,7 +38,7 @@ async def test_add_search(tmp_path, hallo_getter):
     e621_check_obj = test_hallo.function_dispatcher.get_function_object(
         e621_check_class
     )  # type: SubscriptionCheck
-    sub_repo = e621_check_obj.get_sub_repo(test_hallo).sub_list
+    sub_repo = await e621_check_obj.get_sub_repo(test_hallo).sub_list
     assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
     e6_sub: Subscription = sub_repo[0]
     assert e6_sub.server == test_hallo.test_server
@@ -55,7 +55,7 @@ async def test_add_search(tmp_path, hallo_getter):
 
 async def test_add_search_user(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
-    mock_sub_repo(tmp_path, test_hallo)
+    await mock_sub_repo(tmp_path, test_hallo)
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "add e621 sub cabinet")
     )
@@ -70,7 +70,7 @@ async def test_add_search_user(tmp_path, hallo_getter):
     e621_check_obj = test_hallo.function_dispatcher.get_function_object(
         e621_check_class
     )  # type: SubscriptionCheck
-    sub_repo = e621_check_obj.get_sub_repo(test_hallo).sub_list
+    sub_repo = await e621_check_obj.get_sub_repo(test_hallo).sub_list
     assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
     e6_sub: Subscription = sub_repo[0]
     assert e6_sub.server == test_hallo.test_server
@@ -87,7 +87,7 @@ async def test_add_search_user(tmp_path, hallo_getter):
 
 async def test_add_search_period(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
-    mock_sub_repo(tmp_path, test_hallo)
+    await mock_sub_repo(tmp_path, test_hallo)
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
@@ -107,7 +107,7 @@ async def test_add_search_period(tmp_path, hallo_getter):
     e621_check_obj = test_hallo.function_dispatcher.get_function_object(
         e621_check_class
     )  # type: SubscriptionCheck
-    sub_repo = e621_check_obj.get_sub_repo(test_hallo).sub_list
+    sub_repo = await e621_check_obj.get_sub_repo(test_hallo).sub_list
     assert len(sub_repo) == 1, "Actual length: " + str(len(sub_repo))
     e6_sub: Subscription = sub_repo[0]
     assert e6_sub.server == test_hallo.test_server

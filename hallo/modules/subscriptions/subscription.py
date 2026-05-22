@@ -122,14 +122,13 @@ class Subscription(Generic[State, Update]):
         return self.source.passive_run(event, hallo_obj)
 
     @classmethod
-    def from_json(cls, json_data: dict, hallo_obj: 'Hallo', sub_repo: 'SubscriptionRepo') -> 'Subscription':
+    async def from_json(cls, json_data: dict, hallo_obj: 'Hallo', sub_repo: 'SubscriptionRepo') -> 'Subscription':
         server = hallo_obj.get_server_by_name(json_data["server_name"])
         if server is None:
             raise SubscriptionException(f'Could not find server with name "{json_data["server_name"]}"')
         # Load channel or user
         if "channel_address" in json_data:
-            loop = asyncio.get_running_loop() # TODO(async): remove this
-            destination = loop.run_until_complete(server.get_channel_by_address(json_data["channel_address"])) # TODO(async)
+            destination = await server.get_channel_by_address(json_data["channel_address"])
         else:
             if "user_address" in json_data:
                 destination = server.get_user_by_address(json_data["user_address"])

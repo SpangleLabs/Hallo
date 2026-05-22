@@ -11,7 +11,7 @@ from hallo.test.modules.subscriptions.mock_subscriptions import mock_sub_repo
 
 async def test_remove_by_search(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
-    mock_sub_repo(tmp_path, test_hallo)
+    await mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     another_chan = await test_hallo.test_server.get_channel_by_address("another_channel")
     # Get subscription list
@@ -21,7 +21,7 @@ async def test_remove_by_search(tmp_path, hallo_getter):
     e621_check_obj = test_hallo.function_dispatcher.get_function_object(
         e621_check_class
     )  # type: SubscriptionCheck
-    sub_repo = e621_check_obj.get_sub_repo(test_hallo)
+    sub_repo = await e621_check_obj.get_sub_repo(test_hallo)
     # Add E621 searches to subscription list
     rf1 = E621Source("cabinet", e6_client, test_hallo.test_user)
     sub1 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf1, timedelta(days=1), None, None)
@@ -49,7 +49,7 @@ async def test_remove_by_search(tmp_path, hallo_getter):
 
 async def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
-    mock_sub_repo(tmp_path, test_hallo)
+    await mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     another_chan = await test_hallo.test_server.get_channel_by_address("another_channel")
     # Get subscription list
@@ -59,7 +59,7 @@ async def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
     e621_check_obj = test_hallo.function_dispatcher.get_function_object(
         e621_check_class
     )  # type: SubscriptionCheck
-    rfl = e621_check_obj.get_sub_repo(test_hallo)
+    rfl = await e621_check_obj.get_sub_repo(test_hallo)
     # Add E621 searches to subscription list
     rf1 = E621Source("cabinet", e6_client, test_hallo.test_user)
     sub1 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf1, timedelta(days=1), None, None)
@@ -99,7 +99,7 @@ async def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
 
 async def test_remove_no_match(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
-    mock_sub_repo(tmp_path, test_hallo)
+    await mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     another_chan = await test_hallo.test_server.get_channel_by_address("another_channel")
     # Get subscription list
@@ -109,7 +109,7 @@ async def test_remove_no_match(tmp_path, hallo_getter):
     e621_check_obj = test_hallo.function_dispatcher.get_function_object(
         e621_check_class
     )  # type: SubscriptionCheck
-    sub_repo = e621_check_obj.get_sub_repo(test_hallo)
+    sub_repo = await e621_check_obj.get_sub_repo(test_hallo)
     # Add E621 searches to subscription list
     rf1 = E621Source("cabinet", e6_client, test_hallo.test_user)
     sub1 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf1, timedelta(days=1), None, None)
