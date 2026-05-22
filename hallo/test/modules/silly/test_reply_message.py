@@ -91,7 +91,7 @@ async def test_check_response(hallo_getter):
     # Setup common testing objects
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user1 = serv1.get_user_by_address("test_user1", "test_user1")
     # Test basic response works
     rm1 = ReplyMessage("test")
@@ -141,11 +141,11 @@ async def test_check_destination(hallo_getter):
     serv1.name = serv_name1
     serv2.name = serv_name2
     serv3.name = serv_name3
-    chan1 = serv1.get_channel_by_address(chan_name1.lower(), chan_name1)
-    chan2 = serv1.get_channel_by_address(chan_name2.lower(), chan_name2)
-    chan3 = serv2.get_channel_by_address(chan_name3.lower(), chan_name3)
-    chan4 = serv3.get_channel_by_address(chan_name4.lower(), chan_name4)
-    chan5 = serv3.get_channel_by_address(chan_name5.lower(), chan_name5)
+    chan1 = await serv1.get_channel_by_address(chan_name1.lower(), chan_name1)
+    chan2 = await serv1.get_channel_by_address(chan_name2.lower(), chan_name2)
+    chan3 = await serv2.get_channel_by_address(chan_name3.lower(), chan_name3)
+    chan4 = await serv3.get_channel_by_address(chan_name4.lower(), chan_name4)
+    chan5 = await serv3.get_channel_by_address(chan_name5.lower(), chan_name5)
     # Check when no whitelist or blacklist
     rm = ReplyMessage("test")
     assert rm.check_destination(chan1), "check_destination() not working without list"

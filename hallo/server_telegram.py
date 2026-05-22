@@ -171,7 +171,7 @@ class ServerTelegram(Server):
         # Get group object
         message_chat_name = entity_name(telegram_chat)
         message_chat_addr = telegram_chat.id
-        message_channel = self.get_channel_by_address(message_chat_addr, message_chat_name)
+        message_channel = await self.get_channel_by_address(message_chat_addr, message_chat_name)
         message_channel.update_activity()
         # Create message event object
         if event.message.photo:
@@ -219,7 +219,7 @@ class ServerTelegram(Server):
         if message_channel_addr == message_sender_addr:
             message_channel = None
         else:
-            message_channel = self.get_channel_by_address(message_channel_addr, message_channel_name)
+            message_channel = await self.get_channel_by_address(message_channel_addr, message_channel_name)
             message_channel.update_activity()
         # Create message event object
         message_id = event.message_id

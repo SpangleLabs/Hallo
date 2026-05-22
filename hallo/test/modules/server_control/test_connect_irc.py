@@ -148,7 +148,7 @@ async def test_inherit_port(hallo_getter):
     test_serv_irc.prefix = ""
     test_serv_irc.name = "test_serv_irc"
     test_serv_irc.server_port = test_port
-    test_chan_irc = test_serv_irc.get_channel_by_address(
+    test_chan_irc = await test_serv_irc.get_channel_by_address(
         "test_chan".lower(), "test_chan"
     )
     test_user_irc = test_serv_irc.get_user_by_address(
@@ -637,7 +637,7 @@ async def test_nickserv_nick_inherit(hallo_getter):
     test_serv_irc.prefix = ""
     test_serv_irc.name = "test_serv_irc"
     test_serv_irc.nickserv_nick = test_nickserv_name
-    test_chan_irc = test_serv_irc.get_channel_by_address(
+    test_chan_irc = await test_serv_irc.get_channel_by_address(
         "test_chan".lower(), "test_chan"
     )
     test_user_irc = test_serv_irc.get_user_by_address(
@@ -737,7 +737,7 @@ async def test_nickserv_identity_command_inherit(hallo_getter):
     test_serv_irc.prefix = ""
     test_serv_irc.name = "test_serv_irc"
     test_serv_irc.nickserv_ident_command = test_nickserv_command
-    test_chan_irc = test_serv_irc.get_channel_by_address(
+    test_chan_irc = await test_serv_irc.get_channel_by_address(
         "test_chan".lower(), "test_chan"
     )
     test_user_irc = test_serv_irc.get_user_by_address(
@@ -838,7 +838,7 @@ async def test_nickserv_identity_response_inherit(hallo_getter):
     test_serv_irc.prefix = ""
     test_serv_irc.name = "test_serv_irc"
     test_serv_irc.nickserv_ident_response = test_nickserv_response
-    test_chan_irc = test_serv_irc.get_channel_by_address(
+    test_chan_irc = await test_serv_irc.get_channel_by_address(
         "test_chan".lower(), "test_chan"
     )
     test_user_irc = test_serv_irc.get_user_by_address(
@@ -937,7 +937,7 @@ async def test_nickserv_password_inherit(hallo_getter):
     test_serv_irc.prefix = ""
     test_serv_irc.name = "test_serv_irc"
     test_serv_irc.nickserv_pass = test_nickserv_pass
-    test_chan_irc = test_serv_irc.get_channel_by_address(
+    test_chan_irc = await test_serv_irc.get_channel_by_address(
         "test_chan".lower(), "test_chan"
     )
     test_user_irc = test_serv_irc.get_user_by_address(

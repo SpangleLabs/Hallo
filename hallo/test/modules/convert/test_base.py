@@ -30,7 +30,7 @@ class TestBase(unittest.TestCase):
         )
         self.test_user = self.server.get_user_by_address("test", "test")
         self.test_user.online = True
-        self.test_chan = self.server.get_channel_by_address("#test", "#test")
+        self.test_chan = await self.server.get_channel_by_address("#test", "#test")
         self.test_chan.in_channel = True
         self.test_chan.add_user(self.hallo_user)
         self.test_chan.add_user(self.test_user)

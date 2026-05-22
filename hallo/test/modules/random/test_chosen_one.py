@@ -68,7 +68,7 @@ async def test_two_people_in_channel(mock_chooser, hallo_getter):
 
 async def test_five_in_channel(mock_chooser, hallo_getter):
     test_hallo = await hallo_getter({"random"})
-    chan = test_hallo.test_server.get_channel_by_address("test_chan", "test_chan")
+    chan = await test_hallo.test_server.get_channel_by_address("test_chan", "test_chan")
     user1 = test_hallo.test_server.get_user_by_address("user1", "user1")
     user2 = test_hallo.test_server.get_user_by_address("user2", "user2")
     user3 = test_hallo.test_server.get_user_by_address("user3", "user3")

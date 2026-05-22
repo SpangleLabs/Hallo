@@ -28,7 +28,7 @@ async def test_get_response(hallo_getter):
     # Setup common testing objects
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user1 = serv1.get_user_by_address("test_user1", "test_user1")
     # Basic ReplyMessageList get_response() test
     rml1 = ReplyMessageList()

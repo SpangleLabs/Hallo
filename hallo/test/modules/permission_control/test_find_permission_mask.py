@@ -50,7 +50,7 @@ async def test_2_server_chan(hallo_getter):
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     test_hallo.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     # Get permission mask of given channel
@@ -84,7 +84,7 @@ async def test_2_server_no_chan_user(hallo_getter):
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     test_hallo.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -110,7 +110,7 @@ def test_1_hallo():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -132,7 +132,7 @@ def test_1_server():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -154,7 +154,7 @@ def test_1_server_no_name():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -181,7 +181,7 @@ async def test_1_server_name(hallo_getter):
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -203,7 +203,7 @@ def test_1_channel():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -225,7 +225,7 @@ def test_1_channel_privmsg():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -251,10 +251,10 @@ def test_1_channel_name():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
-    chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
+    chan2 = await serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
     perm4 = PermissionMask()
     chan2.permission_mask = perm4
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -276,7 +276,7 @@ def test_1_user_group_no_name():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -306,7 +306,7 @@ def test_1_user_group_name():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -332,7 +332,7 @@ def test_1_user_name():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -357,7 +357,7 @@ def test_1_user_just_name():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -384,7 +384,7 @@ def test_1_user_just_name_not_in_channel():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
@@ -414,7 +414,7 @@ def test_1_user_just_name_privmsg():
     perm0 = PermissionMask()
     serv1.permission_mask = perm0
     hallo1.add_server(serv1)
-    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     perm1 = PermissionMask()
     chan1.permission_mask = perm1
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")

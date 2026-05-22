@@ -84,7 +84,7 @@ class DailysSpreadsheet:
             )
         dest_chan = None
         if "dest_address" in json_obj:
-            dest_chan = server.get_channel_by_address(json_obj["dest_address"])
+            dest_chan = await server.get_channel_by_address(json_obj["dest_address"])
             if dest_chan is None:
                 raise DailysException(
                     f'Could not find channel with address "{json_obj["dest_address"]}" on server "{json_obj["server"]}"'

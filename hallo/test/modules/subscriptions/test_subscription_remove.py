@@ -13,7 +13,7 @@ async def test_remove_by_search(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
+    another_chan = await test_hallo.test_server.get_channel_by_address("another_channel")
     # Get subscription list
     e621_check_class = test_hallo.function_dispatcher.get_function_by_name(
         "check subscription"
@@ -51,7 +51,7 @@ async def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
+    another_chan = await test_hallo.test_server.get_channel_by_address("another_channel")
     # Get subscription list
     e621_check_class = test_hallo.function_dispatcher.get_function_by_name(
         "check subscription"
@@ -101,7 +101,7 @@ async def test_remove_no_match(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
-    another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
+    another_chan = await test_hallo.test_server.get_channel_by_address("another_channel")
     # Get subscription list
     e621_check_class = test_hallo.function_dispatcher.get_function_by_name(
         "check subscription"

@@ -26,7 +26,7 @@ async def test_no_feeds(tmp_path, hallo_getter):
 async def test_list_feeds(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
-    another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
+    another_chan = await test_hallo.test_server.get_channel_by_address("another_channel")
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     # Get feed list
     rss_check_class = test_hallo.function_dispatcher.get_function_by_name(

@@ -244,7 +244,7 @@ class Server(metaclass=ABCMeta):
                 return channel
         return None
 
-    def get_channel_by_address(self, address: str, channel_name: str = None) -> Channel:
+    async def get_channel_by_address(self, address: str, channel_name: str = None) -> Channel:
         """
         Returns a Channel object with the specified channel name.
         :param address: Address of the channel
@@ -257,8 +257,7 @@ class Server(metaclass=ABCMeta):
             if channel.address == address:
                 return channel
         if channel_name is None:
-            loop = asyncio.get_running_loop() # TODO(async): remove this
-            channel_name =  loop.run_until_complete(self.get_name_by_address(address))
+            channel_name = await self.get_name_by_address(address)
         new_channel = Channel(self, address, channel_name)
         self.add_channel(new_channel)
         return new_channel
