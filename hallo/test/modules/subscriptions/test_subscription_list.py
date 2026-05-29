@@ -12,7 +12,7 @@ from hallo.test.modules.subscriptions.mock_subscriptions import mock_sub_repo
 
 async def test_no_feeds(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
-    await mock_sub_repo(tmp_path, test_hallo)
+    mock_sub_repo(tmp_path, test_hallo)
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub list")
     )
@@ -25,7 +25,7 @@ async def test_no_feeds(tmp_path, hallo_getter):
 @pytest.mark.external_integration
 async def test_list_feeds(tmp_path, hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
-    await mock_sub_repo(tmp_path, test_hallo)
+    mock_sub_repo(tmp_path, test_hallo)
     another_chan = await test_hallo.test_server.get_channel_by_address("another_channel")
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     # Get feed list
@@ -35,7 +35,7 @@ async def test_list_feeds(tmp_path, hallo_getter):
     rss_check_obj = test_hallo.function_dispatcher.get_function_object(
         rss_check_class
     )  # type: SubscriptionCheck
-    rfl = await rss_check_obj.get_sub_repo(test_hallo)
+    rfl = rss_check_obj.get_sub_repo(test_hallo)
     # Add RSS feeds to feed list
     rf1 = E621Source("cabinet", e6_client, test_hallo.test_user)
     sub1 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf1, timedelta(days=1), None, None)

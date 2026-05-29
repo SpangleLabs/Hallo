@@ -207,5 +207,5 @@ async def test_json(hallo_getter, tmp_path):
     sub_repo.add_sub(sub3)
     # Save to JSON and load
     sub_repo.save_json()
-    new_rfl = await SubscriptionRepo.load_json(test_hallo)
+    new_rfl = SubscriptionRepo.load_json(test_hallo)
     assert len(new_rfl.sub_list) == 3

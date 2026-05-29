@@ -127,7 +127,7 @@ class SubscriptionRepo:
             json.dump(json_obj, f, indent=2)
 
     @classmethod
-    async def load_json(cls, hallo_obj: 'Hallo') -> 'SubscriptionRepo':
+    def load_json(cls, hallo_obj: 'Hallo') -> 'SubscriptionRepo':
         """
         Constructs a new SubscriptionRepo from the JSON file
         :return: Newly constructed list of subscriptions
@@ -147,8 +147,7 @@ class SubscriptionRepo:
             new_repo.common_list.append(new_common_obj)
         # Loop subs in json file adding them to list
         for sub_elem in json_obj["subs"]:
-            # TODO(async): Use asyncio.gather or something here
-            new_sub_obj = await Subscription.from_json(sub_elem, hallo_obj, new_repo)
+            new_sub_obj = Subscription.from_json(sub_elem, hallo_obj, new_repo)
             new_repo.add_sub(new_sub_obj)
         return new_repo
 

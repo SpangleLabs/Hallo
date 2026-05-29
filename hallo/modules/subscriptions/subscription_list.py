@@ -50,7 +50,7 @@ class SubscriptionList(Function):
         function_dispatcher = hallo_obj.function_dispatcher
         sub_check_function = function_dispatcher.get_function_by_name("check subscription")
         sub_check_obj: SubscriptionCheck = function_dispatcher.get_function_object(sub_check_function)
-        sub_repo = await sub_check_obj.get_sub_repo(hallo_obj)
+        sub_repo = sub_check_obj.get_sub_repo(hallo_obj)
         # Find list of feeds for current channel.
         async with sub_repo.sub_lock:
             dest_searches: list[Subscription] = sub_repo.get_subs_by_destination(event.destination)
