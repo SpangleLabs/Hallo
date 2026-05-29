@@ -61,7 +61,7 @@ async def test_boop_user(hallo_getter):
 async def test_boop_user_chan_offline(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = True
@@ -80,7 +80,7 @@ async def test_boop_user_chan_offline(hallo_getter):
 async def test_boop_user_chan_not_in_channel(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = True
@@ -98,7 +98,7 @@ async def test_boop_user_chan_not_in_channel(hallo_getter):
 async def test_boop_user_chan_hallo_not_in_channel(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = False
@@ -116,7 +116,7 @@ async def test_boop_user_chan_hallo_not_in_channel(hallo_getter):
 async def test_boop_user_chan_privmsg(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = True
@@ -143,7 +143,7 @@ async def test_boop_user_chan_privmsg(hallo_getter):
 async def test_boop_user_chan(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = True
@@ -174,7 +174,7 @@ async def test_boop_user_chan(hallo_getter):
 async def test_boop_chan_user_offline(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = True
@@ -193,7 +193,7 @@ async def test_boop_chan_user_offline(hallo_getter):
 async def test_boop_chan_user_not_in_channel(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = True
@@ -211,7 +211,7 @@ async def test_boop_chan_user_not_in_channel(hallo_getter):
 async def test_boop_chan_user_hallo_not_in_channel(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = False
@@ -229,7 +229,7 @@ async def test_boop_chan_user_hallo_not_in_channel(hallo_getter):
 async def test_boop_chan_user_privmsg(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = True
@@ -256,7 +256,7 @@ async def test_boop_chan_user_privmsg(hallo_getter):
 async def test_boop_chan_user(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan.add_user(test_hallo.test_user)
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = True

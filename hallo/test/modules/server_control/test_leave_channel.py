@@ -38,7 +38,7 @@ async def test_no_args_privmsg(hallo_getter):
 
 async def test_other_channel_name(hallo_getter):
     test_hallo = await hallo_getter({"server_control"})
-    other = await test_hallo.test_server.get_channel_by_address("#other".lower(), "#other")
+    other = test_hallo.test_server.get_channel_by_address("#other".lower(), "#other")
     other.in_channel = True
     await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "leave " + other.name)
@@ -78,7 +78,7 @@ async def test_server_specified_first(hallo_getter):
     test_serv = ServerMock(test_hallo)
     test_serv.name = "TestServer1"
     test_hallo.add_server(test_serv)
-    test_chan1 = await test_serv.get_channel_by_address("#other_serv".lower(), "#other_serv")
+    test_chan1 = test_serv.get_channel_by_address("#other_serv".lower(), "#other_serv")
     test_chan1.in_channel = True
     # Send command
     await test_hallo.function_dispatcher.dispatch(
@@ -104,7 +104,7 @@ async def test_server_specified_second(hallo_getter):
     test_serv = ServerMock(test_hallo)
     test_serv.name = "TestServer1"
     test_hallo.add_server(test_serv)
-    test_chan1 = await test_serv.get_channel_by_address("#other_serv".lower(), "#other_serv")
+    test_chan1 = test_serv.get_channel_by_address("#other_serv".lower(), "#other_serv")
     test_chan1.in_channel = True
     # Send command
     await test_hallo.function_dispatcher.dispatch(
@@ -130,7 +130,7 @@ async def test_server_specified_no_channel(hallo_getter):
     test_serv = ServerMock(test_hallo)
     test_serv.name = "TestServer1"
     test_hallo.add_server(test_serv)
-    test_chan1 = await test_serv.get_channel_by_address(
+    test_chan1 = test_serv.get_channel_by_address(
         "#not_in_channel".lower(), "#not_in_channel"
     )
     test_chan1.in_channel = False

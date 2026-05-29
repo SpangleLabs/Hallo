@@ -31,9 +31,9 @@ async def test_get_feeds_by_destination(hallo_getter):
     serv1.name = "test_serv1"
     serv2 = ServerMock(test_hallo)
     serv2.name = "test_serv2"
-    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user2 = serv1.get_user_by_address("test_user2", "test_user2")
-    chan3 = await serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
+    chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
     # Setup a feed list
     rfl = SubscriptionRepo(test_hallo)
     rf1 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?1", "feed 1")
@@ -68,9 +68,9 @@ async def test_get_feeds_by_title(hallo_getter):
     serv1.name = "test_serv1"
     serv2 = ServerMock(test_hallo)
     serv2.name = "test_serv2"
-    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user2 = serv1.get_user_by_address("test_user2", "test_user2")
-    chan3 = await serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
+    chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
     # Setup a feed list
     sub_repo = SubscriptionRepo(test_hallo)
     rf1 = RssSource(
@@ -116,9 +116,9 @@ async def test_get_feeds_by_url(hallo_getter):
     serv1.name = "test_serv1"
     serv2 = ServerMock(test_hallo)
     serv2.name = "test_serv2"
-    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user2 = serv1.get_user_by_address("test_user2", "test_user2")
-    chan3 = await serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
+    chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
     # Setup a feed list
     sub_repo = SubscriptionRepo(test_hallo)
     rf1 = RssSource(

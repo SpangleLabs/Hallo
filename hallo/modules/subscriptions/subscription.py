@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from datetime import timedelta, datetime
 from typing import Type, Generic, TYPE_CHECKING
@@ -128,8 +127,7 @@ class Subscription(Generic[State, Update]):
             raise SubscriptionException(f'Could not find server with name "{json_data["server_name"]}"')
         # Load channel or user
         if "channel_address" in json_data:
-            loop = asyncio.get_running_loop() # TODO(async): remove this
-            destination = loop.run_until_complete(server.get_channel_by_address(json_data["channel_address"])) # TODO(async)
+            destination = server.get_channel_by_address(json_data["channel_address"])
         else:
             if "user_address" in json_data:
                 destination = server.get_user_by_address(json_data["user_address"])

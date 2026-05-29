@@ -54,7 +54,7 @@ async def test_reply_pew(hallo_getter):
     # Check blacklist
     serv1 = ServerMock(test_hallo)
     serv1.name = "canternet"
-    chan1 = await serv1.get_channel_by_address("#ukofequestria".lower(), "#ukofequestria")
+    chan1 = serv1.get_channel_by_address("#ukofequestria".lower(), "#ukofequestria")
     user1 = serv1.get_user_by_address("test_user".lower(), "test_user")
     response = await reply_obj.passive_run(EventMessage(serv1, chan1, user1, "pew"), test_hallo)
     assert response is None
@@ -73,7 +73,7 @@ async def test_reply_haskell(hallo_getter):
     # Check on correct channel
     serv1 = ServerMock(test_hallo)
     serv1.name = "shadowworld"
-    chan1 = await serv1.get_channel_by_address(
+    chan1 = serv1.get_channel_by_address(
         "#ecco-the-dolphin".lower(), "#ecco-the-dolphin"
     )
     user1 = serv1.get_user_by_address("test_user".lower(), "test_user")

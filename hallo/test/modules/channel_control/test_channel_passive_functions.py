@@ -47,7 +47,7 @@ async def test_passive_off(hallo_getter):
 
 async def test_passive_channel_toggle(hallo_getter):
     test_hallo = await hallo_getter({"channel_control"})
-    test_hallo.test_chan1 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
     test_hallo.test_chan1.in_channel = True
@@ -75,7 +75,7 @@ async def test_passive_channel_toggle(hallo_getter):
 
 async def test_passive_channel_on(hallo_getter):
     test_hallo = await hallo_getter({"channel_control"})
-    test_hallo.test_chan1 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
     test_hallo.test_chan1.in_channel = True
@@ -96,7 +96,7 @@ async def test_passive_channel_on(hallo_getter):
 
 async def test_passive_channel_off(hallo_getter):
     test_hallo = await hallo_getter({"channel_control"})
-    test_hallo.test_chan1 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
     test_hallo.test_chan1.in_channel = True
@@ -117,7 +117,7 @@ async def test_passive_channel_off(hallo_getter):
 
 async def test_passive_on_channel(hallo_getter):
     test_hallo = await hallo_getter({"channel_control"})
-    test_hallo.test_chan1 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
     test_hallo.test_chan1.in_channel = True
@@ -138,7 +138,7 @@ async def test_passive_on_channel(hallo_getter):
 
 async def test_passive_off_channel(hallo_getter):
     test_hallo = await hallo_getter({"channel_control"})
-    test_hallo.test_chan1 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
     test_hallo.test_chan1.in_channel = True
@@ -159,7 +159,7 @@ async def test_passive_off_channel(hallo_getter):
 
 async def test_passive_not_in_channel_toggle(hallo_getter):
     test_hallo = await hallo_getter({"channel_control"})
-    test_hallo.test_chan1 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
     test_hallo.test_chan1.in_channel = False
@@ -176,7 +176,7 @@ async def test_passive_not_in_channel_toggle(hallo_getter):
 
 async def test_passive_not_in_channel_on(hallo_getter):
     test_hallo = await hallo_getter({"channel_control"})
-    test_hallo.test_chan1 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
     test_hallo.test_chan1.in_channel = False
@@ -196,7 +196,7 @@ async def test_passive_not_in_channel_on(hallo_getter):
 
 async def test_passive_no_bool(hallo_getter):
     test_hallo = await hallo_getter({"channel_control"})
-    test_hallo.test_chan1 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan1 = test_hallo.test_server.get_channel_by_address(
         "other_channel".lower(), "other_channel"
     )
     test_hallo.test_chan1.in_channel = False

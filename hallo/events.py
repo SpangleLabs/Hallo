@@ -1,4 +1,3 @@
-import asyncio
 import enum
 import logging
 from abc import ABCMeta
@@ -29,8 +28,7 @@ def server_from_json(hallo_obj: 'Hallo', data: dict) -> 'Server':
 
 def channel_from_json(server: 'Server', data: dict) -> Optional['Channel']:
     if data[KEY_CHANNEL_ADDR]:
-        loop = asyncio.get_running_loop() # TODO(async)
-        return loop.run_until_complete(server.get_channel_by_address(data[KEY_CHANNEL_ADDR])) # TODO(async)
+        return server.get_channel_by_address(data[KEY_CHANNEL_ADDR])
     return None
 
 

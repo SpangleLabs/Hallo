@@ -31,7 +31,7 @@ async def test_slowclap_privmsg(hallo_getter):
 
 async def test_slowclap_chan(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = True
@@ -56,7 +56,7 @@ async def test_slowclap_chan(hallo_getter):
 
 async def test_slowclap_chan_not_in_chan(hallo_getter):
     test_hallo = await hallo_getter({"silly"})
-    test_hallo.test_chan2 = await test_hallo.test_server.get_channel_by_address(
+    test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = False

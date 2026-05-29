@@ -522,7 +522,7 @@ class ServerIRC(Server):
         message_sender.update_activity()
         message_channel = None
         if not message_private_bool:
-            message_channel = await self.get_channel_by_address(
+            message_channel = self.get_channel_by_address(
                 message_destination_name.lower(), message_destination_name
             )
         # Create message event
@@ -575,7 +575,7 @@ class ServerIRC(Server):
         # Get relevant objects.
         message_channel = None
         if not message_private_bool:
-            message_channel = await self.get_channel_by_address(
+            message_channel = self.get_channel_by_address(
                 message_destination_name, message_destination_name
             )
             message_channel.update_activity()
@@ -643,8 +643,12 @@ class ServerIRC(Server):
         join_channel_name = ":".join(join_line.split(":")[2:]).lower()
         join_client_name = join_line.split("!")[0][1:]
         # Get relevant objects
-        join_channel = await self.get_channel_by_address(join_channel_name.lower(), join_channel_name)
-        join_client = self.get_user_by_address(join_client_name.lower(), join_client_name)
+        join_channel = self.get_channel_by_address(
+            join_channel_name.lower(), join_channel_name
+        )
+        join_client = self.get_user_by_address(
+            join_client_name.lower(), join_client_name
+        )
         join_client.update_activity()
         # Create join event
         join_evt = EventJoin(self, join_channel, join_client).with_raw_data(
@@ -677,8 +681,12 @@ class ServerIRC(Server):
         part_client_name = part_line.split("!")[0][1:]
         part_message = ":".join(part_line.split(":")[2:])
         # Get channel and user object
-        part_channel = await self.get_channel_by_address(part_channel_name.lower(), part_channel_name)
-        part_client = self.get_user_by_address(part_client_name.lower(), part_client_name)
+        part_channel = self.get_channel_by_address(
+            part_channel_name.lower(), part_channel_name
+        )
+        part_client = self.get_user_by_address(
+            part_client_name.lower(), part_client_name
+        )
         # Create leave event
         leave_evt = EventLeave(
             self, part_channel, part_client, part_message
@@ -758,7 +766,7 @@ class ServerIRC(Server):
         else:
             mode_args = ""
         # Get client and channel objects
-        mode_channel = await self.get_channel_by_address(
+        mode_channel = self.get_channel_by_address(
             mode_channel_name.lower(), mode_channel_name
         )
         mode_client = self.get_user_by_address(
@@ -815,7 +823,7 @@ class ServerIRC(Server):
         notice_client_name = notice_line.split("!")[0][1:]
         notice_message = ":".join(notice_line.split(":")[2:])
         # Get client and channel objects
-        notice_channel = await self.get_channel_by_address(
+        notice_channel = self.get_channel_by_address(
             notice_channel_name.lower(), notice_channel_name
         )
         notice_channel.update_activity()
@@ -907,8 +915,12 @@ class ServerIRC(Server):
             inviter_client_name.lower(), inviter_client_name
         )
         inviter_client.update_activity()
-        invited_client = self.get_user_by_address(invited_client_name.lower(), invited_client_name)
-        invite_channel = await self.get_channel_by_address(invite_channel_name.lower(), invite_channel_name)
+        invited_client = self.get_user_by_address(
+            invited_client_name.lower(), invited_client_name
+        )
+        invite_channel = self.get_channel_by_address(
+            invite_channel_name.lower(), invite_channel_name
+        )
         # Create invite event
         invite_evt = EventInvite(
             self, invite_channel, inviter_client, invited_client
@@ -940,7 +952,7 @@ class ServerIRC(Server):
         kick_message = ":".join(kick_line.split(":")[2:])
         kicking_user_name = kick_line.split("!")[0][1:]
         # GetObjects
-        kick_channel = await self.get_channel_by_address(
+        kick_channel = self.get_channel_by_address(
             kick_channel_name.lower(), kick_channel_name
         )
         kicked_client = self.get_user_by_address(
@@ -1023,7 +1035,7 @@ class ServerIRC(Server):
             channel_name = numeric_line.split(":")[1].split()[-1].lower()
             channel_user_list = ":".join(numeric_line.split(":")[2:])
             # Get channel object
-            channel_obj = await self.get_channel_by_address(
+            channel_obj = self.get_channel_by_address(
                 channel_name.lower(), channel_name
             )
             # Set all users online and in channel

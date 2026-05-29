@@ -19,12 +19,12 @@ async def test_run_all(tmp_path, hallo_getter):
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
-    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
-    chan2 = await serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
+    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
     user1 = serv1.get_user_by_address("test_user1".lower(), "test_user1")
     serv2 = ServerMock(test_hallo)
     serv2.name = "test_serv2"
-    chan3 = await serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user2 = serv2.get_user_by_address("test_user2".lower(), "test_user2")
     try:
         test_hallo.add_server(serv1)
@@ -93,12 +93,12 @@ async def test_run_by_search(tmp_path, hallo_getter):
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
-    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
-    chan2 = await serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
+    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
     user1 = serv1.get_user_by_address("test_user1", "test_user1")
     serv2 = ServerMock(test_hallo)
     serv2.name = "test_serv2"
-    chan3 = await serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user2 = serv2.get_user_by_address("test_user2", "test_user2")
     try:
         test_hallo.add_server(serv1)
@@ -173,12 +173,12 @@ async def test_run_passive(tmp_path, hallo_getter):
     # Set up test servers and channels
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
-    chan1 = await serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
-    chan2 = await serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
+    chan1 = serv1.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan2 = serv1.get_channel_by_address("test_chan2".lower(), "test_chan2")
     user1 = serv1.get_user_by_address("test_user1", "test_user2")
     serv2 = ServerMock(test_hallo)
     serv2.name = "test_serv2"
-    chan3 = await serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
+    chan3 = serv2.get_channel_by_address("test_chan1".lower(), "test_chan1")
     user2 = serv2.get_user_by_address("test_user2", "test_user2")
     try:
         test_hallo.add_server(serv1)
