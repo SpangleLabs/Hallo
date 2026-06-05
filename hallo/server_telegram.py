@@ -84,8 +84,8 @@ class ServerTelegram(Server):
         session_name = f"{type(self).__name__}_{self.name}"
         self.client = TelegramClient(session_name, api_id, api_hash)
         # Message handlers
-        self.client.add_event_handler(self.parse_private_message, events.NewMessage(incoming=True, pattern=lambda e: e.is_private))
-        self.client.add_event_handler(self.parse_group_message, events.NewMessage(incoming=True, pattern=lambda e: not e.is_private))
+        self.client.add_event_handler(self.parse_private_message, events.NewMessage(incoming=True, func=lambda e: e.is_private))
+        self.client.add_event_handler(self.parse_group_message, events.NewMessage(incoming=True, func=lambda e: not e.is_private))
         self.client.add_event_handler(self.parse_menu_callback, events.CallbackQuery())
         # Catch-all message handler for anything not already handled.
         self.client.add_event_handler(self.parse_unhandled, None)
