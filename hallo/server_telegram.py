@@ -237,15 +237,13 @@ class ServerTelegram(Server):
         function_dispatcher = self.hallo.function_dispatcher
         await function_dispatcher.dispatch_passive(callback_evt)
 
-    def parse_unhandled(self, event: telethon.events.raw.Raw) -> None:
+    async def parse_unhandled(self, event: telethon.events.raw.Raw) -> None:
         """
         Parses an unhandled message from the server
         :param event: Raw event from the telegram API
         """
         # Print it to console
-        error = MessageError(
-            "Unhandled data received on Telegram server: {}".format(update)
-        )
+        error = MessageError(f"Unhandled data received on Telegram server: {event}")
         logger.error(error.get_log_line())
         self.incoming.labels(
             server_type=self.__class__.__name__,
