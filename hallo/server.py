@@ -255,6 +255,8 @@ class Server(metaclass=ABCMeta):
         """
         for channel in self.channel_list:
             if channel.address == address:
+                if channel_name is not None:
+                    channel.name = channel_name
                 return channel
         if channel_name is None:
             channel_name = self.get_initial_name_by_address(address)
@@ -318,6 +320,8 @@ class Server(metaclass=ABCMeta):
         """
         for user in self.user_list:
             if user.address == address:
+                if user_name is not None:
+                    user.name = user_name
                 return user
         if user_name is None:
             user_name = self.get_initial_name_by_address(address)
