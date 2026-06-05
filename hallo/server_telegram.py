@@ -69,7 +69,7 @@ class ServerTelegram(Server):
         self.api_id = api_id
         self.api_hash = api_hash
         self.bot_token = bot_token
-        self.name = "Telegram"  # Server name #TODO: needs to be configurable!
+        self.name = "Telegram"  # Server name, configurable in config
         # Whether to automatically connect to this server when hallo starts
         self.auto_connect = True
         # List of channels on this server (which may or may not be currently active)
