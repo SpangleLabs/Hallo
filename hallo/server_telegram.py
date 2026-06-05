@@ -52,7 +52,7 @@ def entity_name(entity) -> str:
 
 
 
-class ServerTelegram(Server):
+class ServerTelegramBot(Server):
 
     type = Server.TYPE_TELEGRAM_BOT
     image_extensions = ["jpg", "jpeg", "png"]
@@ -62,7 +62,6 @@ class ServerTelegram(Server):
         """
         Constructor for server object
         :param hallo: Hallo Instance of hallo that contains this server object
-        :type hallo: Hallo.Hallo
         """
         self.hallo = hallo  # The hallo object that created this server
         # Persistent/saved class variables
@@ -287,7 +286,7 @@ class ServerTelegram(Server):
                 elif any(
                     [
                         event.photo_id.lower().endswith("." + x)
-                        for x in ServerTelegram.image_extensions
+                        for x in ServerTelegramBot.image_extensions
                     ]
                 ):
                     msg = await self.client.send_file(
@@ -445,11 +444,11 @@ class ServerTelegram(Server):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: dict, hallo: 'Hallo') -> 'ServerTelegram':
+    def from_json(json_obj: dict, hallo: 'Hallo') -> 'ServerTelegramBot':
         api_id = json_obj["api_id"]
         api_hash = json_obj["api_hash"]
         bot_token = json_obj["bot_token"]
-        new_server = ServerTelegram(hallo, api_id, api_hash, bot_token)
+        new_server = ServerTelegramBot(hallo, api_id, api_hash, bot_token)
         new_server.name = json_obj["name"]
         if "auto_connect" in json_obj:
             new_server.auto_connect = json_obj["auto_connect"]
