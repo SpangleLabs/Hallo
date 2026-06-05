@@ -45,6 +45,6 @@ class Deer(Function):
            | || |           | |   | |
            |_||_|           |_|   |_|
           /_//_/           /_/   /_/aaa"""
-        if event.server.type == Server.TYPE_TELEGRAM:
+        if event.server.type == Server.TYPE_TELEGRAM_BOT:
             deer = "```" + deer + "```"
         return event.create_response(deer)

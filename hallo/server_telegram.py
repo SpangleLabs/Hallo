@@ -54,7 +54,7 @@ def entity_name(entity) -> str:
 
 class ServerTelegram(Server):
 
-    type = Server.TYPE_TELEGRAM
+    type = Server.TYPE_TELEGRAM_BOT
     image_extensions = ["jpg", "jpeg", "png"]
 
     def __init__(self, hallo: 'Hallo', api_id: int, api_hash: str, bot_token: str) -> None:
@@ -424,7 +424,7 @@ class ServerTelegram(Server):
         Creates a dict of configuration for the server, to store as json
         """
         json_obj = dict()
-        json_obj["type"] = Server.TYPE_TELEGRAM
+        json_obj["type"] = Server.TYPE_TELEGRAM_BOT
         json_obj["name"] = self.name
         json_obj["auto_connect"] = self.auto_connect
         json_obj["channels"] = []

@@ -36,7 +36,7 @@ class Server(metaclass=ABCMeta):
     # Constants
     TYPE_IRC = "irc"
     TYPE_MOCK = "mock"
-    TYPE_TELEGRAM = "telegram"
+    TYPE_TELEGRAM_BOT = "telegram_bot"
     STATE_CLOSED = "disconnected"
     STATE_OPEN = "connected"
     STATE_CONNECTING = "connecting"

@@ -21,7 +21,7 @@ class ServerFactory:
         server_type = json_obj["type"]
         if server_type == Server.TYPE_IRC:
             return ServerIRC.from_json(json_obj, self.hallo)
-        elif server_type == Server.TYPE_TELEGRAM:
+        elif server_type == Server.TYPE_TELEGRAM_BOT:
             return ServerTelegram.from_json(json_obj, self.hallo)
         else:
             return None
