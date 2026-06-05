@@ -453,7 +453,8 @@ class ServerTelegram(Server):
         bot_token = json_obj["bot_token"]
         new_server = ServerTelegram(hallo, api_id, api_hash, bot_token)
         new_server.name = json_obj["name"]
-        new_server.auto_connect = json_obj["auto_connect"]
+        if "auto_connect" in json_obj:
+            new_server.auto_connect = json_obj["auto_connect"]
         if "nick" in json_obj:
             new_server.nick = json_obj["nick"]
         if "prefix" in json_obj:
@@ -462,9 +463,9 @@ class ServerTelegram(Server):
             new_server.permission_mask = PermissionMask.from_json(
                 json_obj["permission_mask"]
             )
-        for channel in json_obj["channels"]:
+        for channel in json_obj.get("channels", []):
             new_server.add_channel(Channel.from_json(channel, new_server))
-        for user in json_obj["users"]:
+        for user in json_obj.get("users", []):
             new_server.add_user(User.from_json(user, new_server))
         return new_server
 
