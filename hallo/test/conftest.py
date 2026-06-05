@@ -68,7 +68,7 @@ class TestHallo(Hallo):
         return self._test_chan
 
 
-@pytest.fixture # TODO: async this sometime
+@pytest.fixture
 async def hallo_getter():
     # Create a Hallo
     hallo = TestHallo()

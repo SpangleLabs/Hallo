@@ -6,7 +6,7 @@ authors = ["Roselyn Coales <roselyn@coales.co.uk>"]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-python-telegram-bot = "^13.0.0" # TODO: remove
+python-telegram-bot = "^13.0.0" # TODO(telethon): remove
 python-dateutil = "^2.9.0.post0"
 beautifulsoup4 = "^4.14.3"
 duolingo-api = "^0.5.4"
