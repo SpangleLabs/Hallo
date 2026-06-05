@@ -1317,6 +1317,9 @@ class ServerIRC(Server):
                 )
             )
 
+    def get_initial_name_by_address(self, address: str) -> str:
+        return address
+
     async def get_name_by_address(self, address: str) -> str:
         return address
 

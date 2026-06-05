@@ -412,6 +412,9 @@ class ServerTelegram(Server):
         new_event.log()
         return new_event
 
+    def get_initial_name_by_address(selfself, address: str) -> str:
+        return f"Entity #{address}"
+
     async def get_name_by_address(self, address: str) -> str:
         address_id = int(address)
         input_entity = await self.client.get_input_entity(address_id)

@@ -257,11 +257,13 @@ class Server(metaclass=ABCMeta):
             if channel.address == address:
                 return channel
         if channel_name is None:
-            loop = asyncio.get_running_loop() # TODO(async): remove this
-            channel_name =  loop.run_until_complete(self.get_name_by_address(address))
+            channel_name = self.get_initial_name_by_address(address)
         new_channel = Channel(self, address, channel_name)
         self.add_channel(new_channel)
         return new_channel
+
+    def get_initial_name_by_address(self, address: str) -> str:
+        raise NotImplementedError()
 
     async def get_name_by_address(self, address: str) -> str:
         """
@@ -318,8 +320,7 @@ class Server(metaclass=ABCMeta):
             if user.address == address:
                 return user
         if user_name is None:
-            loop = asyncio.get_running_loop() # TODO(async): remove this
-            user_name = loop.run_until_complete(self.get_name_by_address(address))
+            user_name = self.get_initial_name_by_address(address)
         # No user by that name exists, so create one
         new_user = User(self, address, user_name)
         self.add_user(new_user)
