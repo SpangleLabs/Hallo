@@ -43,10 +43,10 @@ class DailysField(metaclass=ABCMeta):
     async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysField':
         raise NotImplementedError()
 
-    async def save_data(self, data: dict, data_date: datetime.datetime) -> None:
+    async def save_data(self, data: dict, data_date: datetime.date) -> None:
         await self.spreadsheet.save_field(self, data, data_date=data_date)
 
-    async def load_data(self, data_date: date) -> dict | None:
+    async def load_data(self, data_date: datetime.date) -> dict | None:
         return await self.spreadsheet.read_field(self, data_date)
 
     async def message_channel(
