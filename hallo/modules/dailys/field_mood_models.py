@@ -1,6 +1,7 @@
 import functools
 from abc import ABC, abstractmethod
 from datetime import time, datetime, date, timedelta
+from typing import Optional
 
 
 @functools.total_ordering
@@ -122,6 +123,9 @@ class MoodDay:
             key=lambda x: x.mood_time
         )
 
+    def get_entry(self, mood_time: MoodTime) -> Optional['MoodEntry']:
+        return self.mood_entries.get(mood_time)
+
     def add_request(self, mood_time: MoodTime, message_id: int | None) -> None:
         if message_id is None:
             return
@@ -159,6 +163,10 @@ class MoodEntry(ABC):
     def to_measurement(self, measurement_data: dict[str, int]) -> 'MoodMeasurement':
         return MoodMeasurement(self.mood_time, measurement_data, self.message_id)
 
+    @abstractmethod
+    def to_status_str(self, mood_fields: list[str]) -> str:
+        raise NotImplementedError
+
 
 class MoodRequest(MoodEntry):
     """
@@ -179,6 +187,9 @@ class MoodRequest(MoodEntry):
         return {
             "message_id": self.message_id
         }
+
+    def to_status_str(self, mood_fields: list[str]) -> str:
+        return f"MoodRequest(msg_id={self.message_id})"
 
 
 class MoodMeasurement(MoodEntry):
@@ -203,6 +214,14 @@ class MoodMeasurement(MoodEntry):
         if self.message_id:
             result["message_id"] = self.message_id
         return result
+
+    def to_status_str(self, mood_fields: list[str]) -> str:
+        mood_acronym = "".join(f[0] for f in mood_fields).upper()
+        values: list[str] = []
+        for mood_field in mood_fields:
+            values += str(self.mood_dict[mood_field])
+        values_str = "".join(values)
+        return f"MoodMeasurement({mood_acronym}={values_str})"
 
 
 class MoodTriggeredCache:
@@ -256,3 +275,6 @@ class MoodTimeList:
 
     def contains_time(self, mood_time: MoodTime) -> bool:
         return mood_time in self.times
+
+    def sorted(self) -> list[MoodTime]:
+        return sorted(self.times)
