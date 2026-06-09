@@ -124,7 +124,7 @@ class MoodDay:
 
     def add_request(self, mood_time: MoodTime, message_id: int | None) -> None:
         if message_id is None:
-            return None
+            return
         request = MoodRequest(mood_time, message_id)
         self.mood_entries[mood_time] = request
 
