@@ -39,6 +39,8 @@ class MoodTime:
             return not other.is_wake()
         if self.is_sleep():
             return False
+        if not isinstance(other.mood_time, time):
+            return NotImplemented
         return self.mood_time < other.mood_time
 
     @property
