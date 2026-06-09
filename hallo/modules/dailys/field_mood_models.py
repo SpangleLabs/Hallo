@@ -60,7 +60,7 @@ class MoodDay:
     """
     def __init__(self, mood_date: date, mood_entries: dict[MoodTime, 'MoodEntry']) -> None:
         self.mood_date = mood_date
-        self.mood_entries = mood_entries or {}
+        self.mood_entries: dict[MoodTime, MoodEntry] = mood_entries or {}
 
     def to_dict(self) -> dict:
         result = {}
