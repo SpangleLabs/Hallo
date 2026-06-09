@@ -254,7 +254,5 @@ class MoodTimeList:
             return None
         return max(past_times, key=lambda t: t.mood_time)
 
-    def contains_time(self, mood_time: MoodTime | str | time) -> bool:
-        if isinstance(mood_time, MoodTime):
-            return mood_time in self.times
-        return MoodTime(mood_time) in self.times
+    def contains_time(self, mood_time: MoodTime) -> bool:
+        return mood_time in self.times
