@@ -23,7 +23,7 @@ class DailysSpreadsheet:
     def add_field(self, field: 'DailysField') -> None:
         self.fields_list.append(field)
 
-    async def save_field(self, dailys_field: 'DailysField', data: dict, data_date: datetime.datetime) -> None:
+    async def save_field(self, dailys_field: 'DailysField', data: dict, data_date: datetime.date) -> None:
         """
         Save given data in a specified column for the current date row.
         """
@@ -47,7 +47,7 @@ class DailysSpreadsheet:
             headers = [["Authorization", self.dailys_key]]
         return await Commons.load_url_json(f"{self.dailys_url}/{path}", headers)
 
-    async def read_field(self, dailys_field: 'DailysField', data_date: datetime.datetime) -> dict | None:
+    async def read_field(self, dailys_field: 'DailysField', data_date: datetime.date) -> dict | None:
         """
         Save given data in a specified column for the current date row.
         """

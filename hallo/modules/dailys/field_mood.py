@@ -17,7 +17,7 @@ class DailysMoodField(DailysField):
     This is everything about how Hallo parses messages for mood measurements, how it sends out requests, etc
     """
     type_name = "mood"
-    # Does mood measurements
+    STATUS_COMMANDS = ["mood status", "mood status", "view mood"]
 
     def __init__(self, spreadsheet: 'DailysSpreadsheet', times: list[MoodTime], moods: list[str]) -> None:
         super().__init__(spreadsheet)
@@ -94,8 +94,11 @@ class DailysMoodField(DailysField):
                 return await self.send_mood_query(mood_day, latest_time)
             return None
         if isinstance(evt, EventMessage):
-            # Check if it's a morning/night message
             input_clean = evt.text.strip().lower()
+            # Check if it's asking for current mood status
+            if input_clean in self.STATUS_COMMANDS:
+                return await self.post_mood_status(evt)
+            # Check if it's a morning/night messag
             if (
                 input_clean in DailysSleepField.WAKE_WORDS
             ):
@@ -193,6 +196,27 @@ class DailysMoodField(DailysField):
         return await evt.reply(evt.create_response(
             f"Added mood stat {mood_str} for time: {time_val} and date: {mood_day.mood_date.isoformat()}"
         ))
+
+    async def post_mood_status(self, evt: EventMessage) -> None:
+        msg_date = evt.get_send_time().date()
+        mood_day: MoodDay = await self.get_current_mood_data(msg_date)
+        msg_lines = [f"Actual date: {msg_date.isoformat()}"]
+        msg_lines += [f"Mood measurement date: {mood_day.mood_date.isoformat()}"]
+        # Add the mood fields
+        mood_fields = self.moods
+        mood_acronym = "".join(field[0] for field in mood_fields).upper()
+        msg_lines += [f"Mood fields: ({mood_acronym})"]
+        for mood_field in mood_fields:
+            msg_lines += [f"- {mood_field}"]
+        # Add the mood entries for today
+        msg_lines += ["Mood day entries:"]
+        mood_times = self.time_list.sorted()
+        for mood_time in mood_times:
+            mood_entry = mood_day.get_entry(mood_time)
+            entry_str = mood_entry.to_status_str(mood_fields)
+            msg_lines += [f"- {mood_time}: {entry_str}"]
+        msg = "\n".join(msg_lines)
+        return await evt.reply(evt.create_response(msg))
 
     async def save_day(self, mood_day: MoodDay) -> None:
         data = mood_day.to_dict()
