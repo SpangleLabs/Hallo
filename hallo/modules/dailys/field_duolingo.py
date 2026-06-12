@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Type
 
 import duolingo
 
-from hallo.events import EventDay, EventMenuCallback, Event
+from hallo.events import EventDay, Event, EventMessage
 import hallo.modules.dailys.dailys_field
 
 if TYPE_CHECKING:
