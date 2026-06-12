@@ -24,4 +24,4 @@ class ServerFactory:
         elif server_type == Server.TYPE_TELEGRAM_BOT:
             return ServerTelegramBot.from_json(json_obj, self.hallo)
         else:
-            return None
+            raise ValueError("Could not create Server object from json.")
