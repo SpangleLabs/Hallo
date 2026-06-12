@@ -32,7 +32,7 @@ class Permissions(Function):
             " Format: permissions <location> <permission> <on/off>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         line_split = event.command_args.split()
         if len(line_split) < 3:
             return event.create_response(

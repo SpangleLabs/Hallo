@@ -6,8 +6,8 @@ from hallo.test.server_mock import ServerMock
 from hallo.user_group import UserGroup
 
 
-def test_3_fail(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+async def test_3_fail(hallo_getter):
+    test_hallo = await hallo_getter({"permission_control"})
     perm_cont = Permissions()
     try:
         perm_cont.find_permission_mask(["a", "b", "c"], test_hallo.test_user, test_hallo.test_chan)
@@ -17,8 +17,8 @@ def test_3_fail(hallo_getter):
         assert "too many filters" in str(e).lower()
 
 
-def test_2_no_server(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+async def test_2_no_server(hallo_getter):
+    test_hallo = await hallo_getter({"permission_control"})
     perm_cont = Permissions()
     try:
         perm_cont.find_permission_mask(
@@ -30,8 +30,8 @@ def test_2_no_server(hallo_getter):
         assert "no server name found" in str(e).lower()
 
 
-def test_2_no_server_by_name(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+async def test_2_no_server_by_name(hallo_getter):
+    test_hallo = await hallo_getter({"permission_control"})
     perm_cont = Permissions()
     try:
         perm_cont.find_permission_mask(
@@ -43,8 +43,8 @@ def test_2_no_server_by_name(hallo_getter):
         assert "no server exists by that name" in str(e).lower()
 
 
-def test_2_server_chan(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+async def test_2_server_chan(hallo_getter):
+    test_hallo = await hallo_getter({"permission_control"})
     perm_cont = Permissions()
     # Set up a test server and channel
     serv1 = ServerMock(test_hallo)
@@ -60,8 +60,8 @@ def test_2_server_chan(hallo_getter):
     assert perm1 == data, "Did not find the correct permission mask."
 
 
-def test_2_server_user(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+async def test_2_server_user(hallo_getter):
+    test_hallo = await hallo_getter({"permission_control"})
     perm_cont = Permissions()
     # Set up a test server and user
     serv1 = ServerMock(test_hallo)
@@ -77,8 +77,8 @@ def test_2_server_user(hallo_getter):
     assert perm1 == data, "Did not find the correct permission mask."
 
 
-def test_2_server_no_chan_user(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+async def test_2_server_no_chan_user(hallo_getter):
+    test_hallo = await hallo_getter({"permission_control"})
     perm_cont = Permissions()
     # Set up a test server and channel and user
     serv1 = ServerMock(test_hallo)
@@ -169,8 +169,8 @@ def test_1_server_no_name():
         assert "no server exists by that name" in str(e).lower()
 
 
-def test_1_server_name(hallo_getter):
-    test_hallo = hallo_getter({"permission_control"})
+async def test_1_server_name(hallo_getter):
+    test_hallo = await hallo_getter({"permission_control"})
     perm_cont = Permissions()
     # Set up a test server and channel and user
     hallo1 = Hallo()

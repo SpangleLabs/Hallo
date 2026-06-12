@@ -1,12 +1,18 @@
 *.pyc
 __pycache__
+.venv
+venv
 
-#Eclipse
+# Eclipse
 .project
 .pydevproject
 
-#logs directory
+# IntelliJ/PyCharm
+.idea
+
+# Logs directory
 logs/
 
-
+# Live config files
+config/config.json
 

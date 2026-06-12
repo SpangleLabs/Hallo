@@ -42,7 +42,7 @@ class ChannelCaps(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets caps lock for channel on or off."
 
-    def run(self, event):
+    async def run(self, event):
         # Get server object
         server_obj = event.server
         # If no arguments given, toggle caps lock in current destination
@@ -118,7 +118,7 @@ class ChannelLogging(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets or toggles logging for channel."
 
-    def run(self, event):
+    async def run(self, event):
         # Get server object
         server_obj = event.server
         # If no arguments given, toggle logging in current destination
@@ -202,7 +202,7 @@ class ChannelPassiveFunctions(Function):
                 self.names.add(chan + passive)
         return self.names
 
-    def run(self, event):
+    async def run(self, event):
         # Get server object
         server_obj = event.server
         # If no arguments given, toggle passive functions in current destination
@@ -274,7 +274,7 @@ class ChannelPassword(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets or disables channel password."
 
-    def run(self, event):
+    async def run(self, event):
         # Get server object
         server_obj = event.server
         # If no arguments given, turn the password for current channel off.

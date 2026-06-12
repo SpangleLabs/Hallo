@@ -11,8 +11,8 @@ from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.server_mock import ServerMock
 
 
-def test_run_all(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_run_all(tmp_path, hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
     # Set up test servers and channels
@@ -49,7 +49,7 @@ def test_run_all(tmp_path, hallo_getter):
         )  # type: SubscriptionCheck
         e621_sub_obj.subscription_repo = sub_repo
         # Test running all feed updates
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(
                 test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub check all"
             )
@@ -73,7 +73,7 @@ def test_run_all(tmp_path, hallo_getter):
         # Check test server 2 data
         serv2.get_send_data(75, chan3, EventMessage)
         # Test running with no new updates.
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(
                 test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub check all"
             )
@@ -85,8 +85,8 @@ def test_run_all(tmp_path, hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_run_by_search(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_run_by_search(tmp_path, hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
     # Set up test servers and channels
@@ -123,7 +123,7 @@ def test_run_by_search(tmp_path, hallo_getter):
         )  # type: SubscriptionCheck
         rss_check_obj.subscription_repo = sub_repo
         # Invalid title
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(
                 test_hallo.test_server,
                 test_hallo.test_chan,
@@ -134,13 +134,13 @@ def test_run_by_search(tmp_path, hallo_getter):
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
         assert "error" in data[0].text.lower()
         # Correct title but wrong channel
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "e621 sub check clefable")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
         assert "error" in data[0].text.lower()
         # Correct title check update
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan2, user1, "e621 sub check clefable")
         )
         data = serv1.get_send_data(76, chan2, EventMessage)
@@ -155,7 +155,7 @@ def test_run_by_search(tmp_path, hallo_getter):
                 "subscription updates were found" in data[75].text.lower()
         ), "Actual message: {}".format(data[0].text)
         # No updates
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan2, user1, "e621 sub check clefable")
         )
         data = serv1.get_send_data(1, chan2, EventMessage)
@@ -165,8 +165,8 @@ def test_run_by_search(tmp_path, hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_run_passive(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_run_passive(tmp_path, hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menus.json"
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
@@ -203,7 +203,7 @@ def test_run_passive(tmp_path, hallo_getter):
         )  # type: SubscriptionCheck
         rss_check_obj.subscription_repo = sub_repo
         # Test passive feed updates
-        test_hallo.function_dispatcher.dispatch_passive(EventMinute())
+        await test_hallo.function_dispatcher.dispatch_passive(EventMinute())
         # Check test server 1 data
         serv1_data = serv1.get_send_data(150)
         chan1_count = 0
@@ -221,14 +221,14 @@ def test_run_passive(tmp_path, hallo_getter):
         rf1.last_check = None
         rf2.last_check = None
         rf3.last_check = None
-        test_hallo.function_dispatcher.dispatch_passive(EventMinute())
+        await test_hallo.function_dispatcher.dispatch_passive(EventMinute())
         serv1.get_send_data(0)
         serv2.get_send_data(0)
         # Test that no feeds are checked before timeout, set urls to none and see if anything explodes.
         rf1.check_feed = Mock()
         rf2.check_feed = Mock()
         rf3.check_feed = Mock()
-        test_hallo.function_dispatcher.dispatch_passive(EventMinute())
+        await test_hallo.function_dispatcher.dispatch_passive(EventMinute())
         serv1.get_send_data(0)
         serv2.get_send_data(0)
         rf1.check_feed.assert_not_called()

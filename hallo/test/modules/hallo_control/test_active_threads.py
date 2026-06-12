@@ -1,13 +1,13 @@
-from threading import Thread
+import asyncio
 
 import time
 
 from hallo.events import EventMessage
 
 
-def test_threads_simple(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_threads_simple(hallo_getter):
+    test_hallo = await hallo_getter({"hallo_control"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "active threads")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -15,9 +15,9 @@ def test_threads_simple(hallo_getter):
     assert "active threads" in data[0].text.lower()
 
 
-def test_threads_increase(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_threads_increase(hallo_getter):
+    test_hallo = await hallo_getter({"hallo_control"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "active threads")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -26,9 +26,9 @@ def test_threads_increase(hallo_getter):
     )
     # Launch 10 threads
     for _ in range(10):
-        Thread(target=time.sleep, args=(10,)).start()
+        asyncio.create_task(asyncio.sleep(10))
     # Run function again
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "active threads")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)

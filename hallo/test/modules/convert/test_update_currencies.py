@@ -19,13 +19,13 @@ class MockUpdate:
         raise Exception(self.answer)
 
 
-def test_run(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+async def test_run(hallo_getter):
+    test_hallo = await hallo_getter({"convert"})
     update_all = hallo.modules.convert.update_currencies.UpdateCurrencies.update_all
     mock_update_all = MockUpdate(["Check method called"])
     hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = mock_update_all.method
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -35,21 +35,21 @@ def test_run(hallo_getter):
         hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = update_all
 
 
-def test_passive_run(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+async def test_passive_run(hallo_getter):
+    test_hallo = await hallo_getter({"convert"})
     update_all = hallo.modules.convert.update_currencies.UpdateCurrencies.update_all
     mock_update_all = MockUpdate(["Check method called"])
     hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = mock_update_all.method
     try:
-        test_hallo.function_dispatcher.dispatch_passive(EventHour())
+        await test_hallo.function_dispatcher.dispatch_passive(EventHour())
         test_hallo.test_server.get_send_data(0)
         assert mock_update_all.was_called, "update_all() wasn't called."
     finally:
         hallo.modules.convert.update_currencies.UpdateCurrencies.update_all = update_all
 
 
-def test_update_all(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+async def test_update_all(hallo_getter):
+    test_hallo = await hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate(None)
     mock_forex = MockUpdate(None)
@@ -68,7 +68,7 @@ def test_update_all(hallo_getter):
     )
     try:
         # Test update_all calls all 3, and gives reply
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -92,8 +92,8 @@ def test_update_all(hallo_getter):
         )
 
 
-def test_update_all_fail_ecb(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+async def test_update_all_fail_ecb(hallo_getter):
+    test_hallo = await hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate("HTTPException: 403")
     mock_forex = MockUpdate(None)
@@ -112,7 +112,7 @@ def test_update_all_fail_ecb(hallo_getter):
     )
     try:
         # Test update_all calls all 3, and gives reply
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -135,8 +135,8 @@ def test_update_all_fail_ecb(hallo_getter):
         )
 
 
-def test_update_all_fail_forex(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+async def test_update_all_fail_forex(hallo_getter):
+    test_hallo = await hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate(None)
     mock_forex = MockUpdate("HTTPException: 403")
@@ -157,7 +157,7 @@ def test_update_all_fail_forex(hallo_getter):
     )
     try:
         # Test update_all calls all 3, and gives reply
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -182,8 +182,8 @@ def test_update_all_fail_forex(hallo_getter):
         )
 
 
-def test_update_all_fail_cryptonator(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+async def test_update_all_fail_cryptonator(hallo_getter):
+    test_hallo = await hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate(None)
     mock_forex = MockUpdate(None)
@@ -202,7 +202,7 @@ def test_update_all_fail_cryptonator(hallo_getter):
     )
     try:
         # Test update_all calls all 3, and gives reply
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -227,8 +227,8 @@ def test_update_all_fail_cryptonator(hallo_getter):
         )
 
 
-def test_update_all_fail_all(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+async def test_update_all_fail_all(hallo_getter):
+    test_hallo = await hallo_getter({"convert"})
     # Mock out methods
     mock_ecb = MockUpdate("HTTPException: 403")
     mock_forex = MockUpdate("HTTPException: 500")
@@ -249,7 +249,7 @@ def test_update_all_fail_all(hallo_getter):
     )
     try:
         # Test update_all calls all 3, and gives reply
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "update currencies")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -275,7 +275,7 @@ def test_update_all_fail_all(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_update_ecb():
+async def test_update_ecb():
     # Set up test repo
     test_repo = hallo.modules.convert.convert_repo.ConvertRepo()
     test_type = hallo.modules.convert.convert_repo.ConvertType(test_repo, "currency")
@@ -319,7 +319,7 @@ def test_update_ecb():
         test_type.add_unit(test_unit)
     # Run update_from_european_bank_data
     c = hallo.modules.convert.update_currencies.UpdateCurrencies()
-    c.update_from_european_bank_data(test_repo)
+    await c.update_from_european_bank_data(test_repo)
     # Check results
     for code in currency_codes:
         test_unit = test_type.get_unit_by_name(code)
@@ -327,7 +327,7 @@ def test_update_ecb():
 
 
 @pytest.mark.external_integration
-def test_update_forex():
+async def test_update_forex():
     # Set up test repo
     test_repo = hallo.modules.convert.convert_repo.ConvertRepo()
     test_type = hallo.modules.convert.convert_repo.ConvertType(test_repo, "currency")
@@ -350,7 +350,7 @@ def test_update_forex():
         test_type.add_unit(test_unit)
     # Run update_from_forex_data
     c = hallo.modules.convert.update_currencies.UpdateCurrencies()
-    c.update_from_forex_data(test_repo)
+    await c.update_from_forex_data(test_repo)
     # Check results
     for code in currency_codes:
         test_unit = test_type.get_unit_by_name(code)
@@ -359,7 +359,7 @@ def test_update_forex():
 
 @pytest.mark.external_integration
 @pytest.mark.skip(reason="Cryptonator API occasionally returns HTML pages")
-def test_update_cryptonator():
+async def test_update_cryptonator():
     # Set up test repo
     test_repo = hallo.modules.convert.convert_repo.ConvertRepo()
     test_type = hallo.modules.convert.convert_repo.ConvertType(test_repo, "currency")
@@ -371,7 +371,7 @@ def test_update_cryptonator():
         test_type.add_unit(test_unit)
     # Run update_from_cryptonator_data
     c = hallo.modules.convert.update_currencies.UpdateCurrencies()
-    c.update_from_cryptonator_data(test_repo)
+    await c.update_from_cryptonator_data(test_repo)
     # Check results
     for code in currency_codes:
         test_unit = test_type.get_unit_by_name(code)

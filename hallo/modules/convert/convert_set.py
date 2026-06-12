@@ -23,7 +23,7 @@ class ConvertSet(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets the value of a unit, Format: <amount> <unit_set> = <amount>? <unit_reference>."
 
-    def run(self, event):
+    async def run(self, event):
         # Load Conversion Repo
         function_dispatcher = event.server.hallo.function_dispatcher
         convert_function = function_dispatcher.get_function_by_name("convert")

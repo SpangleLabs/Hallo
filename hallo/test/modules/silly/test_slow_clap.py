@@ -3,10 +3,10 @@ import time
 from hallo.events import EventMessage
 
 
-def test_slowclap(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+async def test_slowclap(hallo_getter):
+    test_hallo = await hallo_getter({"silly"})
     time_start = time.time()
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "slowclap")
     )
     time_end = time.time()
@@ -17,10 +17,10 @@ def test_slowclap(hallo_getter):
     assert "clap." in data[2].text.lower(), "Final clap needs a fullstop."
 
 
-def test_slowclap_privmsg(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+async def test_slowclap_privmsg(hallo_getter):
+    test_hallo = await hallo_getter({"silly"})
     time_start = time.time()
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "slowclap")
     )
     time_end = time.time()
@@ -29,14 +29,14 @@ def test_slowclap_privmsg(hallo_getter):
     assert "error" in data[0].text.lower()
 
 
-def test_slowclap_chan(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+async def test_slowclap_chan(hallo_getter):
+    test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = True
     time_start = time.time()
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "slowclap " + test_hallo.test_chan2.name)
     )
     time_end = time.time()
@@ -54,14 +54,14 @@ def test_slowclap_chan(hallo_getter):
     ), "Done message should be sent to original user."
 
 
-def test_slowclap_chan_not_in_chan(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+async def test_slowclap_chan_not_in_chan(hallo_getter):
+    test_hallo = await hallo_getter({"silly"})
     test_hallo.test_chan2 = test_hallo.test_server.get_channel_by_address(
         "another_chan".lower(), "another_chan"
     )
     test_hallo.test_chan2.in_channel = False
     time_start = time.time()
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "slowclap " + test_hallo.test_chan2.name)
     )
     time_end = time.time()

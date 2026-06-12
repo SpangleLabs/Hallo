@@ -3,20 +3,20 @@ from typing import TypeVar, Generic
 
 from hallo.destination import Channel, User
 from hallo.events import EventMessage
-import hallo.modules.subscriptions.source
+from hallo.modules.subscriptions.source import Source
 from hallo.server import Server
 
 Item = TypeVar("Item")
 Key = str | int
 
 
-class StreamSource(hallo.modules.subscriptions.source.Source[list[Item], list[Item]], Generic[Item]):
-    def __init__(self, last_keys: list[Key] | None):
+class StreamSource(Source[list[Item], list[Item]], Generic[Item]):
+    def __init__(self, last_keys: list[Key] | None) -> None:
         super().__init__()
         self.last_keys: list[Key] = last_keys or []
 
     @abstractmethod
-    def current_state(self) -> list[Item]:
+    async def current_state(self) -> list[Item]:
         pass
 
     def state_change(self, state: list[Item]) -> list[Item]:
@@ -55,7 +55,7 @@ class StreamSource(hallo.modules.subscriptions.source.Source[list[Item], list[It
         pass
 
     @abstractmethod
-    def item_to_event(
+    async def item_to_event(
             self,
             server: Server,
             channel: Channel | None,

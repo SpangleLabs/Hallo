@@ -9,8 +9,8 @@ from hallo.modules.subscriptions.subscription_check import SubscriptionCheck
 from hallo.test.modules.subscriptions.mock_subscriptions import mock_sub_repo
 
 
-def test_remove_by_search(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_remove_by_search(tmp_path, hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
@@ -33,7 +33,7 @@ def test_remove_by_search(tmp_path, hallo_getter):
     sub3 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf3, timedelta(days=1), None, None)
     sub_repo.add_sub(sub3)
     # Remove test search
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub remove cabinet"
         )
@@ -47,8 +47,8 @@ def test_remove_by_search(tmp_path, hallo_getter):
     assert sub3 in sub_repo.sub_list
 
 
-def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
@@ -71,7 +71,7 @@ def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
     sub3 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf3, timedelta(days=1), None, None)
     rfl.add_sub(sub3)
     # Remove test feed
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "e621 sub remove cabinet"
         )
@@ -97,8 +97,8 @@ def test_remove_multiple_matching_searches(tmp_path, hallo_getter):
     assert sub3 not in rfl.sub_list
 
 
-def test_remove_no_match(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_remove_no_match(tmp_path, hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     another_chan = test_hallo.test_server.get_channel_by_address("another_channel")
@@ -121,7 +121,7 @@ def test_remove_no_match(tmp_path, hallo_getter):
     sub3 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf3, timedelta(days=1), None, None)
     sub_repo.add_sub(sub3)
     # Try to remove invalid search
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,

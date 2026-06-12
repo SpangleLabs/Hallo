@@ -26,7 +26,7 @@ class TimestampToDate(Function):
             "Returns the date from a given unix timestamp. Format: date <timestamp>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         try:
             line = int(event.command_args)
         except ValueError:

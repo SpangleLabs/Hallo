@@ -1,20 +1,21 @@
+import asyncio
 import datetime
-from threading import RLock
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 import dateutil.parser
 import isodate
 
-import hallo.modules.dailys.dailys_field
+from hallo.modules.dailys.dailys_field import DailysField, DailysException
 from hallo.events import EventMessage, EventMinute, Event, RawDataTelegram
+from hallo.inc.commons import Commons
 
 if TYPE_CHECKING:
-    import hallo.modules.dailys.dailys_spreadsheet
+    from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
 
 
 class AnswerOption:
 
-    def __init__(self, answer: str):
+    def __init__(self, answer: str) -> None:
         self.answer = answer
 
     @classmethod
@@ -25,7 +26,7 @@ class AnswerOption:
 
 
 class RepeatingInterval:
-    def __init__(self, iso8601: str):
+    def __init__(self, iso8601: str) -> None:
         repeat, start, period = iso8601.split("/")
         self.count = None
         if repeat != "R":
@@ -77,7 +78,7 @@ class Question:
             deprecation: datetime.datetime | None = None,
             must_answer: bool = False,
             remind_period: datetime.timedelta | None = None,
-    ):
+    ) -> None:
         self.id = qid
         self.question = question
         self.time_pattern = time_pattern
@@ -88,7 +89,7 @@ class Question:
         self.must_answer = must_answer  # TODO
         self.remind_period = remind_period  # TODO
 
-    def is_active(self):
+    def is_active(self) -> bool:
         now = datetime.datetime.now(datetime.timezone.utc)
         if self.deprecation is None:
             return True
@@ -156,7 +157,7 @@ class AnswerEdit:
             self,
             answer: str,
             answer_time: datetime.datetime
-    ):
+    ) -> None:
         self.answer = answer
         self.answer_time = answer_time
 
@@ -184,7 +185,7 @@ class Answer:
             answer_time: datetime.datetime | None = None,
             edit_history: list[AnswerEdit] | None = None,
             question_msg_id: int | None = None,
-    ):
+    ) -> None:
         self.answer = answer
         self.answer_time = answer_time
         self.asked_time = asked_time
@@ -240,65 +241,64 @@ class Answer:
 
 
 class AnswersData:
-    def __init__(self, spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet'):
+    def __init__(self, spreadsheet: 'DailysSpreadsheet') -> None:
         self.spreadsheet = spreadsheet
-        self.lock = RLock()
+        self.lock = asyncio.Lock()
 
-    def get_answer_for_question_at_time(
+    async def get_answer_for_question_at_time(
             self,
             question: Question,
             answer_datetime: datetime.datetime
     ) -> Answer | None:
-        date_answers = self.get_answers_for_date(answer_datetime.date())
+        date_answers = await self.get_answers_for_date(answer_datetime.date())
         for answer in date_answers:
             if answer.for_question(question) and answer.asked_time == answer_datetime:
                 return answer
         return None
 
-    def get_answers_for_date(self, answer_date: datetime.date) -> list[Answer]:
-        date_data = self.spreadsheet.read_path("stats/questions/"+answer_date.isoformat()+"/")
+    async def get_answers_for_date(self, answer_date: datetime.date) -> list[Answer]:
+        date_data = await self.spreadsheet.read_path("stats/questions/"+answer_date.isoformat()+"/")
         if not date_data:
             return []
         answer_data = date_data[0]["data"]["answers"]
         return [Answer.from_dict(d) for d in answer_data]
 
-    def save_answers_for_date(self, answer_date: datetime.date, answers: list[Answer]):
-        with self.lock:
-            date_data = {"answers": [a.to_dict() for a in answers]}
-            self.spreadsheet.save_field(QuestionsField, date_data, answer_date)
+    async def save_answers_for_date(self, answer_date: datetime.date, answers: list[Answer]) -> None:
+        date_data = {"answers": [a.to_dict() for a in answers]}
+        await self.spreadsheet.save_field(QuestionsField, date_data, answer_date)
 
-    def save_answer(self, answer: Answer) -> None:
-        with self.lock:
+    async def save_answer(self, answer: Answer) -> None:
+        async with self.lock:
             answer_date = answer.asked_time.date()
-            date_answers = self.get_answers_for_date(answer_date)
+            date_answers = await self.get_answers_for_date(answer_date)
             matching_answer = next(iter([a for a in date_answers if a.same_answer(answer)]), None)
             if matching_answer is not None:
                 date_answers.remove(matching_answer)
                 date_answers.append(answer)
             else:
                 date_answers.append(answer)
-            self.save_answers_for_date(answer_date, date_answers)
+            await self.save_answers_for_date(answer_date, date_answers)
 
 
 class AnswerCache:
-    def __init__(self, data: 'AnswersData'):
-        self.data = data
-        self._cache = {}
+    def __init__(self, data: 'AnswersData') -> None:
+        self.data: 'AnswersData' = data
+        self._cache: dict[datetime.date, dict[str, dict[datetime.datetime, Answer]]] = {}
 
-    def _populate_answers_for_date(self, answer_date: datetime.date) -> None:
-        answers = self.data.get_answers_for_date(answer_date)
+    async def _populate_answers_for_date(self, answer_date: datetime.date) -> None:
+        answers = await self.data.get_answers_for_date(answer_date)
         self._cache[answer_date] = {}
         for answer in answers:
             if answer.question_id not in self._cache[answer_date]:
                 self._cache[answer_date][answer.question_id] = {}
             self._cache[answer_date][answer.question_id][answer.asked_time] = answer
 
-    def answer_for_question_at_time(self, question: Question, answer_time: datetime.datetime) -> Answer | None:
+    async def answer_for_question_at_time(self, question: Question, answer_time: datetime.datetime) -> Answer | None:
         if answer_time.date() not in self._cache:
-            self._populate_answers_for_date(answer_time.date())
+            await self._populate_answers_for_date(answer_time.date())
         return self._cache.get(answer_time.date(), {}).get(question.id, {}).get(answer_time)
 
-    def answer_for_question_msg_id(
+    async def answer_for_question_msg_id(
             self,
             question_msg_id: int,
             questions: list[Question],
@@ -310,7 +310,7 @@ class AnswerCache:
         oldest_date = min([q.time_pattern.start.date() for q in questions])
         test_date = datetime.datetime.now(datetime.timezone.utc).date()
         while test_date > oldest_date:
-            self._populate_answers_for_date(test_date)
+            await self._populate_answers_for_date(test_date)
             lowest_msg_id = None
             for question_id, answer_dict in self._cache.get(test_date, {}).items():
                 for answer_time, answer in answer_dict.items():
@@ -332,7 +332,7 @@ class AnswerCache:
         # Ran out of dates, return None
         return None
 
-    def latest_answers(self, questions: list[Question]) -> list[Answer]:
+    async def latest_answers(self, questions: list[Question]) -> list[Answer]:
         if not questions:
             return []
         unanswered_ids = [q.id for q in questions]
@@ -340,7 +340,7 @@ class AnswerCache:
         oldest_date = min([q.time_pattern.start.date() for q in questions])
         test_date = datetime.datetime.now(datetime.timezone.utc).date()
         while test_date > oldest_date and unanswered_ids:
-            self._populate_answers_for_date(test_date)
+            await self._populate_answers_for_date(test_date)
             for question_id, answer_dict in self._cache.get(test_date, {}).items():
                 if question_id not in unanswered_ids:
                     continue
@@ -350,53 +350,47 @@ class AnswerCache:
         # Ran out of dates, return None
         return latest_answers
 
-    def list_unanswered_questions(self, questions: list[Question]) -> list[Question]:
+    async def list_unanswered_questions(self, questions: list[Question]) -> list[Question]:
         questions_dict = {q.id: q for q in questions}
         unanswered = []
-        for answer in self.latest_answers(questions):
+        for answer in await self.latest_answers(questions):
             if answer.answer is None:
                 unanswered.append(questions_dict[answer.question_id])
         return unanswered
 
 
-class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
+class QuestionsField(DailysField):
     type_name = "questions"
 
-    def __init__(
-            self,
-            spreadsheet: 'hallo.modules.dailys.dailys_spreadsheet.DailysSpreadsheet',
-            questions: list[Question]
-    ):
+    def __init__(self, spreadsheet: 'DailysSpreadsheet', questions: list[Question]) -> None:
         super().__init__(spreadsheet)
         self.questions = questions
         self.data = AnswersData(spreadsheet)
 
     @staticmethod
-    def create_from_input(event, spreadsheet):
-        return QuestionsField.create_from_spreadsheet(spreadsheet)
+    async def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
+        return await QuestionsField.create_from_spreadsheet(spreadsheet)
 
     @staticmethod
-    def create_from_spreadsheet(spreadsheet):
-        static_data = spreadsheet.read_path("stats/questions/static/")
+    async def create_from_spreadsheet(spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
+        static_data = await spreadsheet.read_path("stats/questions/static/")
         if len(static_data) == 0:
-            raise hallo.modules.dailys.dailys_field.DailysException(
-                "Questions field static data has not been set up on dailys system."
-            )
+            raise DailysException("Questions field static data has not been set up on dailys system.")
         question_data = static_data[0]["data"]["questions"]
         questions = [Question.from_dict(d) for d in question_data]
         return QuestionsField(spreadsheet, questions)
 
     @staticmethod
-    def passive_events():
+    def passive_events() -> list[Type[Event]]:
         return [EventMessage, EventMinute]
 
-    def passive_trigger(self, evt: Event) -> Event | None:
+    async def passive_trigger(self, evt: Event) -> None:
         if isinstance(evt, EventMinute):
-            return self._time_trigger()
+            return await self._time_trigger()
         if isinstance(evt, EventMessage):
-            return self._msg_trigger(evt)
+            return await self._msg_trigger(evt)
 
-    def _time_trigger(self) -> None:
+    async def _time_trigger(self) -> None:
         answer_cache = AnswerCache(self.data)
         for question in self.questions:
             if not question.is_active():
@@ -404,11 +398,11 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             last_time = question.last_time()
             if last_time is None:
                 continue
-            answer = answer_cache.answer_for_question_at_time(question, last_time)
+            answer = await answer_cache.answer_for_question_at_time(question, last_time)
             if answer is None:
-                self._ask_question(question, last_time)
+                await self._ask_question(question, last_time)
 
-    def _ask_question(self, question: Question, ask_time: datetime.datetime) -> None:
+    async def _ask_question(self, question: Question, ask_time: datetime.datetime) -> None:
         # Create answer object
         answer = Answer(question.id, ask_time)
         # Create message
@@ -423,18 +417,18 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
                 msg += "\n\nBut custom answers are also allowed."
 
         # Create message id setting callback
-        def after_msg_sent(event: EventMessage):
+        async def after_msg_sent(event: EventMessage):
             answer.question_msg_id = event.message_id
-            self.data.save_answer(answer)
+            await self.data.save_answer(answer)
         # Send message
-        self.message_channel(msg, after_msg_sent)
+        await self.message_channel(msg, after_msg_sent(msg))
         # Save answer
-        self.data.save_answer(answer)
+        await self.data.save_answer(answer)
 
-    def _msg_trigger(self, evt: EventMessage) -> EventMessage | None:
+    async def _msg_trigger(self, evt: EventMessage) -> EventMessage | None:
         # Check if it's asking about open questions
         if evt.text.strip().lower() in ["questions", "open questions", "unanswered question"]:
-            return self._handle_questions_list_request(evt)
+            return await self._handle_questions_list_request(evt)
         # Check if it's a reply to a question
         if (
             isinstance(evt.raw_data, RawDataTelegram)
@@ -443,62 +437,62 @@ class QuestionsField(hallo.modules.dailys.dailys_field.DailysField):
             reply_id = (
                 evt.raw_data.update_obj.message.reply_to_message.message_id
             )
-            return self._handle_answer_reply(evt, reply_id, evt.text)
+            return await self._handle_answer_reply(evt, reply_id, evt.text)
         # Handle manual answers
         text_split = evt.text.split(maxsplit=2)
         question_dict = {q.id: q for q in self.questions}
         if text_split[0].lower() == "answer" and text_split[1] in question_dict:
-            return self._handle_answer_manual(evt, question_dict[text_split[1]], text_split[2])
+            return await self._handle_answer_manual(evt, question_dict[text_split[1]], text_split[2])
 
-    def _handle_answer_reply(self, evt: EventMessage, reply_id: int, answer: str) -> EventMessage | None:
+    async def _handle_answer_reply(self, evt: EventMessage, reply_id: int, answer: str) -> EventMessage | None:
         cache = AnswerCache(self.data)
-        reply_answer = cache.answer_for_question_msg_id(reply_id, self.questions)
+        reply_answer = await cache.answer_for_question_msg_id(reply_id, self.questions)
         if reply_answer is None:
             return None
         reply_answer.add_answer(answer)
-        self.data.save_answer(reply_answer)
-        return evt.reply(evt.create_response(
+        await self.data.save_answer(reply_answer)
+        return await evt.reply(evt.create_response(
             f"Answer saved for question ID \"{reply_answer.question_id}\", at {reply_answer.asked_time.isoformat()}"
         ))
 
-    def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> EventMessage | None:
+    async def _handle_answer_manual(self, evt: EventMessage, question: Question, answer: str) -> EventMessage | None:
         latest_time = question.last_time()
-        current_answer = self.data.get_answer_for_question_at_time(question, latest_time)
+        current_answer = await self.data.get_answer_for_question_at_time(question, latest_time)
         if current_answer is None:
             new_answer = question.create_answer_for_time(
                 latest_time,
                 answer=answer
             )
-            self.data.save_answer(new_answer)
-            return evt.reply(evt.create_response(
+            await self.data.save_answer(new_answer)
+            return await evt.reply(evt.create_response(
                 f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
             ))
         current_answer.add_answer(answer)
-        self.data.save_answer(current_answer)
-        return evt.reply(evt.create_response(
+        await self.data.save_answer(current_answer)
+        return await evt.reply(evt.create_response(
             f"Answer saved for question ID \"{question.id}\", at {latest_time.isoformat()}"
         ))
 
-    def _handle_questions_list_request(self, evt: EventMessage):
+    async def _handle_questions_list_request(self, evt: EventMessage) -> None:
         cache = AnswerCache(self.data)
-        questions = cache.list_unanswered_questions(self.questions)
+        questions = await cache.list_unanswered_questions(self.questions)
         if not questions:
-            return evt.reply(evt.create_response(
+            return await evt.reply(evt.create_response(
                 "There are no unanswered questions here at the moment."
             ))
         questions_str = "\n".join(f"---\nid={q.id}:\n{q.question}" for q in questions)
         header_str = f"There are {len(questions)} unanswered questions:"
         if len(questions) == 1:
             header_str = "There is 1 unanswered question:"
-        return evt.reply(evt.create_response(
+        return await evt.reply(evt.create_response(
             f"{header_str}\n{questions_str}"
         ))
 
-    def to_json(self):
+    def to_json(self) -> dict:
         return {
             "type_name": self.type_name
         }
 
     @staticmethod
-    def from_json(json_obj, spreadsheet):
-        return QuestionsField.create_from_spreadsheet(spreadsheet)
+    async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'QuestionsField':
+        return await QuestionsField.create_from_spreadsheet(spreadsheet)

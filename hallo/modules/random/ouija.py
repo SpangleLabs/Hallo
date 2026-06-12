@@ -24,7 +24,7 @@ class Ouija(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Ouija board function. Format: ouija <message>"
 
-    def run(self, event):
+    async def run(self, event):
         word_list = Commons.read_file_to_list("store/ouija_wordlist.txt")
         num_words = Commons.get_random_int(1, 3)[0]
         rand_words = Commons.get_random_choice(word_list, num_words)

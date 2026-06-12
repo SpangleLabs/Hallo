@@ -21,13 +21,13 @@ class Wiki(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Reads the first paragraph from a wikipedia article"
 
-    def run(self, event):
+    async def run(self, event):
         line_clean = event.command_args.strip().replace(" ", "_")
         url = (
             "https://en.wikipedia.org/w/api.php?format=json&action=query&titles={}"
             "&prop=revisions&rvprop=content&redirects=True".format(line_clean)
         )
-        article_dict = Commons.load_url_json(url)
+        article_dict = await Commons.load_url_json(url)
         page_code = list(article_dict["query"]["pages"])[0]
         article_text = article_dict["query"]["pages"][page_code]["revisions"][0]["*"]
         old_scan = article_text

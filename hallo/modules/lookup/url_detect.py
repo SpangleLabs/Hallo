@@ -29,14 +29,14 @@ class UrlDetect(Function):
         self.help_docs = "URL detection."
         self.hallo_obj = None
 
-    def run(self, event):
+    async def run(self, event):
         return event.create_response("This function does not take input.")
 
     def get_passive_events(self):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {EventMessage}
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
         if not isinstance(event, EventMessage):
             return
@@ -81,7 +81,7 @@ class UrlDetect(Function):
         # Get response if link is an image
         if "image" in page_type:
             return event.create_response(
-                self.url_image(url_address, page_opener, page_request, page_type)
+                await self.url_image(url_address, page_opener, page_request, page_type)
             )
         # Get a response depending on the website
         output = None
@@ -94,21 +94,21 @@ class UrlDetect(Function):
             "youtu": self.site_youtube,
         }
         if url_site in site_readers:
-            output = site_readers[url_site](url_address, page_opener, page_request)
+            output = await site_readers[url_site](url_address, page_opener, page_request)
         # If other url, return generic URL response
         if output is None:
             output = self.url_generic(url_address, page_opener, page_request)
         return None if output is None else event.create_response(output)
 
-    def url_image(self, url_address, page_opener, page_request, page_type):
+    async def url_image(self, url_address, page_opener, page_request, page_type):
         """Handling direct image links"""
         # Get the website name
         url_site = Commons.get_domain_name(url_address).lower()
         # If website name is speedtest or imgur, hand over to those handlers
         if url_site == "speedtest":
-            return self.site_speedtest(url_address, page_opener, page_type)
+            return await self.site_speedtest(url_address, page_opener, page_type)
         if url_site == "imgur":
-            return self.site_imgur(url_address, page_opener, page_type)
+            return await self.site_imgur(url_address, page_opener, page_type)
         # Image handling
         image_data = page_opener.open(page_request).read()
         image_width, image_height = self.get_image_size(image_data)
@@ -132,7 +132,7 @@ class UrlDetect(Function):
             return "URL title: {}".format(title_clean.replace("\n", ""))
         return None
 
-    def site_ebay(self, url_address, page_opener, page_request):
+    async def site_ebay(self, url_address, page_opener, page_request):
         """Handling for ebay links"""
         # Get the ebay item id
         item_id = url_address.split("/")[-1]
@@ -146,7 +146,7 @@ class UrlDetect(Function):
                 api_key, item_id
             )
         )
-        api_dict = Commons.load_url_json(api_url)
+        api_dict = await Commons.load_url_json(api_url)
         # Get item data from api response
         item_title = api_dict["Item"]["Title"]
         item_price = "{} {}".format(
@@ -170,7 +170,7 @@ class UrlDetect(Function):
         output += "Ends: {}".format(item_end_time)
         return output
 
-    def site_imdb(self, url_address, page_opener, page_request):
+    async def site_imdb(self, url_address, page_opener, page_request):
         """Handling for imdb links"""
         # If URL isn't to an imdb title, just do normal url handling.
         if "imdb.com/title" not in url_address:
@@ -182,7 +182,7 @@ class UrlDetect(Function):
         movie_id = movie_id_search.group(1)
         # Download API response
         api_url = "https://www.omdbapi.com/?i={}".format(movie_id)
-        api_dict = Commons.load_url_json(api_url)
+        api_dict = await Commons.load_url_json(api_url)
         # Get movie information from API response
         movie_title = api_dict["Title"]
         movie_year = api_dict["Year"]
@@ -195,11 +195,11 @@ class UrlDetect(Function):
         )
         return output
 
-    def site_imgur(self, url_address, page_opener, page_request):
+    async def site_imgur(self, url_address, page_opener, page_request):
         """Handling imgur links"""
         # Hand off imgur album links to a different handler function.
         if "/a/" in url_address:
-            return self.site_imgur_album(url_address, page_opener, page_request)
+            return await self.site_imgur_album(url_address, page_opener, page_request)
         # Handle individual imgur image links
         imgur_id = url_address.split("/")[-1].split(".")[0]
         api_url = "https://api.imgur.com/3/image/{}".format(imgur_id)
@@ -207,7 +207,7 @@ class UrlDetect(Function):
         api_key = self.hallo_obj.get_api_key("imgur")
         if api_key is None:
             return None
-        api_dict = Commons.load_url_json(api_url, [["Authorization", api_key]])
+        api_dict = await Commons.load_url_json(api_url, [["Authorization", api_key]])
         # Get title, width, height, size, and view count from API data
         image_title = str(api_dict["data"]["title"])
         image_width = str(api_dict["data"]["width"])
@@ -221,7 +221,7 @@ class UrlDetect(Function):
         )
         return output
 
-    def site_imgur_album(self, url_address, page_opener, page_request):
+    async def site_imgur_album(self, url_address, page_opener, page_request):
         """Handling imgur albums"""
         imgur_id = url_address.split("/")[-1].split("#")[0]
         api_url = "https://api.imgur.com/3/album/{}".format(imgur_id)
@@ -229,7 +229,7 @@ class UrlDetect(Function):
         api_key = self.hallo_obj.get_api_key("imgur")
         if api_key is None:
             return None
-        api_dict = Commons.load_url_json(api_url, [["Authorization", api_key]])
+        api_dict = await Commons.load_url_json(api_url, [["Authorization", api_key]])
         # Get album title and view count from API data
         album_title = api_dict["data"]["title"]
         album_views = api_dict["data"]["views"]
@@ -259,7 +259,7 @@ class UrlDetect(Function):
         output += "{} images.".format(album_count)
         return output
 
-    def site_speedtest(self, url_address, page_opener, page_request):
+    async def site_speedtest(self, url_address, page_opener, page_request):
         """Handling speedtest links"""
         if url_address[-4:] == ".png":
             url_number = url_address[32:-4]
@@ -279,7 +279,7 @@ class UrlDetect(Function):
             download, upload, ping
         )
 
-    def site_youtube(self, url_address, page_opener, page_request):
+    async def site_youtube(self, url_address, page_opener, page_request):
         """Handling for youtube links"""
         # Find video id
         if "youtu.be" in url_address:
@@ -295,7 +295,7 @@ class UrlDetect(Function):
             "&part=snippet,contentDetails,statistics&key={}".format(video_id, api_key)
         )
         # Load API response (in json).
-        api_dict = Commons.load_url_json(api_url)
+        api_dict = await Commons.load_url_json(api_url)
         # Get video data from API response.
         video_title = api_dict["items"][0]["snippet"]["title"]
         video_duration = api_dict["items"][0]["contentDetails"]["duration"][2:].lower()

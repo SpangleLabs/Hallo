@@ -19,7 +19,7 @@ class Fursona(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Generates your new fursona. Format: fursona"
 
-    def run(self, event):
+    async def run(self, event):
         adjective = [
             "eldritch",
             "neon green",

@@ -32,8 +32,8 @@ def fa_key_from_env(test_user: User) -> FAKey:
 
 
 @pytest.fixture
-def source_objects(hallo_getter) -> list[Source]:
-    test_hallo = hallo_getter({"subscriptions"})
+async def source_objects(hallo_getter) -> list[Source]:
+    test_hallo = await hallo_getter({"subscriptions"})
     fa_key = fa_key_from_env(test_hallo.test_user)
     e6_client = YippiClient("hallo_test", "0.1.0", "dr-spangle")
     sub_repo = SubscriptionRepo(test_hallo)
@@ -45,7 +45,7 @@ def source_objects(hallo_getter) -> list[Source]:
     sub_objs.append(FANotesSource(fa_key, FANotesInboxSource(fa_key), FANotesOutboxSource(fa_key)))
     sub_objs.append(FAFavsSource(fa_key, "zephyr42"))
     sub_objs.append(FAUserWatchersSource(fa_key, "zephyr42"))
-    sub_objs.append(FAWatchersSource(fa_key))
+    sub_objs.append(FAWatchersSource(fa_key), "dr-spangle")
     sub_objs.append(FAFavNotificationsSource(fa_key))
     sub_objs.append(FACommentNotificationsSource(
         fa_key,
@@ -57,8 +57,8 @@ def source_objects(hallo_getter) -> list[Source]:
 
 
 @pytest.fixture
-def source_creation_arguments(hallo_getter) -> dict[Type[Source], str]:
-    test_hallo = hallo_getter({"subscriptions"})
+async def source_creation_arguments(hallo_getter) -> dict[Type[Source], str]:
+    test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
     fa_key = fa_key_from_env(test_hallo.test_user)
     fa_commons = sub_repo.get_common_config_by_type(hallo.modules.subscriptions.common_fa_key.FAKeysCommon)
@@ -158,11 +158,11 @@ def test_sub_class_has_type_name():
         assert sub_class.type_name == sub_class.type_name.lower()
 
 
-def test_sub_classes_added_to_factory(hallo_getter):
+async def test_sub_classes_added_to_factory(hallo_getter):
     """
     Test tht all source classes which are implemented are added to SubscriptionFactory
     """
-    test_hallo = hallo_getter({"subscriptions"})
+    test_hallo = await hallo_getter({"subscriptions"})
     module_obj = importlib.import_module("hallo.modules.subscriptions")
     for sub_module in inspect.getmembers(module_obj, inspect.ismodule):
         # Loop through module, searching for Subscriptions subclasses.
@@ -175,7 +175,7 @@ def test_sub_classes_added_to_factory(hallo_getter):
             sub_repo = SubscriptionRepo(test_hallo)
             # noinspection PyBroadException
             try:
-                function_class.from_input(
+                await function_class.from_input(
                     "hello",
                     test_hallo.test_user,
                     sub_repo,

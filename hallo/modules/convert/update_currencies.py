@@ -1,10 +1,15 @@
+import asyncio
 import logging
-import time
+from typing import TYPE_CHECKING
 from xml.dom import minidom
 
 from hallo.events import EventHour
 from hallo.function import Function
 from hallo.inc.commons import Commons
+
+if TYPE_CHECKING:
+    from hallo.modules.convert.convert_repo import ConvertRepo
+
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +40,7 @@ class UpdateCurrencies(Function):
             "central bank, forex and preev."
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Get convert repo
         function_dispatcher = event.server.hallo.function_dispatcher
         convert_function = function_dispatcher.get_function_by_name("convert")
@@ -44,14 +49,14 @@ class UpdateCurrencies(Function):
         )  # type: Convert
         repo = convert_function_obj.convert_repo
         # Update all sources
-        output_lines = self.update_all(repo)
+        output_lines = await self.update_all(repo)
         # Return output
         return event.create_response("\n".join(output_lines))
 
     def get_passive_events(self):
         return {EventHour}
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         # Get convert repo
         function_dispatcher = hallo_obj.function_dispatcher
         convert_function = function_dispatcher.get_function_by_name("convert")
@@ -60,17 +65,17 @@ class UpdateCurrencies(Function):
         )  # type: Convert
         repo = convert_function_obj.convert_repo
         # Update all sources
-        output_lines = self.update_all(repo)
+        output_lines = await self.update_all(repo)
         for line in output_lines:
             logger.info(line)
         return None
 
-    def update_all(self, repo):
+    async def update_all(self, repo):
         output_lines = []
         # Update with the European Bank
         try:
             output_lines.append(
-                self.update_from_european_bank_data(repo)
+                await self.update_from_european_bank_data(repo)
                 or "Updated currency data from the European Central Bank."
             )
         except Exception as e:
@@ -80,14 +85,14 @@ class UpdateCurrencies(Function):
         # Update with Forex
         try:
             output_lines.append(
-                self.update_from_forex_data(repo) or "Updated currency data from Forex."
+                await self.update_from_forex_data(repo) or "Updated currency data from Forex."
             )
         except Exception as e:
             output_lines.append("Failed to update Forex data. {}".format(e))
         # Update with Preev
         try:
             output_lines.append(
-                self.update_from_cryptonator_data(repo)
+                await self.update_from_cryptonator_data(repo)
                 or "Updated currency data from Cryptonator."
             )
         except Exception as e:
@@ -96,16 +101,15 @@ class UpdateCurrencies(Function):
         repo.save_json()
         return output_lines
 
-    def update_from_european_bank_data(self, repo):
+    async def update_from_european_bank_data(self, repo: 'ConvertRepo') -> None:
         """
         Updates the value of conversion currency units using The European Bank data.
-        :type repo: ConvertRepo
         """
         # Get currency ConvertType
         currency_type = repo.get_type_by_name("currency")
         # Pull xml data from european bank website
         url = "https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml"
-        xml_string = Commons.load_url_string(url)
+        xml_string = await Commons.load_url_string(url)
         # Parse data
         doc = minidom.parseString(xml_string)
         root = doc.getElementsByTagName("gesmes:Envelope")[0]
@@ -126,16 +130,15 @@ class UpdateCurrencies(Function):
             # Set Value
             currency_unit.update_value(currency_value)
 
-    def update_from_forex_data(self, repo):
+    async def update_from_forex_data(self, repo: 'ConvertRepo') -> None:
         """
         Updates the value of conversion currency units using Forex data.
-        :type repo: ConvertRepo
         """
         # Get currency ConvertType
         currency_type = repo.get_type_by_name("currency")
         # Pull xml data from forex website
         url = "https://rates.fxcm.com/RatesXML3"
-        xml_string = Commons.load_url_string(url)
+        xml_string = await Commons.load_url_string(url)
         # Parse data
         doc = minidom.parseString(xml_string)
         rates_elem = doc.getElementsByTagName("Rates")[0]
@@ -157,7 +160,7 @@ class UpdateCurrencies(Function):
             # Set Value
             currency_unit.update_value(currency_value)
 
-    def update_from_cryptonator_data(self, repo):
+    async def update_from_cryptonator_data(self, repo: 'ConvertRepo') -> None:
         """
         Updates the value of conversion cryptocurrencies using cryptonator data.
         :type repo: ConvertRepo
@@ -169,17 +172,13 @@ class UpdateCurrencies(Function):
         for code in currency_codes:
             # Get data
             try:
-                data = Commons.load_url_json(
-                    "https://api.cryptonator.com/api/ticker/{}-eur".format(code)
-                )
+                data = await Commons.load_url_json(f"https://api.cryptonator.com/api/ticker/{code}-eur")
             except Exception as e:
                 # If it fails, because it failed to parse the JSON, give it another go
                 # Cryptonator API returns HTML sometimes. I don't know why.
                 if "Expecting value:" in str(e):
-                    time.sleep(5)
-                    data = Commons.load_url_json(
-                        "https://api.cryptonator.com/api/ticker/{}-eur".format(code)
-                    )
+                    await asyncio.sleep(5)
+                    data = await Commons.load_url_json(f"https://api.cryptonator.com/api/ticker/{code}-eur")
                 else:
                     raise e
             # Get the ConvertUnit object for the currency reference

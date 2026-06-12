@@ -55,11 +55,11 @@ def test_field_type_name_doesnt_overlap():
         all_type_names.append(field_class.type_name)
 
 
-def test_field_classes_added_to_factory(hallo_getter):
+async def test_field_classes_added_to_factory(hallo_getter):
     """
     Test tht all field classes which are implemented are added to DailysFieldFactory
     """
-    test_hallo = hallo_getter({"dailys"})
+    test_hallo = await hallo_getter({"dailys"})
     module_obj = importlib.import_module("hallo.modules.dailys")
     # Loop through module, searching for DailysField subclasses.
     for function_tuple in inspect.getmembers(module_obj, inspect.isclass):
@@ -71,7 +71,7 @@ def test_field_classes_added_to_factory(hallo_getter):
         spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
         # noinspection PyBroadException
         try:
-            function_class.create_from_input(
+            await function_class.create_from_input(
                 EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "hello"),
                 spreadsheet,
             )
@@ -88,11 +88,11 @@ def test_field_classes_added_to_factory(hallo_getter):
 @pytest.mark.parametrize(
     "field_class", DailysFieldFactory.fields
 )
-def test_all_field_classes_in_field_objs(field_class, hallo_getter):
+async def test_all_field_classes_in_field_objs(field_class, hallo_getter):
     """
     Tests that all field classes have an object in the get_field_objects method here.
     """
-    test_hallo = hallo_getter({"dailys"})
+    test_hallo = await hallo_getter({"dailys"})
     assert field_class in [
         field_obj.__class__ for field_obj in get_field_objects(test_hallo.test_user, test_hallo.test_chan)
     ]

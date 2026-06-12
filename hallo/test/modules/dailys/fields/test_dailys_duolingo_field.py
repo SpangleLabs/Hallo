@@ -14,8 +14,8 @@ TEST_PASSWORD = os.getenv("test_duo_password")
 
 
 @pytest.mark.external_integration
-def test_day_rollover(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_day_rollover(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
@@ -44,8 +44,8 @@ def test_day_rollover(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_create_from_input_no_username(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_no_username(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "duolingo"
@@ -59,7 +59,7 @@ def test_create_from_input_no_username(hallo_getter):
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
     try:
-        DailysDuolingoField.create_from_input(evt, spreadsheet)
+        await DailysDuolingoField.create_from_input(evt, spreadsheet)
         assert (
             False
         ), "Should have failed to create DailysDuolingoField due to missing username."
@@ -71,8 +71,8 @@ def test_create_from_input_no_username(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_create_from_input_no_password(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_no_password(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "duolingo {}".format(TEST_USERNAME)
@@ -86,7 +86,7 @@ def test_create_from_input_no_password(hallo_getter):
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
     try:
-        DailysDuolingoField.create_from_input(evt, spreadsheet)
+        await DailysDuolingoField.create_from_input(evt, spreadsheet)
         assert (
             False
         ), "Should have failed to create DailysDuolingoField due to missing password."
@@ -98,8 +98,8 @@ def test_create_from_input_no_password(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_create_from_input_invalid_password(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_invalid_password(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "duolingo {} {}".format(TEST_USERNAME, "NoTAreaLPasSWorD")
@@ -113,7 +113,7 @@ def test_create_from_input_invalid_password(hallo_getter):
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
     try:
-        DailysDuolingoField.create_from_input(evt, spreadsheet)
+        await DailysDuolingoField.create_from_input(evt, spreadsheet)
         assert (
             False
         ), "Should have failed to create DailysDuolingoField due to incorrect password."
@@ -125,8 +125,8 @@ def test_create_from_input_invalid_password(hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_create_from_input_username_first(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_username_first(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "duolingo {} {}".format(TEST_USERNAME, TEST_PASSWORD)
@@ -139,15 +139,15 @@ def test_create_from_input_username_first(hallo_getter):
     evt.split_command_text(cmd_name, cmd_args)
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
-    field = DailysDuolingoField.create_from_input(evt, spreadsheet)
+    field = await DailysDuolingoField.create_from_input(evt, spreadsheet)
     assert field.spreadsheet == spreadsheet
     assert field.username == TEST_USERNAME
     assert field.password == TEST_PASSWORD
 
 
 @pytest.mark.external_integration
-def test_create_from_input_password_first(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_password_first(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "duolingo {} {}".format(TEST_PASSWORD, TEST_USERNAME)
@@ -160,7 +160,7 @@ def test_create_from_input_password_first(hallo_getter):
     evt.split_command_text(cmd_name, cmd_args)
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
-    field = DailysDuolingoField.create_from_input(evt, spreadsheet)
+    field = await DailysDuolingoField.create_from_input(evt, spreadsheet)
     assert field.spreadsheet == spreadsheet
     assert field.username == TEST_USERNAME
     assert field.password == TEST_PASSWORD

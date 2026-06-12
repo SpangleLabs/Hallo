@@ -323,7 +323,7 @@ class UserDataSetup(Function):
         self.user_data_parser = UserDataParser()
         """ :type : UserDataParser"""
 
-    def run(self, event):
+    async def run(self, event):
         # Construct type name
         data_type_name = " ".join(
             [
@@ -394,7 +394,7 @@ class UserDataTeardown(Function):
             "Format: tear down user data <type> <parameters>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Construct type name
         data_type_name = " ".join(
             [

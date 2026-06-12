@@ -39,7 +39,7 @@ class ConvertAddType(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Adds a new conversion unit type and base unit."
 
-    def run(self, event):
+    async def run(self, event):
         # Load repo, clean line
         function_dispatcher = event.server.hallo.function_dispatcher
         convert_function = function_dispatcher.get_function_by_name("convert")

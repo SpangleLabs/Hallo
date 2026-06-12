@@ -5,9 +5,9 @@ from hallo.test.modules.convert.convert_function_test_base import ConvertFunctio
 
 
 class ConvertSetTypeDecimalsTest(ConvertFunctionTestBase, unittest.TestCase):
-    def test_no_number_given(self):
+    async def test_no_number_given(self):
         decimals = self.test_repo.get_type_by_name("test_type1").decimals
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -22,8 +22,8 @@ class ConvertSetTypeDecimalsTest(ConvertFunctionTestBase, unittest.TestCase):
             self.test_repo.get_type_by_name("test_type1").decimals == decimals
         ), "Decimals shouldn't have changed."
 
-    def test_decimals_at_start(self):
-        self.function_dispatcher.dispatch(
+    async def test_decimals_at_start(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -39,8 +39,8 @@ class ConvertSetTypeDecimalsTest(ConvertFunctionTestBase, unittest.TestCase):
             self.test_repo.get_type_by_name("test_type1").decimals == 5
         ), "Decimals wasn't set."
 
-    def test_decimals_at_end(self):
-        self.function_dispatcher.dispatch(
+    async def test_decimals_at_end(self):
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -56,10 +56,10 @@ class ConvertSetTypeDecimalsTest(ConvertFunctionTestBase, unittest.TestCase):
             self.test_repo.get_type_by_name("test_type1").decimals == 5
         ), "Decimals wasn't set."
 
-    def test_no_type(self):
+    async def test_no_type(self):
         decimals1 = self.test_repo.get_type_by_name("test_type1").decimals
         decimals2 = self.test_repo.get_type_by_name("test_type2").decimals
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert set type decimals 5"
             )

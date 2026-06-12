@@ -1,9 +1,9 @@
+import asyncio
+import datetime
 import logging
 import re
 import socket
-import time
-from threading import RLock, Lock, Thread
-from typing import Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Awaitable
 
 from prometheus_client import Gauge
 
@@ -79,30 +79,24 @@ class ServerIRC(Server):
         )
         self.nickserv_ident_response = "\\b3\\b"  # Regex to search for to validate identity in response to IdentCommand
         # IRC specific dynamic variables
-        self._socket = None  # Socket to communicate to the server
+        self._reader: asyncio.StreamReader | None = None
+        self._writer: asyncio.StreamWriter | None = None
         self._welcome_message = (
             ""  # Server's welcome message when connecting. MOTD and all.
         )
-        self._check_channeluserlist_lock = (
-            Lock()
-        )  # Thread lock for checking a channel's user list
+        # Thread lock for checking a channel's user list
+        self._check_channeluserlist_lock = asyncio.Lock()
         self._check_channeluserlist_channel = None  # Channel to check user list of
         self._check_channeluserlist_done = False  # Whether the check is complete
-        self._check_usersonline_lock = (
-            Lock()
-        )  # Thread lock for checking which users are online
+        # Thread lock for checking which users are online
+        self._check_usersonline_lock = asyncio.Lock()
         self._check_usersonline_check_list = None  # List of users' names to check
-        self._check_usersonline_online_list = (
-            None  # List of users' names who are online
-        )
-        self._check_useridentity_lock = (
-            Lock()
-        )  # Thread lock for checking if a user is identified with nickserv
+        self._check_usersonline_online_list = None  # List of users' names who are online
+        # Thread lock for checking if a user is identified with nickserv
+        self._check_useridentity_lock = asyncio.Lock()
         self._check_useridentity_user = None  # User name which is being checked
-        self._check_useridentity_result = (
-            None  # Boolean, whether or not the user is identified
-        )
-        self._connect_lock = RLock()
+        self._check_useridentity_result = None  # Boolean, whether or not the user is identified
+        self._connect_lock = asyncio.Lock()
         # Configure from server parameters
         if server_name is not None:
             self.name = server_name
@@ -129,15 +123,14 @@ class ServerIRC(Server):
         if self.state != Server.STATE_CLOSED:
             raise ServerException("Already started.")
         self.state = Server.STATE_CONNECTING
-        with self._connect_lock:
-            Thread(target=self.run).start()
+        asyncio.create_task(self.run())
 
-    def connect(self) -> None:
+    async def connect(self) -> None:
         """
         Internal method, connects to the IRC server, attempting as many times as is necessary.
         """
         try:
-            self.raw_connect()
+            await self.raw_connect()
             return
         except ServerException as e:
             error = ExceptionError(
@@ -148,7 +141,7 @@ class ServerIRC(Server):
             logger.error(error.get_log_line())
             while self.state == Server.STATE_CONNECTING:
                 try:
-                    self.raw_connect()
+                    await self.raw_connect()
                     return
                 except ServerException as e:
                     error = ExceptionError(
@@ -157,23 +150,19 @@ class ServerIRC(Server):
                         self,
                     )
                     logger.error(error.get_log_line())
-                    time.sleep(3)
+                    await asyncio.sleep(3)
                     continue
 
-    def raw_connect(self) -> None:
+    async def raw_connect(self) -> None:
         """
         Internal method, does the actual connection logic to try connecting to the server once.
         """
         # Create new socket
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.settimeout(5)
         try:
             # Connect to socket
-            self._socket.connect((self.server_address, self.server_port))
+            self._reader, self._writer = await asyncio.open_connection(self.server_address, self.server_port)
         except Exception as e:
-            error = ExceptionError(
-                f'Connection error on "{self.name}" IRC server', e, self
-            )
+            error = ExceptionError(f'Connection error on "{self.name}" IRC server', e, self)
             logger.error(error.get_log_line())
             self.state = Server.STATE_CLOSED
             return
@@ -181,20 +170,18 @@ class ServerIRC(Server):
         logger.info(
             f"Waiting for first message from server: {self.name}"
         )
-        first_line = self.read_line_from_socket()
+        first_line = await self.read_line_from_socket()
         # If first line is null, that means connection was closed.
         if first_line is None:
             raise ServerException
         self._welcome_message = first_line + "\n"
         # Send nick and full name to server
-        logger.info(
-            f"Sending nick and user info to server: {self.name}"
-        )
-        self.send_raw(f"NICK {self.get_nick()}")
-        self.send_raw(f"USER {self.get_full_name()}")
+        logger.info(f"Sending nick and user info to server: {self.name}")
+        await self.send_raw(f"NICK {self.get_nick()}")
+        await self.send_raw(f"USER {self.get_full_name()}")
         # Wait for MOTD to end
         while self.state == Server.STATE_CONNECTING:
-            next_welcome_line = self.read_line_from_socket()
+            next_welcome_line = await self.read_line_from_socket()
             if next_welcome_line is None:
                 raise ServerException
             self._welcome_message += next_welcome_line + "\n"
@@ -204,12 +191,12 @@ class ServerIRC(Server):
             ):
                 break
             if next_welcome_line.split()[0] == "PING":
-                self.parse_line_ping(next_welcome_line)
+                await self.parse_line_ping(next_welcome_line)
             if (
                 len(next_welcome_line.split()[1]) == 3
                 and next_welcome_line.split()[1].isdigit()
             ):
-                self.parse_line_numeric(next_welcome_line, False)
+                await self.parse_line_numeric(next_welcome_line, False)
         # Check we're still connecting
         if self.state != Server.STATE_CONNECTING:
             return
@@ -218,24 +205,20 @@ class ServerIRC(Server):
             ident_evt = EventMessage(
                 self,
                 None,
-                self.get_user_by_address(
-                    self.nickserv_nick.lower(), self.nickserv_nick
-                ),
+                self.get_user_by_address(self.nickserv_nick.lower(), self.nickserv_nick),
                 f"IDENTIFY {self.nickserv_pass}",
                 inbound=False,
             )
-            self.send(ident_evt)
+            await self.send(ident_evt)
         # Join channels
-        logger.info(
-            f"Joining channels on {self.name}, identifying."
-        )
+        logger.info(f"Joining channels on {self.name}, identifying.")
         # Join relevant channels
         for channel in self.channel_list:
             if channel.auto_join:
-                self.join_channel(channel)
+                await self.join_channel(channel)
         self.state = Server.STATE_OPEN
 
-    def disconnect(self, force: bool = False) -> None:
+    async def disconnect(self, force: bool = False) -> None:
         """
         Disconnect from the server, ensuring the run thread is ended.
         """
@@ -255,106 +238,92 @@ class ServerIRC(Server):
                 user.set_online(False)
             try:
                 quit_evt = EventQuit(self, None, quit_message, inbound=False)
-                self.send(quit_evt)
+                await self.send(quit_evt)
             except Exception as e:
-                error = ExceptionError(
-                    f'Failed to send quit message on "{self.name}" IRC server',
-                    e,
-                    self,
-                )
+                error = ExceptionError(f'Failed to send quit message on "{self.name}" IRC server', e, self,)
                 logger.error(error.get_log_line())
                 pass
-        with self._connect_lock:
-            if self._socket is not None:
-                self._socket.close()
-            self._socket = None
+        async with self._connect_lock:
+            if self._writer is not None:
+                self._writer.close()
+            self._writer = None
         self.state = Server.STATE_CLOSED
 
-    def reconnect(self) -> None:
-        """
-        Reconnect to a given server. No changes from Server base, just here for clarity
-        """
-        super().reconnect()
-
-    def run(self) -> None:
+    async def run(self) -> None:
         """
         Internal method
         Method to read from stream and process. Will connect and call internal parsing methods or whatnot.
         Needs to be started in it's own thread, only exits when the server connection ends
         """
-        with self._connect_lock:
-            self.connect()
+        async with self._connect_lock:
+            await self.connect()
             while self.state == Server.STATE_OPEN:
                 next_line = None
                 try:
-                    next_line = self.read_line_from_socket()
+                    next_line = await self.read_line_from_socket()
                 except ServerException as e:
-                    error = ExceptionError(
-                        f"Server {self.name} disconnected. Reconnecting.",
-                        e,
-                        self,
-                    )
+                    error = ExceptionError(f"Server {self.name} disconnected. Reconnecting.", e, self,)
                     logger.error(error.get_log_line())
-                    time.sleep(10)
+                    await asyncio.sleep(10)
                     if self.state == Server.STATE_OPEN:
-                        self.disconnect()
-                        self.connect()
+                        await self.disconnect()
+                        await self.connect()
                         logger.info("Reconnected.")
                     continue
                 if next_line is None:
                     if self.state == Server.STATE_OPEN:
-                        self.disconnect()
-                        self.connect()
+                        await self.disconnect()
+                        await self.connect()
                     continue
                 else:
                     # Parse line
-                    Thread(target=self.parse_line, args=(next_line,)).start()
-        self.disconnect()
+                    asyncio.create_task(self.parse_line(next_line))
+        await self.disconnect()
 
-    def send(
+    async def send(
             self,
             event: 'ServerEvent',
             *,
-            after_sent_callback: Callable[['ServerEvent'], None] | None = None
+            after_sent_callback: Awaitable[None] | None = None,
     ) -> None:
         self.outgoing.labels(
             server_type=self.__class__.__name__,
             event_type=event.__class__.__name__
         ).inc()
         if isinstance(event, EventPing):
-            self.send_raw(f"PONG {event.ping_number}")
+            await self.send_raw(f"PONG {event.ping_number}")
         elif isinstance(event, EventQuit):
-            self.send_raw(f"QUIT :{event.quit_message}")
+            await self.send_raw(f"QUIT :{event.quit_message}")
         elif isinstance(event, EventNameChange):
-            self.send_raw(f"NICK {event.new_name}")
+            await self.send_raw(f"NICK {event.new_name}")
         elif isinstance(event, EventJoin):
             if event.password is not None:
-                self.send_raw(
+                await self.send_raw(
                     f"JOIN {event.channel.address} {event.password}"
                 )
             else:
-                self.send_raw(f"JOIN {event.channel.address}")
+                await self.send_raw(f"JOIN {event.channel.address}")
         elif isinstance(event, EventLeave):
             if event.leave_message is not None:
-                self.send_raw(
+                await self.send_raw(
                     f"PART {event.channel.address} {event.leave_message}"
                 )
             else:
-                self.send_raw(f"PART {event.channel.address}")
+                await self.send_raw(f"PART {event.channel.address}")
         elif isinstance(event, EventKick):
-            self.send_raw(
+            await self.send_raw(
                 f"KICK {event.channel.address} {event.kicked_user.address} {event.kick_message}"
             )
         elif isinstance(event, EventInvite):
-            self.send_raw(
+            await self.send_raw(
                 f"INVITE {event.user.address} {event.channel.address}"
             )
         elif isinstance(event, EventMode):
-            self.send_raw(
+            await self.send_raw(
                 f"MODE {event.channel.address} {event.mode_changes}"
             )
             event.log()
-            after_sent_callback(event)
+            await after_sent_callback
             return
         elif isinstance(event, ChannelUserTextEvent):
             msg_type_name = "PRIVMSG"
@@ -385,7 +354,7 @@ class ServerIRC(Server):
                 for data_line_line in data_line_split:
                     if isinstance(event, EventCTCP):
                         data_line_line = f"\x01{data_line_line}\x01"
-                    self.send_raw(
+                    await self.send_raw(
                         f"{msg_type_name} {dest_addr} :{data_line_line}"
                     )
                     # Log sent data, if it's not message or notice
@@ -404,31 +373,33 @@ class ServerIRC(Server):
             logger.error(error.get_log_line())
             raise NotImplementedError()
         event.log()
-        if after_sent_callback:
-            after_sent_callback(event)
+        if after_sent_callback is not None:
+            await after_sent_callback
         return
 
-    def reply(self, old_event, new_event):
-        super().reply(old_event, new_event)
+    async def reply(self, old_event, new_event):
+        await super().reply(old_event, new_event)
         # We can't do any fancy reply mechanics on IRC, so just send the event.
-        self.send(new_event)
+        await self.send(new_event)
 
-    def edit(self, old_event: EventMessage, new_event: EventMessage):
-        super().edit(old_event, new_event)
-        self.edit_by_id(old_event.message_id, new_event)
+    async def edit(self, old_event: EventMessage, new_event: EventMessage):
+        await super().edit(old_event, new_event)
+        await self.edit_by_id(old_event.message_id, new_event)
 
-    def edit_by_id(self, message_id: int, new_event: EventMessage, *, has_photo: bool = False):
+    async def edit_by_id(self, message_id: int, new_event: EventMessage, *, has_photo: bool = False):
         # We can't do any fancy edit mechanics on IRC, so just send the event.
-        self.send(new_event)
+        await self.send(new_event)
 
-    def send_raw(self, data: str) -> None:
+    async def send_raw(self, data: str) -> None:
         """Sends raw data to the server
         :param data: Data to send to server
         """
         if self.state != Server.STATE_CLOSED:
-            self._socket.send((data + endl).encode("utf-8"))
+            data_bytes = (data + endl).encode("utf-8")
+            self._writer.write(data_bytes)
+            await self._writer.drain()
 
-    def join_channel(self, channel_obj: Channel) -> None:
+    async def join_channel(self, channel_obj: Channel) -> None:
         """
         Joins a specified channel
         :param channel_obj: Channel to join
@@ -442,18 +413,18 @@ class ServerIRC(Server):
         join_evt = EventJoin(
             self, channel_obj, None, channel_obj.password, inbound=False
         )
-        self.send(join_evt)
+        await self.send(join_evt)
 
-    def leave_channel(self, channel_obj: Channel) -> None:
+    async def leave_channel(self, channel_obj: Channel) -> None:
         """
         Leaves a specified channel
         :param channel_obj: Channel to leave
         """
-        super().leave_channel(channel_obj)
+        await super().leave_channel(channel_obj)
         # Send PART command
-        self.send(EventLeave(self, channel_obj, None, None, inbound=False))
+        await self.send(EventLeave(self, channel_obj, None, None, inbound=False))
 
-    def parse_line(self, new_line: str) -> None:
+    async def parse_line(self, new_line: str) -> None:
         """
         Parses a line from the IRC server
         :param new_line: New line of data from the server to parse
@@ -465,44 +436,44 @@ class ServerIRC(Server):
             self.parse_line_unhandled(new_line)
             self.parse_line_raw(new_line, "unhandled")
         elif new_line.split()[0] == "PING":
-            self.parse_line_ping(new_line)
+            await self.parse_line_ping(new_line)
             self.parse_line_raw(new_line, "ping")
         elif new_line.split()[1] == "PRIVMSG":
-            self.parse_line_message(new_line)
+            await self.parse_line_message(new_line)
             self.parse_line_raw(new_line, "message")
         elif new_line.split()[1] == "JOIN":
-            self.parse_line_join(new_line)
+            await self.parse_line_join(new_line)
             self.parse_line_raw(new_line, "join")
         elif new_line.split()[1] == "PART":
-            self.parse_line_part(new_line)
+            await self.parse_line_part(new_line)
             self.parse_line_raw(new_line, "part")
         elif new_line.split()[1] == "QUIT":
-            self.parse_line_quit(new_line)
+            await self.parse_line_quit(new_line)
             self.parse_line_raw(new_line, "quit")
         elif new_line.split()[1] == "MODE":
-            self.parse_line_mode(new_line)
+            await self.parse_line_mode(new_line)
             self.parse_line_raw(new_line, "mode")
         elif new_line.split()[1] == "NOTICE":
-            self.parse_line_notice(new_line)
+            await self.parse_line_notice(new_line)
             self.parse_line_raw(new_line, "notice")
         elif new_line.split()[1] == "NICK":
-            self.parse_line_nick(new_line)
+            await self.parse_line_nick(new_line)
             self.parse_line_raw(new_line, "nick")
         elif new_line.split()[1] == "INVITE":
-            self.parse_line_invite(new_line)
+            await self.parse_line_invite(new_line)
             self.parse_line_raw(new_line, "invite")
         elif new_line.split()[1] == "KICK":
-            self.parse_line_kick(new_line)
+            await self.parse_line_kick(new_line)
             self.parse_line_raw(new_line, "kick")
         elif len(new_line.split()[1]) == 3 and new_line.split()[1].isdigit():
-            self.parse_line_numeric(new_line)
+            await self.parse_line_numeric(new_line)
             self.parse_line_raw(new_line, "numeric")
         else:
             self.parse_line_unhandled(new_line)
             self.parse_line_raw(new_line, "unhandled")
         return
 
-    def parse_line_ping(self, ping_line: str) -> None:
+    async def parse_line_ping(self, ping_line: str) -> None:
         """
         Parses a PING message from the server
         :param ping_line: Raw line to be parsed into ping event from the server
@@ -513,7 +484,7 @@ class ServerIRC(Server):
         ping_evt = EventPing(self, ping_number).with_raw_data(RawDataIRC(ping_line))
         # Respond
         pong_evt = ping_evt.get_pong()
-        self.send(pong_evt)
+        await self.send(pong_evt)
         # Print and log
         ping_evt.log()
         self.incoming.labels(
@@ -522,9 +493,9 @@ class ServerIRC(Server):
         ).inc()
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(ping_evt)
+        await function_dispatcher.dispatch_passive(ping_evt)
 
-    def parse_line_message(self, message_line: str) -> None:
+    async def parse_line_message(self, message_line: str) -> None:
         """
         Parses a PRIVMSG message from the server
         :param message_line: full privmsg line to parse from server
@@ -538,7 +509,7 @@ class ServerIRC(Server):
         # Test for CTCP message, hand to CTCP parser if so.
         message_ctcp_bool = message_text[0] == "\x01"
         if message_ctcp_bool:
-            self.parse_line_ctcp(message_line)
+            await self.parse_line_ctcp(message_line)
             return
         # Test for private message or public message.
         message_private_bool = (
@@ -570,20 +541,20 @@ class ServerIRC(Server):
         # Get function dispatcher ready
         function_dispatcher = self.hallo.function_dispatcher
         if message_private_bool:
-            function_dispatcher.dispatch(message_evt)
+            await function_dispatcher.dispatch(message_evt)
         else:
             # Update channel activity
             message_channel.update_activity()
             # Send to function dispatcher, or passive dispatcher
             if message_evt.is_prefixed:
                 if message_evt.is_prefixed is True:
-                    function_dispatcher.dispatch(message_evt)
+                    await function_dispatcher.dispatch(message_evt)
                 else:
-                    function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
+                    await function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
             else:
-                function_dispatcher.dispatch_passive(message_evt)
+                await function_dispatcher.dispatch_passive(message_evt)
 
-    def parse_line_ctcp(self, ctcp_line: str) -> None:
+    async def parse_line_ctcp(self, ctcp_line: str) -> None:
         """
         Parses a CTCP message from the server
         :param ctcp_line: line of CTCP data to parse from the server
@@ -621,21 +592,22 @@ class ServerIRC(Server):
         ).inc()
         # Reply to certain types of CTCP command
         if message_ctcp_command.lower() == "version":
-            ctcp_evt.reply(
+            await ctcp_evt.reply(
                 ctcp_evt.create_response(
                     "\x01VERSION Hallobot:vX.Y:An IRC bot by dr-spangle.\x01",
                     event_class=EventNotice,
                 )
             )
         elif message_ctcp_command.lower() == "time":
+            now = datetime.datetime.now(tz=datetime.timezone.utc)
             time_text = "\x01TIME Fribsday 15 Nov 2024 {:02d}:{:02d}:{:02d} GMT\x01".format(
-                time.gmtime()[3] + 100,
-                time.gmtime()[4] + 20,
-                time.gmtime()[5],
+                now.hour + 100,
+                now.minute + 20,
+                now.second,
             )
-            ctcp_evt.reply(ctcp_evt.create_response(time_text, event_class=EventNotice))
+            await ctcp_evt.reply(ctcp_evt.create_response(time_text, event_class=EventNotice))
         elif message_ctcp_command.lower() == "ping":
-            ctcp_evt.reply(
+            await ctcp_evt.reply(
                 ctcp_evt.create_response(
                     f"\x01PING {message_ctcp_arguments}\x01",
                     event_class=EventNotice,
@@ -647,11 +619,11 @@ class ServerIRC(Server):
                 " mostly roll numbers and choose things,"
                 " dr-spangle built me, if you have any questions he tends to be better at replying than I.\x01"
             )
-            ctcp_evt.reply(
+            await ctcp_evt.reply(
                 ctcp_evt.create_response(hallo_info, event_class=EventNotice)
             )
         elif message_ctcp_command.lower() == "clientinfo":
-            ctcp_evt.reply(
+            await ctcp_evt.reply(
                 ctcp_evt.create_response(
                     "\x01VERSION, NOTICE, TIME, USERINFO and obviously "
                     "CLIENTINFO are supported.\x01",
@@ -660,9 +632,9 @@ class ServerIRC(Server):
             )
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(ctcp_evt)
+        await function_dispatcher.dispatch_passive(ctcp_evt)
 
-    def parse_line_join(self, join_line: str) -> None:
+    async def parse_line_join(self, join_line: str) -> None:
         """
         Parses a JOIN message from the server
         :param join_line: Raw line from server for the JOIN event
@@ -697,9 +669,9 @@ class ServerIRC(Server):
             join_channel.add_user(join_client)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(join_evt)
+        await function_dispatcher.dispatch_passive(join_evt)
 
-    def parse_line_part(self, part_line: str) -> None:
+    async def parse_line_part(self, part_line: str) -> None:
         """
         Parses a PART message from the server
         :param part_line: Raw line from the server to parse for part event
@@ -737,9 +709,9 @@ class ServerIRC(Server):
             part_client.set_online(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(leave_evt)
+        await function_dispatcher.dispatch_passive(leave_evt)
 
-    def parse_line_quit(self, quit_line: str) -> None:
+    async def parse_line_quit(self, quit_line: str) -> None:
         """
         Parses a QUIT message from the server
         :param quit_line: Raw line from server to parse for quit event
@@ -774,9 +746,9 @@ class ServerIRC(Server):
                 user.set_online(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(quit_evt)
+        await function_dispatcher.dispatch_passive(quit_evt)
 
-    def parse_line_mode(self, mode_line: str) -> None:
+    async def parse_line_mode(self, mode_line: str) -> None:
         """
         Parses a MODE message from the server
         :param mode_line: Raw line of mode event to be parsed.
@@ -839,9 +811,9 @@ class ServerIRC(Server):
         ).inc()
         # # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(mode_evt)
+        await function_dispatcher.dispatch_passive(mode_evt)
 
-    def parse_line_notice(self, notice_line: str) -> None:
+    async def parse_line_notice(self, notice_line: str) -> None:
         """
         Parses a NOTICE message from the server
         :param notice_line: Raw line of the NOTICE event from the server
@@ -891,9 +863,9 @@ class ServerIRC(Server):
                     self._check_useridentity_result = False
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(notice_event)
+        await function_dispatcher.dispatch_passive(notice_event)
 
-    def parse_line_nick(self, nick_line: str) -> None:
+    async def parse_line_nick(self, nick_line: str) -> None:
         """
         Parses a NICK message from the server
         :param nick_line: Line from server specifying nick change
@@ -927,9 +899,9 @@ class ServerIRC(Server):
         ).inc()
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(chname_evt)
+        await function_dispatcher.dispatch_passive(chname_evt)
 
-    def parse_line_invite(self, invite_line: str) -> None:
+    async def parse_line_invite(self, invite_line: str) -> None:
         """
         Parses an INVITE message from the server
         :param invite_line: Line from the server specifying invite event
@@ -964,12 +936,12 @@ class ServerIRC(Server):
             inviter_client.rights_check("invite_channel", invite_channel)
             and invited_client_name == self.get_nick()
         ):
-            self.join_channel(invite_channel)
+            await self.join_channel(invite_channel)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(invite_evt)
+        await function_dispatcher.dispatch_passive(invite_evt)
 
-    def parse_line_kick(self, kick_line: str) -> None:
+    async def parse_line_kick(self, kick_line: str) -> None:
         """
         Parses a KICK message from the server
         :param kick_line: Line from the server specifying kick event
@@ -1006,9 +978,9 @@ class ServerIRC(Server):
             kick_channel.set_in_channel(False)
         # Pass to passive FunctionDispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(kick_evt)
+        await function_dispatcher.dispatch_passive(kick_evt)
 
-    def parse_line_numeric(self, numeric_line: str, motd_ended: bool = True) -> None:
+    async def parse_line_numeric(self, numeric_line: str, motd_ended: bool = True) -> None:
         """
         Parses a numeric message from the server
         :param numeric_line: Numeric type line from server.
@@ -1040,7 +1012,7 @@ class ServerIRC(Server):
                 nick_word = self.nick[: -len(nick_numstr)]
                 nick_number = float(nick_numstr)
             new_nick = nick_word + str(nick_number + 1)
-            self.set_nick(new_nick)
+            await self.set_nick(new_nick)
             return
         # Only process further numeric codes if motd has ended
         if not motd_ended:
@@ -1095,7 +1067,7 @@ class ServerIRC(Server):
         """
         pass
 
-    def read_line_from_socket(self) -> str:
+    async def read_line_from_socket(self) -> str:
         """
         Private method to read a line from the IRC socket.
         :return: A line of text from the socket
@@ -1104,7 +1076,7 @@ class ServerIRC(Server):
         while self.state != Server.STATE_CLOSED:
             next_byte = None
             try:
-                next_byte = self._socket.recv(1)
+                next_byte = await self._reader.read(1)
             except socket.timeout as e:
                 if e.args[0] != "timed out":
                     raise ServerException(f"Failed to receive byte. {e}")
@@ -1114,9 +1086,7 @@ class ServerIRC(Server):
             if next_byte is None:
                 continue
             if len(next_byte) != 1:
-                raise ServerException(
-                    f"Length of next byte incorrect: {next_byte}"
-                )
+                raise ServerException(f"Length of next byte incorrect: {next_byte}")
             next_line += next_byte
             if next_line.endswith(endl.encode()):
                 return self.decode_line(next_line[: -len(endl)])
@@ -1135,71 +1105,69 @@ class ServerIRC(Server):
                 output_line = raw_bytes.decode("cp1252")
         return output_line
 
-    def check_channel_user_list(self, channel_obj: Channel) -> None:
+    async def check_channel_user_list(self, channel_obj: Channel) -> None:
         """
         Checks and updates the user list of a specified channel
         :param channel_obj: Channel to check user list of
         """
         # get lock
-        self._check_channeluserlist_lock.acquire()
-        try:
-            self._check_channeluserlist_channel = channel_obj
-            self._check_channeluserlist_done = False
-            # send request
-            self.send_raw(f"NAMES {channel_obj.name}")
-            # loop for 5 seconds
-            for _ in range(10):
-                # sleep 0.5seconds
-                time.sleep(0.5)
-                # if reply is here
-                if self._check_channeluserlist_done:
-                    break
-            # return
-            return
-        finally:
-            self._check_channeluserlist_channel = None
-            self._check_channeluserlist_done = False
-            self._check_channeluserlist_lock.release()
+        async with self._check_channeluserlist_lock:
+            try:
+                self._check_channeluserlist_channel = channel_obj
+                self._check_channeluserlist_done = False
+                # send request
+                await self.send_raw(f"NAMES {channel_obj.name}")
+                # loop for 5 seconds
+                for _ in range(10):
+                    # sleep 0.5seconds
+                    await asyncio.sleep(0.5)
+                    # if reply is here
+                    if self._check_channeluserlist_done:
+                        break
+                # return
+                return
+            finally:
+                self._check_channeluserlist_channel = None
+                self._check_channeluserlist_done = False
 
-    def check_users_online(self, check_user_list: list[str]) -> list[str]:
+    async def check_users_online(self, check_user_list: list[str]) -> list[str]:
         """
         Checks a list of users to see which are online, returns a list of online users
         :param check_user_list: List of names of users to check online status of
         """
         # get lock
-        self._check_usersonline_lock.acquire()
-        try:
-            self._check_usersonline_check_list = check_user_list
-            self._check_usersonline_online_list = None
-            # send request
-            self.send_raw(f"ISON {' '.join(check_user_list)}")
-            # loop for 5 seconds
-            for _ in range(10):
-                # if reply is here
-                if self._check_usersonline_online_list is not None:
-                    # use response
-                    for user_name in self._check_usersonline_check_list:
-                        user_obj = self.get_user_by_address(
-                            user_name.lower(), user_name
-                        )
-                        if user_name in self._check_usersonline_online_list:
-                            user_obj.set_online(True)
-                        else:
-                            user_obj.set_online(False)
-                    # return response
-                    response = self._check_usersonline_online_list
-                    return response
-                # sleep 0.5 seconds
-                time.sleep(0.5)
-            # return empty list
-            return []
-        finally:
-            # release lock
-            self._check_usersonline_check_list = None
-            self._check_usersonline_online_list = None
-            self._check_usersonline_lock.release()
+        async with self._check_usersonline_lock:
+            try:
+                self._check_usersonline_check_list = check_user_list
+                self._check_usersonline_online_list = None
+                # send request
+                await self.send_raw(f"ISON {' '.join(check_user_list)}")
+                # loop for 5 seconds
+                for _ in range(10):
+                    # if reply is here
+                    if self._check_usersonline_online_list is not None:
+                        # use response
+                        for user_name in self._check_usersonline_check_list:
+                            user_obj = self.get_user_by_address(
+                                user_name.lower(), user_name
+                            )
+                            if user_name in self._check_usersonline_online_list:
+                                user_obj.set_online(True)
+                            else:
+                                user_obj.set_online(False)
+                        # return response
+                        response = self._check_usersonline_online_list
+                        return response
+                    # sleep 0.5 seconds
+                    await asyncio.sleep(0.5)
+                # return empty list
+                return []
+            finally:
+                # release lock
+                self._check_usersonline_check_list = None
+                self._check_usersonline_online_list = None
 
-    def check_user_identity(self, user_obj: User) -> bool:
+    async def check_user_identity(self, user_obj: User) -> bool:
         """
         Check if a user is identified and verified
         :param user_obj: User to check identity and verification for
@@ -1211,36 +1179,35 @@ class ServerIRC(Server):
             self.nickserv_nick.lower(), self.nickserv_nick
         )
         # get check user lock
-        self._check_useridentity_lock.acquire()
-        try:
-            self._check_useridentity_user = user_obj.address
-            self._check_useridentity_result = None
-            # send whatever request
-            self.send(
-                EventMessage(
-                    self,
-                    None,
-                    nickserv_obj,
-                    f"{self.nickserv_ident_command} {user_obj.address}",
-                    inbound=False,
+        async with self._check_useridentity_lock:
+            try:
+                self._check_useridentity_user = user_obj.address
+                self._check_useridentity_result = None
+                # send whatever request
+                await self.send(
+                    EventMessage(
+                        self,
+                        None,
+                        nickserv_obj,
+                        f"{self.nickserv_ident_command} {user_obj.address}",
+                        inbound=False,
+                    )
                 )
-            )
-            # loop for 5 seconds
-            for _ in range(10):
-                # if response
-                if self._check_useridentity_result is not None:
-                    # return
-                    response = self._check_useridentity_result
-                    return response
-                # sleep 0.5
-                time.sleep(0.5)
-            # return false
-            return False
-        finally:
-            # release lock
-            self._check_useridentity_user = None
-            self._check_useridentity_result = None
-            self._check_useridentity_lock.release()
+                # loop for 5 seconds
+                for _ in range(10):
+                    # if response
+                    if self._check_useridentity_result is not None:
+                        # return
+                        response = self._check_useridentity_result
+                        return response
+                    # sleep 0.5
+                    await asyncio.sleep(0.5)
+                # return false
+                return False
+            finally:
+                # release lock
+                self._check_useridentity_user = None
+                self._check_useridentity_result = None
 
     def handle_user_list(self, channel: Channel, user_name_list: str) -> None:
         """
@@ -1273,7 +1240,7 @@ class ServerIRC(Server):
         for user in remove_users:
             channel.remove_user(user)
 
-    def set_nick(self, nick: str) -> None:
+    async def set_nick(self, nick: str) -> None:
         """
         Nick setter
         :param nick: New nickname to use on the server
@@ -1286,7 +1253,7 @@ class ServerIRC(Server):
         self.nick = nick
         if nick != old_nick:
             nick_evt = EventNameChange(self, hallo_user, old_nick, nick, inbound=False)
-            self.send(nick_evt)
+            await self.send(nick_evt)
 
     def get_server_port(self) -> int:
         """server_port getter"""
@@ -1329,7 +1296,7 @@ class ServerIRC(Server):
         """nickserv_pass getter"""
         return self.nickserv_pass
 
-    def set_nickserv_pass(self, nickserv_pass: str | None) -> None:
+    async def set_nickserv_pass(self, nickserv_pass: str | None) -> None:
         """
         nickserv_pass setter
         :param nickserv_pass: Nickserv password for hallo to identify
@@ -1340,7 +1307,7 @@ class ServerIRC(Server):
             nickserv_obj = self.get_user_by_address(
                 self.nickserv_nick.lower(), self.nickserv_nick
             )
-            self.send(
+            await self.send(
                 EventMessage(
                     self,
                     None,
@@ -1375,11 +1342,12 @@ class ServerIRC(Server):
         if self.full_name is not None:
             json_obj["full_name"] = self.full_name
         if self.nickserv_pass is not None:
-            json_obj["nickserv"] = {}  # TODO
-            json_obj["nickserv"]["nick"] = self.nickserv_nick
-            json_obj["nickserv"]["password"] = self.nickserv_pass
-            json_obj["nickserv"]["identity_command"] = self.nickserv_ident_command
-            json_obj["nickserv"]["identity_response"] = self.nickserv_ident_response
+            json_obj["nickserv"] = {
+                "nick": self.nickserv_nick,
+                "password": self.nickserv_pass,
+                "identity_command": self.nickserv_ident_command,
+                "identity_response": self.nickserv_ident_response,
+            }
         return json_obj
 
     @staticmethod

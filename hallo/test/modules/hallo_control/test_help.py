@@ -6,9 +6,9 @@ from hallo.modules.hallo_control import Help
 from hallo.test.server_mock import ServerMock
 
 
-def test_help_all(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_help_all(hallo_getter):
+    test_hallo = await hallo_getter({"hallo_control"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -19,7 +19,7 @@ def test_help_all(hallo_getter):
     assert num_funcs > 4, "Not enough functions listed."
 
 
-def test_help_mock_func_disp():
+async def test_help_mock_func_disp():
     # Set up mock objects
     mock_hallo = Hallo()
     mock_func_disp = FunctionDispatcher(set(), mock_hallo)
@@ -31,7 +31,7 @@ def test_help_mock_func_disp():
     mock_server.name = "test_serv1"
     mock_user = mock_server.get_user_by_address("test_user1".lower(), "test_user1")
     # Test things
-    mock_func_disp.dispatch(EventMessage(mock_server, None, mock_user, "help"))
+    await mock_func_disp.dispatch(EventMessage(mock_server, None, mock_user, "help"))
     data = mock_server.get_send_data(1, mock_user, EventMessage)
     assert "error" not in data[0].text.lower()
     assert "list of available functions:" in data[0].text.lower()
@@ -39,9 +39,9 @@ def test_help_mock_func_disp():
     assert "function no doc" in data[0].text.lower()
 
 
-def test_help_func(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_help_func(hallo_getter):
+    test_hallo = await hallo_getter({"hallo_control"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help help")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -49,9 +49,9 @@ def test_help_func(hallo_getter):
     assert 'documentation for "help":' in data[0].text.lower()
 
 
-def test_help_no_func(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_help_no_func(hallo_getter):
+    test_hallo = await hallo_getter({"hallo_control"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help not a real function")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -59,12 +59,12 @@ def test_help_no_func(hallo_getter):
     assert "no function by that name exists" in data[0].text.lower()
 
 
-def test_help_no_doc(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+async def test_help_no_doc(hallo_getter):
+    test_hallo = await hallo_getter({"hallo_control"})
     # Manually add FunctionMock to function dispatcher
     test_hallo.function_dispatcher.load_function(None, FunctionMockNoDoc)
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help function no doc")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -74,12 +74,12 @@ def test_help_no_doc(hallo_getter):
         test_hallo.function_dispatcher.unload_function(None, FunctionMockNoDoc)
 
 
-def test_help_mock_func(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+async def test_help_mock_func(hallo_getter):
+    test_hallo = await hallo_getter({"hallo_control"})
     # Manually add FunctionMock to function dispatcher
     test_hallo.function_dispatcher.load_function(None, FunctionMock)
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "help function mock")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -96,7 +96,7 @@ class FunctionMock(Function):
         self.names = {"function mock", "mock function"}
         self.help_docs = "Example help, please ignore"
 
-    def run(self, event):
+    async def run(self, event):
         pass
 
 
@@ -107,5 +107,5 @@ class FunctionMockNoDoc(Function):
         self.names = {self.help_name}
         self.help_docs = None
 
-    def run(self, event):
+    async def run(self, event):
         pass

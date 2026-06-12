@@ -2,8 +2,8 @@ from hallo.events import EventMessage
 from hallo.modules.random.thought_for_the_day import ThoughtForTheDay
 
 
-def test_tftd(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+async def test_tftd(mock_chooser, hallo_getter):
+    test_hallo = await hallo_getter({"random"})
     # Get proverb list
     n = ThoughtForTheDay()
     thought_list = n.thought_list
@@ -13,7 +13,7 @@ def test_tftd(mock_chooser, hallo_getter):
         # Set RNG
         mock_chooser.choice = x
         # Check function
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "thought for the day")
         )
         data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)

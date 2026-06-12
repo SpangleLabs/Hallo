@@ -1,5 +1,6 @@
+import asyncio
 from abc import ABCMeta, abstractmethod
-from typing import Optional, TYPE_CHECKING, Callable
+from typing import Optional, TYPE_CHECKING, Awaitable
 
 from prometheus_client import Counter
 
@@ -55,17 +56,14 @@ class Server(metaclass=ABCMeta):
         self.auto_connect = (
             True  # Whether to automatically connect to this server when hallo starts
         )
-        self.channel_list = (
-            []
-        )  # List of channels on this server (which may or may not be currently active)
-        """ :type : list[Destination.Channel]"""
-        self.user_list = []  # Users on this server (not all of which are online)
-        """ :type : list[Destination.User]"""
+        # List of channels on this server (which may or may not be currently active)
+        self.channel_list: list[Channel] = []
+        # Users on this server (not all of which are online)
+        self.user_list: list[User] = []
         self.nick = None  # Nickname to use on this server
         self.prefix = None  # Prefix to use with functions on this server
         self.full_name = None  # Full name to use on this server
-        self.permission_mask = PermissionMask()  # PermissionMask for the server
-        """ :type : PermissionMask"""
+        self.permission_mask: PermissionMask = PermissionMask()  # PermissionMask for the server
         # Dynamic/unsaved class variables
         self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
         # Metrics
@@ -89,24 +87,24 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def disconnect(self, force: bool = False) -> None:
+    async def disconnect(self, force: bool = False) -> None:
         """
         Disconnects from the server, shutting down remaining threads
         """
         raise NotImplementedError
 
-    def reconnect(self) -> None:
+    async def reconnect(self) -> None:
         """
         Disconnects and reconnects from the server
         """
-        self.disconnect()
+        await self.disconnect()
         self.start()
 
-    def send(
+    async def send(
             self,
             event: 'ServerEvent',
             *,
-            after_sent_callback: Callable[['ServerEvent'], None] | None = None
+            after_sent_callback: Awaitable[None] | None = None,
     ) -> None:
         """
         Sends a message to the server, or a specific channel in the server
@@ -115,7 +113,7 @@ class Server(metaclass=ABCMeta):
         """
         raise NotImplementedError
 
-    def reply(
+    async def reply(
             self,
             old_event: 'ChannelUserTextEvent',
             new_event: 'ChannelUserTextEvent'
@@ -123,9 +121,7 @@ class Server(metaclass=ABCMeta):
         """
         Sends a message as a reply to another message, such as a response to a function call
         :param old_event: The event which was received, to reply to
-        :type old_event: events.ChannelUserTextEvent
         :param new_event: The event to be sent
-        :type new_event: events.ChannelUserTextEvent
         """
         # This method will just do some checks, implementations will have to actually send events
         if not old_event.is_inbound or new_event.is_inbound:
@@ -144,7 +140,7 @@ class Server(metaclass=ABCMeta):
             )
         return
 
-    def edit(
+    async def edit(
             self,
             old_event: 'ChannelUserTextEvent',
             new_event: 'ChannelUserTextEvent'
@@ -172,7 +168,7 @@ class Server(metaclass=ABCMeta):
         return
 
     @abstractmethod
-    def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
+    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
         raise NotImplementedError
 
     def to_json(self) -> dict:
@@ -187,7 +183,7 @@ class Server(metaclass=ABCMeta):
             return self.hallo.default_nick
         return self.nick
 
-    def set_nick(self, nick: str) -> None:
+    async def set_nick(self, nick: str) -> None:
         """
         Nick setter
         :param nick: New nick for hallo to use on this server
@@ -279,14 +275,14 @@ class Server(metaclass=ABCMeta):
         """
         self.channel_list.append(channel_obj)
 
-    def join_channel(self, channel_obj: Channel) -> None:
+    async def join_channel(self, channel_obj: Channel) -> None:
         """
         Joins a specified channel
         :param channel_obj: Channel to join
         """
         raise NotImplementedError
 
-    def leave_channel(self, channel_obj: Channel) -> None:
+    async def leave_channel(self, channel_obj: Channel) -> None:
         """
         Leaves a specified channel
         :param channel_obj: Channel for hallo to leave
@@ -351,7 +347,7 @@ class Server(metaclass=ABCMeta):
         # Fallback to the parent Hallo's decision.
         return self.hallo.rights_check(right_name)
 
-    def check_user_identity(self, user_obj: User) -> bool:
+    async def check_user_identity(self, user_obj: User) -> bool:
         """
         Check if a user is identified and verified
         :param user_obj: User to check identity of

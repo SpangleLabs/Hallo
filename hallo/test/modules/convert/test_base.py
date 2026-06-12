@@ -1,4 +1,4 @@
-from threading import Thread
+import asyncio
 
 import gc
 
@@ -10,7 +10,7 @@ import time
 
 
 class TestBase(unittest.TestCase):
-    def setUp(self):
+    async def setUp(self):
         # Create a Hallo
         self.hallo = Hallo()
         # Only the required modules, only 1 (mock) server
@@ -22,9 +22,8 @@ class TestBase(unittest.TestCase):
         self.server = ServerMock(self.hallo)
         self.server.name = "mock-server"
         self.hallo.add_server(self.server)
-        # Start hallo thread
-        self.hallo_thread = Thread(target=self.hallo.start,)
-        self.hallo_thread.start()
+        # Start hallo task
+        self.hallo.start_task()
         # Create test users and channel, and configure them
         self.hallo_user = self.server.get_user_by_address(
             self.server.get_nick().lower(), self.server.get_nick()
@@ -38,7 +37,7 @@ class TestBase(unittest.TestCase):
         # Wait until hallo is open
         count = 0
         while not self.hallo.open:
-            time.sleep(0.01)
+            await asyncio.sleep(0.01)
             count += 1
             assert count < 1000, "Hallo took too long to start."
             if count > 1000:
@@ -46,9 +45,9 @@ class TestBase(unittest.TestCase):
         # Clear any data in the server
         self.server.get_send_data()
 
-    def tearDown(self):
-        self.hallo.close()
-        self.hallo_thread.join()
+    async def tearDown(self):
+        await self.hallo.close()
+        asyncio.get_event_loop().run_until_complete(self.hallo.end_task())
 
     @classmethod
     def tearDownClass(cls):

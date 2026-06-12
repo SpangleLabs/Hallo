@@ -20,8 +20,8 @@ class InSpace(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the number of people in space right now, and their names. Format: in space"
 
-    def run(self, event):
-        space_dict = Commons.load_url_json(
+    async def run(self, event):
+        space_dict = await Commons.load_url_json(
             "https://www.howmanypeopleareinspacerightnow.com/space.json"
         )
         space_number = str(space_dict["number"])
@@ -37,7 +37,7 @@ class InSpace(Function):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {EventMessage}
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
         if not isinstance(event, EventMessage):
             return

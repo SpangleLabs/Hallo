@@ -1,5 +1,5 @@
+import asyncio
 import re
-import time
 
 from hallo.events import EventMessage
 from hallo.function import Function
@@ -25,7 +25,7 @@ class Foof(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "FOOOOOOOOOF. Format: foof"
 
-    def run(self, event):
+    async def run(self, event):
         """FOOOOOOOOOF. Format: foof"""
         rand = Commons.get_random_int(0, 60)[0]
         if rand <= 20:
@@ -35,8 +35,8 @@ class Foof(Function):
         else:
             if rand == 40 + 15:
                 server_obj = event.server
-                server_obj.send(event.create_response("Powering up..."))
-                time.sleep(5)
+                await server_obj.send(event.create_response("Powering up..."))
+                await asyncio.sleep(5)
                 return event.create_response(
                     "d" * 100 + "o" * 1000 + "f" * 200 + "!" * 50
                 )
@@ -49,7 +49,7 @@ class Foof(Function):
         self.names.add(self.help_name)
         return self.names
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
         if not isinstance(event, EventMessage):
             return

@@ -1,7 +1,13 @@
 import time
 
+from hallo import user_group
 from hallo.permission_mask import PermissionMask
 from abc import ABCMeta
+from typing import TYPE_CHECKING, Any, Optional
+
+if TYPE_CHECKING:
+    from hallo.server import Server
+    from hallo.user_group import UserGroup
 
 
 class Destination(metaclass=ABCMeta):
@@ -9,126 +15,93 @@ class Destination(metaclass=ABCMeta):
     Abstract class for Channel and User. It just means messages can be sent to these entities.
     """
 
-    def __init__(self, server, address, name):
-        self.server = server  # The server object this destination belongs to
-        """:type : Server.Server"""
-        self.address = address
-        """:type : str"""
-        self.name = name  # Destination name, where to send messages
-        """:type : str"""
-        self.logging = True  # Whether logging is enabled for this destination
-        """:type : bool"""
-        self.last_active = None  # Timestamp of when they were last active
-        """:type : float | None"""
-        self.use_caps_lock = (
-            False  # Whether to use caps lock when communicating to this destination
-        )
-        """:type : bool"""
-        self.permission_mask = (
-            PermissionMask()
-        )  # PermissionMask for the destination object
-        """:type : PermissionMask.PermissionMask"""
-        self.memberships_list = set()  # Set of ChannelMemberships for User or Channel
-        """:type : set[ChannelMembership]"""
+    def __init__(self, server: 'Server', address: str, name: str) -> None:
+        self.server: 'Server' = server  # The server object this destination belongs to
+        self.address: str = address
+        self.name: str = name  # Destination name, where to send messages
+        self.logging: bool = True  # Whether logging is enabled for this destination
+        self.last_active: float = None  # Timestamp of when they were last active
+        self.use_caps_lock: bool = False  # Whether to use caps lock when communicating to this destination
+        self.permission_mask: PermissionMask = PermissionMask()  # PermissionMask for the destination object
+        self.memberships_list: set[ChannelMembership] = set()  # Set of ChannelMemberships for User or Channel
 
-    def is_channel(self):
+    def is_channel(self) -> bool:
         """
         Boolean, whether the destination is a channel.
-        :rtype : bool
         """
-        if isinstance(self, Channel):
-            return True
-        else:
-            return False
+        return isinstance(self, Channel)
 
-    def is_user(self):
+    def is_user(self) -> bool:
         """
         Boolean, whether the destination is a user.
-        :rtype : bool
         """
-        if isinstance(self, Channel):
-            return False
-        else:
-            return True
+        return not isinstance(self, Channel)
 
-    def update_activity(self):
+    def update_activity(self) -> None:
         """Updates LastActive timestamp"""
         self.last_active = time.time()
 
-    def is_persistent(self):
+    def is_persistent(self) -> bool:
         """
         Defines whether a Destination object is persistent.
         That is to say, whether it needs saving, or can be generated anew.
-        :rtype : bool
         """
         raise NotImplementedError
 
-    def rights_check(self, right_name):
+    def rights_check(self, right_name: str) -> bool:
         raise NotImplementedError
 
 
 class Channel(Destination):
-    def __init__(self, server, address, name):
+    def __init__(self, server: 'Server', address: str, name: str) -> None:
         """
         Constructor for channel object
-        :type name: str
-        :type server: server.Server
         """
         super().__init__(server, address, name)
-        self.password = None  # Channel password, or none.
-        """:type : str | None"""
-        self.in_channel = False  # Whether or not hallo is in the channel
-        """:type : bool"""
-        self.passive_enabled = True  # Whether to use passive functions in the channel
-        """:type : bool"""
-        self.auto_join = (
-            False  # Whether hallo should automatically join this channel when loading
-        )
-        """:type : bool"""
-        self.prefix = None  # Prefix for calling functions. None means inherit from Server. False means use nick.
-        """:type : bool | None | str"""
+        self.password: str | None = None  # Channel password, or none.
+        self.in_channel: bool = False  # Whether or not hallo is in the channel
+        self.passive_enabled: bool = True  # Whether to use passive functions in the channel
+        self.auto_join: bool = False  # Whether hallo should automatically join this channel when loading
+        # Prefix for calling functions. None means inherit from Server. False means use nick.
+        self.prefix: str | bool | None = None
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'Channel') -> bool:
         return (
             isinstance(other, Channel)
             and self.server == other.server
             and self.address == other.address
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.address)
 
-    def get_prefix(self):
+    def get_prefix(self) -> bool | str:
         """
         Returns the channel prefix.
-        :rtype : bool | str
         """
         if self.prefix is None:
             return self.server.get_prefix()
         return self.prefix
 
-    def get_user_list(self):
+    def get_user_list(self) -> set['User']:
         """
         Returns the full user list of the channel
-        :rtype : set[User]
         """
         return set([membership.user for membership in self.memberships_list])
 
-    def add_user(self, user):
+    def add_user(self, user: 'User') -> None:
         """
         Adds a new user to a given channel
         :param user: User object to add to channel's user list
-        :type user: User
         """
         chan_membership = ChannelMembership(self, user)
         self.memberships_list.add(chan_membership)
         user.memberships_list.add(chan_membership)
 
-    def set_user_list(self, user_list):
+    def set_user_list(self, user_list: set['User']) -> None:
         """
         Sets the entire user list of a channel
         :param user_list: List of users which are currently in the channel.
-        :type user_list: set[User]
         """
         # Remove any users not in the given user list
         remove_memberships = []
@@ -143,11 +116,10 @@ class Channel(Destination):
             if user not in [membership.user for membership in self.memberships_list]:
                 self.add_user(user)
 
-    def remove_user(self, user):
+    def remove_user(self, user: 'User') -> None:
         """
         Removes a user from a given channel
         :param user: User to remove from channel's user list
-        :type user: User
         """
         chan_membership = ChannelMembership(self, user)
         try:
@@ -159,32 +131,27 @@ class Channel(Destination):
         except KeyError:
             pass
 
-    def is_user_in_channel(self, user):
+    def is_user_in_channel(self, user: 'User') -> bool:
         """
         Returns a boolean as to whether the user is in this channel
         :param user: User being checked
-        :type user: User
-        :rtype : bool
         """
         return user in [membership.user for membership in self.memberships_list]
 
-    def get_membership_by_user(self, user):
+    def get_membership_by_user(self, user: 'User') -> Optional['ChannelMembership']:
         """
         Returns the channel membership matching this user, or None
         :param user: The user to get membership for
-        :type user: User
-        :rtype : ChannelMembership | None
         """
         for membership in self.memberships_list:
             if membership.user == user:
                 return membership
         return None
 
-    def set_in_channel(self, in_channel):
+    def set_in_channel(self, in_channel: bool) -> None:
         """
         Sets whether hallo is in this channel
         :param in_channel: Boolean, whether hallo is in this channel.
-        :type in_channel: bool
         """
         self.in_channel = in_channel
         if in_channel is False:
@@ -205,7 +172,7 @@ class Channel(Destination):
         # Fallback to the parent Server's decision.
         return self.server.rights_check(right_name)
 
-    def is_persistent(self):
+    def is_persistent(self) -> bool:
         """Defines whether Channel is persistent. That is to say, whether it needs saving, or can be generated anew."""
         # If you need to rejoin this channel, then you need to save it
         if self.auto_join is True:
@@ -228,18 +195,18 @@ class Channel(Destination):
         # Otherwise it can be generated anew to be identical.
         return False
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """
         Returns a dictionary which can be serialised into a json config object
-        :return: dict
         """
-        json_obj = dict()
-        json_obj["name"] = self.name
-        json_obj["address"] = self.address
-        json_obj["logging"] = self.logging
-        json_obj["caps_lock"] = self.use_caps_lock
-        json_obj["passive_enabled"] = self.passive_enabled
-        json_obj["auto_join"] = self.auto_join
+        json_obj = {
+            "name": self.name,
+            "address": self.address,
+            "logging": self.logging,
+            "caps_lock": self.use_caps_lock,
+            "passive_enabled": self.passive_enabled,
+            "auto_join": self.auto_join,
+        }
         if self.password is not None:
             json_obj["password"] = self.password
         if not self.permission_mask.is_empty():
@@ -247,7 +214,7 @@ class Channel(Destination):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, server):
+    def from_json(json_obj: dict, server: 'Server') -> 'Channel':
         name = json_obj["name"]
         address = json_obj["address"]
         new_channel = Channel(server, address, name)
@@ -265,72 +232,60 @@ class Channel(Destination):
 
 
 class User(Destination):
-    def __init__(self, server, address, name):
+    def __init__(self, server: 'Server', address: str, name: str) -> None:
         """
         Constructor for user object
         :param name: Name of the user
-        :type name: str
         :param server: Server the user is on
-        :type server: server.Server
         """
         super().__init__(server, address, name)
-        """:type : str"""
-        self.identified = False  # Whether the user is identified (with nickserv)
-        """:type : bool"""
-        self.online = False  # Whether or not the user is online
-        """:type : bool"""
-        self.user_group_list = set()  # List of UserGroups this User is a member of
-        """:type : set[UserGroup.UserGroup]"""
-        self.extra_data_dict = (
-            dict()
-        )  # Dictionary of extra data, in the format of str->Any
-        """:type : dict[str, Any]"""
+        self.identified: bool = False  # Whether the user is identified (with nickserv)
+        self.online: bool = False  # Whether or not the user is online
+        self.user_group_list: set['UserGroup'] = set()  # List of UserGroups this User is a member of
+        self.extra_data_dict: dict[str, Any] = {}  # Dictionary of extra data, in the format of str->Any
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'User') -> bool:
         return (
             isinstance(other, User)
             and self.server == other.server
             and self.address == other.address
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.address)
 
-    def is_identified(self):
+    async def is_identified(self) -> bool:
         """
         Checks whether this user is identified
-        :rtype : bool
         """
         if not self.identified:
-            self.check_identity()
+            await self.check_identity()
         return self.identified
 
-    def check_identity(self):
+    async def check_identity(self) -> None:
         """Checks with the server whether this user is identified."""
-        identity_result = self.server.check_user_identity(self)
+        identity_result = await self.server.check_user_identity(self)
         self.identified = identity_result
 
-    def add_user_group(self, new_user_group):
+    def add_user_group(self, new_user_group: 'UserGroup') -> None:
         """
         Adds a User to a UserGroup
         :param new_user_group: User group to add the user to
-        :type new_user_group: user_group.UserGroup
         """
         self.user_group_list.add(new_user_group)
 
-    def get_user_group_by_name(self, user_group_name):
+    def get_user_group_by_name(self, user_group_name: str) -> Optional['UserGroup']:
         """
         Returns the UserGroup with the matching name
         :param user_group_name: Returns the user group by the specified name that this user is in
         :type user_group_name: str
-        :rtype : user_group.UserGroup | None
         """
         for user_group in self.user_group_list:
             if user_group.name == user_group_name:
                 return user_group
         return None
 
-    def remove_user_group(self, user_group):
+    def remove_user_group(self, user_group: 'UserGroup') -> None:
         """
         Removes the UserGroup by the given name from a user
         :param user_group: Removes the user group matching this name that the user is in
@@ -338,27 +293,24 @@ class User(Destination):
         """
         self.user_group_list.remove(user_group)
 
-    def get_channel_list(self):
+    def get_channel_list(self) -> set['Channel']:
         """
         Returns a list of channels
         :return: list of channels the user is in
-        :rtype: set[Channel]
         """
         return set([membership.channel for membership in self.memberships_list])
 
-    def set_online(self, online):
+    def set_online(self, online: bool) -> None:
         """
         Sets whether the user is online
         :param online: Boolean, whether the user is online
-        :type online: bool
         """
         self.online = online
         if online is False:
             self.identified = False
             for membership in self.memberships_list:
                 membership.channel.memberships_list.discard(membership)
-            self.memberships_list = set()
-            """:type : set[ChannelMembership]"""
+            self.memberships_list: set['ChannelMembership'] = set()
 
     def rights_check(self, right_name: str, channel_obj: Channel | None = None) -> bool:
         """
@@ -385,7 +337,7 @@ class User(Destination):
         # Fall back to the parent Server's decision.
         return self.server.rights_check(right_name)
 
-    def is_persistent(self):
+    def is_persistent(self) -> bool:
         """Defines whether User is persistent. That is to say, whether it needs saving, or can be generated anew."""
         # If user is in any groups, save it
         if len(self.user_group_list) != 0:
@@ -405,19 +357,17 @@ class User(Destination):
         # Otherwise it can be generated anew to be identical.
         return False
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """
         Creates a dict of the user object, to serialise and store as json configuration
-        :return: dict
         """
-        json_obj = dict()
-        json_obj["name"] = self.name
-        json_obj["address"] = self.address
-        json_obj["logging"] = self.logging
-        json_obj["caps_lock"] = self.use_caps_lock
-        json_obj["user_groups"] = []
-        for user_group in self.user_group_list:
-            json_obj["user_groups"].append(user_group.name)
+        json_obj = {
+            "name": self.name,
+            "address": self.address,
+            "logging": self.logging,
+            "caps_lock": self.use_caps_lock,
+            "user_groups": [user_group.name for user_group in self.user_group_list]
+        }
         if not self.permission_mask.is_empty():
             json_obj["permission_mask"] = self.permission_mask.to_json()
         if self.extra_data_dict:
@@ -425,7 +375,7 @@ class User(Destination):
         return json_obj
 
     @staticmethod
-    def from_json(json_obj, server):
+    def from_json(json_obj: dict, server: 'Server') -> 'User':
         name = json_obj["name"]
         address = json_obj["address"]
         new_user = User(server, address, name)
@@ -445,25 +395,23 @@ class User(Destination):
 
 
 class ChannelMembership:
-    def __init__(self, channel, user):
+    def __init__(self, channel: Channel, user: User) -> None:
         """
         Constructor for ChannelMembership
         :param channel: Which channel is this a membership of
-        :type channel: Channel
         :param user: Which use is the member
-        :type user: User
         """
-        self.channel = channel
-        self.user = user
-        self.is_op = False
-        self.is_voice = False
-        self.join_time = time.time()
+        self.channel: Channel = channel
+        self.user: User = user
+        self.is_op: bool = False
+        self.is_voice: bool = False
+        self.join_time: float = time.time()
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'ChannelMembership') -> bool:
         return isinstance(other, ChannelMembership) and (self.channel, self.user) == (
             other.channel,
             other.user,
         )
 
-    def __hash__(self):
-        return (self.channel, self.user).__hash__()
+    def __hash__(self) -> int:
+        return hash((self.channel, self.user))

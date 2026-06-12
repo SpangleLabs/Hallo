@@ -47,7 +47,7 @@ class HigherOrLower(Function):
         return {EventMessage}
 
     # Interesting functions from here
-    def run(self, event):
+    async def run(self, event):
         line_clean = event.command_args.strip().lower()
         if line_clean in [""] + self.START_CMDS:
             return event.create_response(
@@ -76,7 +76,7 @@ class HigherOrLower(Function):
         output_string += '"higher_or_lower end" to quit the game.'
         return event.create_response(output_string)
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
         if not isinstance(event, EventMessage):
             return

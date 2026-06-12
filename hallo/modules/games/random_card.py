@@ -20,7 +20,7 @@ class RandomCard(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Picks a random card from a deck. Format: random_card"
 
-    def run(self, event):
+    async def run(self, event):
         new_deck = hallo.modules.games.cards.Deck()
         new_deck.shuffle()
         random_card = new_deck.get_next_card()

@@ -2,11 +2,11 @@ from hallo.events import EventMessage
 from hallo.hallo import Hallo
 
 
-def test_shutdown(hallo_getter):
-    test_hallo = hallo_getter({"hallo_control"})
+async def test_shutdown(hallo_getter):
+    test_hallo = await hallo_getter({"hallo_control"})
     mock_hallo = HalloMock()
     test_hallo.test_user.server.hallo = mock_hallo
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "shutdown")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)

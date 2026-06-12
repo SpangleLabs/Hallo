@@ -19,7 +19,7 @@ class Deer(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Ascii art deer. Format: deer"
 
-    def run(self, event):
+    async def run(self, event):
         """ascii art deer. Format: deer"""
         deer = r"""   /|       |\
 `__\\       //__'

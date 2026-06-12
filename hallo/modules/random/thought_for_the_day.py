@@ -30,7 +30,7 @@ class ThoughtForTheDay(Function):
     def load_thought_list(self):
         self.thought_list = Commons.read_file_to_list("store/WH40K_ToTD2.txt")
 
-    def run(self, event):
+    async def run(self, event):
         """WH40K Thought for the day. Format: thought_for_the_day"""
         thought = Commons.get_random_choice(self.thought_list)[0]
         if thought[-1] not in [".", "!", "?"]:

@@ -3,8 +3,8 @@ from hallo.server import Server
 from hallo.test.server_mock import ServerMock
 
 
-def test_invite_not_irc(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_not_irc(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = "NOT_IRC"
@@ -16,7 +16,7 @@ def test_invite_not_irc(hallo_getter):
         serv1.get_user_by_address(serv1.get_nick().lower(), serv1.get_nick())
     )
     try:
-        test_hallo.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite"))
+        await test_hallo.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite"))
         data = serv1.get_send_data(1, chan1, EventMessage)
         assert "error" in data[0].text.lower()
         assert "only available for irc" in data[0].text.lower()
@@ -24,8 +24,8 @@ def test_invite_not_irc(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_0_fail(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_0_fail(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -41,7 +41,7 @@ def test_invite_0_fail(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite"))
+        await test_hallo.function_dispatcher.dispatch(EventMessage(serv1, chan1, user1, "invite"))
         data = serv1.get_send_data(1, chan1, EventMessage)
         assert "error" in data[0].text.lower()
         assert "specify a user to invite and/or a channel" in data[0].text.lower()
@@ -49,8 +49,8 @@ def test_invite_0_fail(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1priv_not_known(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1priv_not_known(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -65,7 +65,7 @@ def test_invite_1priv_not_known(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, None, user1, "invite other_channel")
         )
         data = serv1.get_send_data(1, user1, EventMessage)
@@ -75,8 +75,8 @@ def test_invite_1priv_not_known(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1priv_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1priv_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -92,7 +92,7 @@ def test_invite_1priv_not_in_channel(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, None, user1, "invite test_chan2")
         )
         data = serv1.get_send_data(1, user1, EventMessage)
@@ -102,8 +102,8 @@ def test_invite_1priv_not_in_channel(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1priv_user_already_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1priv_user_already_there(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -117,7 +117,7 @@ def test_invite_1priv_user_already_there(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, None, user1, "invite test_chan1")
         )
         data = serv1.get_send_data(1, user1, EventMessage)
@@ -127,8 +127,8 @@ def test_invite_1priv_user_already_there(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1priv_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1priv_no_power(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -141,7 +141,7 @@ def test_invite_1priv_no_power(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = False
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, None, user1, "invite test_chan1")
         )
         data = serv1.get_send_data(1, user1, EventMessage)
@@ -151,8 +151,8 @@ def test_invite_1priv_no_power(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1priv(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1priv(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -165,7 +165,7 @@ def test_invite_1priv(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, None, user1, "invite test_chan1")
         )
         data = serv1.get_send_data(2)
@@ -180,8 +180,8 @@ def test_invite_1priv(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1_chan_user_already_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1_chan_user_already_there(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -206,7 +206,7 @@ def test_invite_1_chan_user_already_there(hallo_getter):
     chan2_hallo = chan2.get_membership_by_user(user_hallo)
     chan2_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_chan2")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
@@ -216,8 +216,8 @@ def test_invite_1_chan_user_already_there(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1_chan_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1_chan_no_power(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -239,7 +239,7 @@ def test_invite_1_chan_no_power(hallo_getter):
     chan2_hallo = chan2.get_membership_by_user(user_hallo)
     chan2_hallo.is_op = False
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_chan2")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
@@ -249,8 +249,8 @@ def test_invite_1_chan_no_power(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1_chan(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1_chan(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -272,7 +272,7 @@ def test_invite_1_chan(hallo_getter):
     chan2_hallo = chan2.get_membership_by_user(user_hallo)
     chan2_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_chan2")
         )
         data = serv1.get_send_data(2)
@@ -287,8 +287,8 @@ def test_invite_1_chan(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1_user_already_here(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1_user_already_here(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -306,7 +306,7 @@ def test_invite_1_user_already_here(hallo_getter):
     chan1_hallo.is_op = True
     chan1.add_user(user2)
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_user2")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
@@ -316,8 +316,8 @@ def test_invite_1_user_already_here(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1_user_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1_user_no_power(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -334,7 +334,7 @@ def test_invite_1_user_no_power(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = False
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_user2")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
@@ -344,8 +344,8 @@ def test_invite_1_user_no_power(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_1_user(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_1_user(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -362,7 +362,7 @@ def test_invite_1_user(hallo_getter):
     chan1_hallo = chan1.get_membership_by_user(user_hallo)
     chan1_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_user2")
         )
         data = serv1.get_send_data(2)
@@ -377,8 +377,8 @@ def test_invite_1_user(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_2_chan_user_already_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_2_chan_user_already_there(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -403,7 +403,7 @@ def test_invite_2_chan_user_already_there(hallo_getter):
     chan2_hallo = chan2.get_membership_by_user(user_hallo)
     chan2_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_chan2 test_user2")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
@@ -413,8 +413,8 @@ def test_invite_2_chan_user_already_there(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_2_chan_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_2_chan_no_power(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -436,7 +436,7 @@ def test_invite_2_chan_no_power(hallo_getter):
     chan2_hallo = chan2.get_membership_by_user(user_hallo)
     chan2_hallo.is_op = False
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_chan2 test_user2")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
@@ -446,8 +446,8 @@ def test_invite_2_chan_no_power(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_2_chan(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_2_chan(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -469,7 +469,7 @@ def test_invite_2_chan(hallo_getter):
     chan2_hallo = chan2.get_membership_by_user(user_hallo)
     chan2_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_chan2 test_user2")
         )
         data = serv1.get_send_data(2)
@@ -484,8 +484,8 @@ def test_invite_2_chan(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_2_user_not_in_channel(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_2_user_not_in_channel(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -507,7 +507,7 @@ def test_invite_2_user_not_in_channel(hallo_getter):
     chan2_user1 = chan2.get_membership_by_user(user2)
     chan2_user1.is_op = False
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_user2 test_chan2")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
@@ -517,8 +517,8 @@ def test_invite_2_user_not_in_channel(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_2_user_user_already_there(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_2_user_user_already_there(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -543,7 +543,7 @@ def test_invite_2_user_user_already_there(hallo_getter):
     chan2_hallo = chan2.get_membership_by_user(user_hallo)
     chan2_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_user2 test_chan2")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
@@ -553,8 +553,8 @@ def test_invite_2_user_user_already_there(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_2_user_no_power(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_2_user_no_power(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -576,7 +576,7 @@ def test_invite_2_user_no_power(hallo_getter):
     chan2_hallo = chan2.get_membership_by_user(user_hallo)
     chan2_hallo.is_op = False
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_user2 test_chan2")
         )
         data = serv1.get_send_data(1, chan1, EventMessage)
@@ -586,8 +586,8 @@ def test_invite_2_user_no_power(hallo_getter):
         test_hallo.remove_server(serv1)
 
 
-def test_invite_2_user(hallo_getter):
-    test_hallo = hallo_getter({"channel_control"})
+async def test_invite_2_user(hallo_getter):
+    test_hallo = await hallo_getter({"channel_control"})
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"
     serv1.type = Server.TYPE_IRC
@@ -609,7 +609,7 @@ def test_invite_2_user(hallo_getter):
     chan2_hallo = chan2.get_membership_by_user(user_hallo)
     chan2_hallo.is_op = True
     try:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(serv1, chan1, user1, "invite test_user2 test_chan2")
         )
         data = serv1.get_send_data(2)

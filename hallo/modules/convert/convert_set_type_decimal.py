@@ -23,7 +23,7 @@ class ConvertSetTypeDecimals(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Sets the number of decimal places to show for a unit type."
 
-    def run(self, event):
+    async def run(self, event):
         # Load convert repo
         function_dispatcher = event.server.hallo.function_dispatcher
         convert_function = function_dispatcher.get_function_by_name("convert")

@@ -1,3 +1,4 @@
+import asyncio
 import importlib
 import logging
 import os
@@ -99,7 +100,7 @@ class FunctionDispatcher(object):
         for module_name in self.module_list:
             self.reload_module(module_name)
 
-    def dispatch(self, event: EventMessage, flag_list: list[str] = None) -> None:
+    async def dispatch(self, event: EventMessage, flag_list: list[str] = None) -> None:
         """
         Sends the function call out to whichever function, if one is found
         :param event: The message event which has triggered the function dispatch
@@ -127,7 +128,7 @@ class FunctionDispatcher(object):
         # If function isn't found, output a not found message
         if function_class_test is None:
             if EventMessage.FLAG_HIDE_ERRORS not in flag_list:
-                event.reply(
+                await event.reply(
                     event.create_response("Error, this is not a recognised function.")
                 )
                 error = FunctionNotFoundError(self, event)
@@ -140,7 +141,7 @@ class FunctionDispatcher(object):
         if not self.check_function_permissions(
             function_class, event.server, event.user, event.channel
         ):
-            event.reply(
+            await event.reply(
                 event.create_response(
                     "You do not have permission to use this function."
                 )
@@ -154,16 +155,16 @@ class FunctionDispatcher(object):
         function_obj = self.get_function_object(function_class)
         # Try running the function, if it fails, return an error message
         try:
-            response = function_obj.run(event)
+            response = await function_obj.run(event)
             if response is not None:
-                event.reply(response)
+                await event.reply(response)
             else:
-                event.reply(event.create_response("The function returned no value."))
+                await event.reply(event.create_response("The function returned no value."))
             return
         except Exception as e:
             error = FunctionError(e, self, function_obj, event)
             e_str = (str(e)[:250] + "..") if len(str(e)) > 250 else str(e)
-            event.reply(
+            await event.reply(
                 event.create_response(
                     "Function failed with error message: {}".format(e_str)
                 )
@@ -172,7 +173,7 @@ class FunctionDispatcher(object):
             function_errors.labels(function_class=function_class.__name__).inc()
             return
 
-    def dispatch_passive(self, event: Event) -> None:
+    async def dispatch_passive(self, event: Event) -> None:
         """
         Dispatches a event call to passive functions, if any apply
         :param event: Event object which is triggering passive functions
@@ -199,16 +200,15 @@ class FunctionDispatcher(object):
             # Try running the function, if it fails, return an error message
             try:
                 logger.debug("Calling passive function: %s with event %s", function_obj.__class__.__name__, event)
-                response = function_obj.passive_run(event, self.hallo)
+                response = await function_obj.passive_run(event, self.hallo)
                 logger.debug("Got passive function response: %s", response)
                 if response is not None:
                     passive_responses.labels(function_class=function_class.__name__).inc()
-                    if isinstance(response, ChannelUserTextEvent) and isinstance(
-                        event, ChannelUserTextEvent
-                    ):
-                        event.reply(response)
-                    else:
-                        event.server.send(response)
+                    if isinstance(response, ChannelUserTextEvent):
+                        if isinstance(event, ChannelUserTextEvent):
+                            await event.reply(response)
+                        else:
+                            await response.server.send(response)
                 continue
             except Exception as e:
                 error = PassiveFunctionError(e, self, function_obj, event)

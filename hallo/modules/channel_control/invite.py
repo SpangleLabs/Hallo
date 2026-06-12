@@ -1,6 +1,7 @@
 from hallo.events import EventInvite
 from hallo.function import Function
 import hallo.modules.channel_control.channel_control
+from hallo.destination import Channel, User
 from hallo.server import Server
 
 
@@ -21,7 +22,7 @@ class Invite(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Invite someone to a channel"
 
-    def run(self, event):
+    async def run(self, event):
         # Get server object
         server_obj = event.server
         # If server isn't IRC type, we can't invite people
@@ -41,71 +42,50 @@ class Invite(Function):
             if event.channel is None:
                 channel = server_obj.get_channel_by_name(event.command_args)
                 if channel is None:
-                    return event.create_response(
-                        "Error, {} is not known on {}.".format(
-                            event.command_args, server_obj.name
-                        )
-                    )
-                return event.create_response(self.send_invite(channel, event.user))
+                    return event.create_response(f"Error, {event.command_args} is not known on {server_obj.name}.")
+                return event.create_response(await self.send_invite(channel, event.user))
             # See if it's a channel that hallo is in
             test_channel = server_obj.get_channel_by_name(event.command_args)
             if test_channel is not None and test_channel.in_channel:
-                return event.create_response(self.send_invite(test_channel, event.user))
+                return event.create_response(await self.send_invite(test_channel, event.user))
             # Argument must be a user?
             target_user = server_obj.get_user_by_name(event.command_args)
             if target_user is None:
-                return event.create_response(
-                    "Error, {} is not known on {}.".format(
-                        event.command_args, server_obj.name
-                    )
-                )
-            return event.create_response(self.send_invite(event.channel, target_user))
+                return event.create_response(f"Error, {event.command_args} is not known on {server_obj.name}.")
+            return event.create_response(await self.send_invite(event.channel, target_user))
         # If 2 arguments, try with first argument as channel
         target_channel = server_obj.get_channel_by_name(line_split[0])
         if target_channel is not None and target_channel.in_channel:
             target_user = server_obj.get_user_by_name(line_split[1])
             if target_user is None:
-                return event.create_response(
-                    "Error, {} is not known on {}.".format(
-                        line_split[1], server_obj.name
-                    )
-                )
-            return event.create_response(self.send_invite(target_channel, target_user))
+                return event.create_response(f"Error, {line_split[1]} is not known on {server_obj.name}.")
+            return event.create_response(await self.send_invite(target_channel, target_user))
         # 2 args, try with second argument as channel
         target_user = server_obj.get_user_by_name(line_split[0])
         if target_user is None:
-            return event.create_response(
-                "Error, {} is not known on {}.".format(line_split[0], server_obj.name)
-            )
+            return event.create_response(f"Error, {line_split[0]} is not known on {server_obj.name}.")
         target_channel = server_obj.get_channel_by_name(line_split[1])
         if target_channel is None:
-            return event.create_response(
-                "Error, {} is not known on {}.".format(line_split[1], server_obj.name)
-            )
-        return event.create_response(self.send_invite(target_channel, target_user))
+            return event.create_response(f"Error, {line_split[1]} is not known on {server_obj.name}.")
+        return event.create_response(await self.send_invite(target_channel, target_user))
 
-    def send_invite(self, channel, user):
+    async def send_invite(self, channel: Channel, user: User) -> str:
         """
         Sends an invite to a specified user to join a given channel.
         :param channel: Channel to invite target to
-        :type channel: destination.Channel
         :param user: User to invite to channel
-        :type user: destination.User
         :return: Response to send to requester
-        :rtype: str
         """
         # Check if in channel
         if not channel.in_channel:
             return "Error, I'm not in that channel."
         # Check if user is in channel
         if user in channel.get_user_list():
-            return "Error, {} is already in {}".format(user.name, channel.name)
+            return f"Error, {user.name} is already in {channel.name}"
         # Check if hallo has op in channel
         if not hallo.modules.channel_control.channel_control.hallo_has_op(channel):
-            return "Error, I don't have power to invite users in {}.".format(
-                channel.name
-            )
+            return f"Error, I don't have power to invite users in {channel.name}."
         # Send invite
         invite_evt = EventInvite(channel.server, channel, None, user, inbound=False)
-        channel.server.send(invite_evt)
+        await channel.server.send(invite_evt)
         return "Invite sent."

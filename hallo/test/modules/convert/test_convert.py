@@ -20,11 +20,11 @@ def mock_convert_parse(test_hallo: TestHallo):
         conv_obj.convert_parse = conv_parse
 
 
-def test_passive_run(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+async def test_passive_run(tmp_path, hallo_getter):
+    test_hallo = await hallo_getter({"convert"})
     mock_repo(tmp_path, test_hallo)
     with mock_convert_parse(test_hallo) as mock_parse:
-        test_hallo.function_dispatcher.dispatch_passive(
+        await test_hallo.function_dispatcher.dispatch_passive(
             EventMessage(
                 test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "1 unit1b to unit1a"
             )
@@ -35,10 +35,10 @@ def test_passive_run(tmp_path, hallo_getter):
         assert mock_parse.call_args[0] == ("1 unit1b to unit1a", True)
 
 
-def test_run(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+async def test_run(hallo_getter):
+    test_hallo = await hallo_getter({"convert"})
     with mock_convert_parse(test_hallo) as mock_parse:
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(
                 test_hallo.test_server, None, test_hallo.test_user, "convert 1 unit1b to unit1a"
             )
@@ -48,8 +48,8 @@ def test_run(hallo_getter):
         assert mock_parse.call_args[0] == ("1 unit1b to unit1a",)
 
 
-def test_load_repo(hallo_getter):
-    test_hallo = hallo_getter({"convert"})
+async def test_load_repo(hallo_getter):
+    test_hallo = await hallo_getter({"convert"})
     conv_cls = test_hallo.function_dispatcher.get_function_by_name("convert")
     conv_obj = test_hallo.function_dispatcher.get_function_object(conv_cls)
     assert conv_obj.convert_repo is not None

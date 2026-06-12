@@ -1,44 +1,47 @@
 import logging
 from datetime import timedelta, datetime
-from typing import Type
+from typing import Type, Generic, TYPE_CHECKING
 
 import dateutil.parser
 import isodate
 
 from hallo.destination import Destination, Channel, User
 from hallo.events import EventMessage
-from hallo.hallo import Hallo
-import hallo.modules.subscriptions.source
-import hallo.modules.subscriptions.subscription_factory
-import hallo.modules.subscriptions.subscription_exception
+from hallo.modules.subscriptions.source import Source, Update, State
+from hallo.modules.subscriptions.subscription_factory import SubscriptionFactory
+from hallo.modules.subscriptions.subscription_exception import SubscriptionException
 from hallo.server import Server
+
+if TYPE_CHECKING:
+    from hallo.hallo import Hallo
+    from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
 
 logger = logging.getLogger(__name__)
 
 
-class Subscription:
+class Subscription(Generic[State, Update]):
     def __init__(
             self,
             server: Server,
             destination: Destination,
-            source: 'hallo.modules.subscriptions.source.Source',
+            source: Source[State, Update],
             period: timedelta,
             last_check: datetime | None,
             last_update: datetime | None
-    ):
+    ) -> None:
         self.server: Server = server
         self.destination: Destination = destination
-        self.source: hallo.modules.subscriptions.source.Source = source
+        self.source: Source[State, Update] = source
         self.period: timedelta = period
         self.last_check: datetime | None = last_check
         self.last_update: datetime | None = last_update
 
     @classmethod
-    def create_from_input(
+    async def create_from_input(
             cls,
             input_evt: EventMessage,
-            source_class: Type['hallo.modules.new_subscriptions.source.Source'],
+            source_class: Type['Source'],
             sub_repo,
     ) -> 'Subscription':
         server = input_evt.server
@@ -57,7 +60,7 @@ class Subscription:
                 except isodate.isoerror.ISO8601Error:
                     pass
         try:
-            source = source_class.from_input(argument, input_evt.user, sub_repo)
+            source = await source_class.from_input(argument, input_evt.user, sub_repo)
             subscription = Subscription(
                 server,
                 input_evt.destination,
@@ -68,9 +71,7 @@ class Subscription:
             )
             subscription.update(False)
         except Exception as e:
-            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
-                f"Failed to create {source_class.type_name} subscription", e
-            )
+            raise SubscriptionException(f"Failed to create {source_class.type_name} subscription", e)
         return subscription
 
     def needs_check(self) -> bool:
@@ -98,13 +99,13 @@ class Subscription:
         self.last_check = datetime.now()
         return was_update
 
-    def send(self, update):
+    async def send(self, update: Update) -> None:
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
         events = self.source.events(self.server, channel, user, update)
         for event in events:
             try:
-                self.server.send(event)
+                await self.server.send(event)
             except Exception as e:
                 logger.error(
                     "Failed to send subscription (%s) event with message (%s)",
@@ -113,19 +114,17 @@ class Subscription:
                     exc_info=e
                 )
 
-    def passive_run(self, event: EventMessage, hallo_obj: Hallo) -> bool:
+    async def passive_run(self, event: EventMessage, hallo_obj: 'Hallo') -> bool:
         """
         :return: True if it would like to be updated
         """
         return self.source.passive_run(event, hallo_obj)
 
     @classmethod
-    def from_json(cls, json_data: dict, hallo_obj: Hallo, sub_repo) -> 'Subscription':
+    def from_json(cls, json_data: dict, hallo_obj: 'Hallo', sub_repo: 'SubscriptionRepo') -> 'Subscription':
         server = hallo_obj.get_server_by_name(json_data["server_name"])
         if server is None:
-            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
-                'Could not find server with name "{}"'.format(json_data["server_name"])
-            )
+            raise SubscriptionException(f'Could not find server with name "{json_data["server_name"]}"')
         # Load channel or user
         if "channel_address" in json_data:
             destination = server.get_channel_by_address(json_data["channel_address"])
@@ -133,13 +132,9 @@ class Subscription:
             if "user_address" in json_data:
                 destination = server.get_user_by_address(json_data["user_address"])
             else:
-                raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
-                    "Channel or user must be defined."
-                )
+                raise SubscriptionException("Channel or user must be defined.")
         if destination is None:
-            raise hallo.modules.subscriptions.subscription_exception.SubscriptionException(
-                "Could not find channel or user."
-            )
+            raise SubscriptionException("Could not find channel or user.")
         # Load update frequency
         period = isodate.parse_duration(json_data["period"])
         # Load last check
@@ -151,7 +146,7 @@ class Subscription:
         if "last_update" in json_data:
             last_update = dateutil.parser.parse(json_data["last_update"])
         # Load source
-        source = hallo.modules.subscriptions.subscription_factory.SubscriptionFactory.source_from_json(
+        source = SubscriptionFactory.source_from_json(
             json_data["source"], destination, sub_repo
         )
         subscription = Subscription(

@@ -22,7 +22,7 @@ class Protein(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Convert a set of nucleobases to a string of amino acids"
 
-    def run(self, event):
+    async def run(self, event):
         codon_table = {
             "Ala": ["GCU", "GCC", "GCA", "GCG"],
             "Arg": ["CGU", "CGC", "CGA", "CGG", "AGA", "AGG"],
@@ -72,7 +72,7 @@ class Protein(Function):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {EventMessage}
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
         if not isinstance(event, EventMessage):
             return None

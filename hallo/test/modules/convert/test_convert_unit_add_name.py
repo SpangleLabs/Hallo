@@ -5,9 +5,9 @@ from hallo.test.modules.convert.convert_function_test_base import ConvertFunctio
 
 
 class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
-    def test_specify_invalid_type(self):
+    async def test_specify_invalid_type(self):
         names_1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -21,10 +21,10 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit1a.name_list) == names_1a
         ), "Shouldn't have added new name"
 
-    def test_specified_unit_wrong(self):
+    async def test_specified_unit_wrong(self):
         names_1a = len(self.test_unit1a.name_list)
         names_1b = len(self.test_unit1b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -41,10 +41,10 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit1b.name_list) == names_1b
         ), "Shouldn't have added new name anywhere"
 
-    def test_specified_unit_ambiguous(self):
+    async def test_specified_unit_ambiguous(self):
         names_1b = len(self.test_unit1b.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -61,10 +61,10 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit2b.name_list) == names_2b
         ), "Shouldn't have added new name anywhere"
 
-    def test_specified_unit_ambiguous_but_type_specified(self):
+    async def test_specified_unit_ambiguous_but_type_specified(self):
         names_1b = len(self.test_unit1b.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -83,12 +83,12 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit2b.name_list) == names_2b
         ), "Shouldn't have added new name to type2 same_name"
 
-    def test_specified_new_name(self):
+    async def test_specified_new_name(self):
         names_1a = len(self.test_unit1a.name_list)
         names_1b = len(self.test_unit1b.name_list)
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -113,12 +113,12 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit2b.name_list) == names_2b
         ), "Shouldn't have added new name to unit2b"
 
-    def test_specified_new_name_not_unit(self):
+    async def test_specified_new_name_not_unit(self):
         names_1a = len(self.test_unit1a.name_list)
         names_1b = len(self.test_unit1b.name_list)
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -143,12 +143,12 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit2b.name_list) == names_2b
         ), "Shouldn't have added new name to unit2b"
 
-    def test_new_name_first(self):
+    async def test_new_name_first(self):
         names_1a = len(self.test_unit1a.name_list)
         names_1b = len(self.test_unit1b.name_list)
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit add name u1a unit1a"
             )
@@ -170,12 +170,12 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit2b.name_list) == names_2b
         ), "Shouldn't have added new name to unit2b"
 
-    def test_new_name_last(self):
+    async def test_new_name_last(self):
         names_1a = len(self.test_unit1a.name_list)
         names_1b = len(self.test_unit1b.name_list)
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit add name unit1a u1a"
             )
@@ -197,12 +197,12 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit2b.name_list) == names_2b
         ), "Shouldn't have added new name to unit2b"
 
-    def test_multi_word_new_name(self):
+    async def test_multi_word_new_name(self):
         names_1a = len(self.test_unit1a.name_list)
         names_1b = len(self.test_unit1b.name_list)
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit add name unit1a u 1a"
             )
@@ -224,7 +224,7 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit2b.name_list) == names_2b
         ), "Shouldn't have added new name to unit2b"
 
-    def test_multi_word_unit(self):
+    async def test_multi_word_unit(self):
         # Add name with a space in it for unit1a
         self.test_unit1a.add_name("unit 1a")
         names_1a = len(self.test_unit1a.name_list)
@@ -232,7 +232,7 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
         # Check it works
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit add name unit 1a u1a"
             )
@@ -254,7 +254,7 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit2b.name_list) == names_2b
         ), "Shouldn't have added new name to unit2b"
 
-    def test_multi_word_unit_and_new_name(self):
+    async def test_multi_word_unit_and_new_name(self):
         # Add name with a space in it for unit1a
         self.test_unit1a.add_name("unit 1a")
         names_1a = len(self.test_unit1a.name_list)
@@ -262,7 +262,7 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
         names_2a = len(self.test_unit2a.name_list)
         names_2b = len(self.test_unit2b.name_list)
         # Check it works
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit add name unit 1a u 1a"
             )
@@ -284,13 +284,13 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit2b.name_list) == names_2b
         ), "Shouldn't have added new name to unit2b"
 
-    def test_multi_word_ambiguous(self):
+    async def test_multi_word_ambiguous(self):
         # Setup 'unit1a second' as alt name for unit1b
         self.test_unit1b.add_name("unit1a second")
         names_1a = len(self.test_unit1a.name_list)
         names_1b = len(self.test_unit1b.name_list)
         # Check it fails to find correct unit
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -311,9 +311,9 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit1b.name_list) == names_1b
         ), "Shouldn't have added new name to unit1b"
 
-    def test_no_new_name(self):
+    async def test_no_new_name(self):
         names_1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit add name unit1a"
             )
@@ -324,9 +324,9 @@ class ConvertUnitAddNameTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_unit1a.name_list) == names_1a
         ), "Shouldn't have added any new name to unit1a"
 
-    def test_no_new_name_specified(self):
+    async def test_no_new_name_specified(self):
         names_1a = len(self.test_unit1a.name_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert unit add name unit1a new="
             )

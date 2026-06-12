@@ -21,7 +21,7 @@ class CurrentWeather(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the current weather in your location (if known) or in provided location."
 
-    def run(self, event):
+    async def run(self, event):
         user_data_parser = hallo.modules.user_data.UserDataParser()
         line_clean = event.command_args.strip().lower()
         if line_clean == "":
@@ -55,7 +55,7 @@ class CurrentWeather(Function):
         url = "https://api.openweathermap.org/data/2.5/weather{}&APPID={}".format(
             self.build_query(location_entry), api_key
         )
-        response = Commons.load_url_json(url)
+        response = await Commons.load_url_json(url)
         if str(response["cod"]) != "200":
             return event.create_response("Location not recognised.")
         city_name = response["name"]

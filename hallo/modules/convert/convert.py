@@ -38,7 +38,7 @@ class Convert(Function):
         """Saves the function, persistent functions only."""
         self.convert_repo.save_json()
 
-    def run(self, event):
+    async def run(self, event):
         return event.create_response(self.convert_parse(event.command_args))
 
     def convert_parse(self, line, passive=False):
@@ -189,7 +189,7 @@ class Convert(Function):
     def get_passive_events(self):
         return {EventMessage}
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         if not isinstance(event, EventMessage):
             return
         output = self.convert_parse(event.text, True)

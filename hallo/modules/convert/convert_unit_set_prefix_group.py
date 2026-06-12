@@ -41,7 +41,7 @@ class ConvertUnitSetPrefixGroup(Function):
             "Format: unit=<name> prefix_group=<name>. Can optionally add type=<name> argument."
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Load repository
         function_dispatcher = event.server.hallo.function_dispatcher
         convert_function = function_dispatcher.get_function_by_name("convert")

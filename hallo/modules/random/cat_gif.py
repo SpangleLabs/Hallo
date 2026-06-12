@@ -26,13 +26,13 @@ class CatGif(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a random cat gif Format: cat gif"
 
-    def run(self, event):
+    async def run(self, event):
         api_key = event.server.hallo.get_api_key("thecatapi")
         if api_key is None:
             return event.create_response("No API key loaded for cat api.")
         url = "http://thecatapi.com/api/images/get?format=json&api_key={}&type=gif".format(
             api_key
         )
-        cat_obj = Commons.load_url_json(url)[0]
+        cat_obj = await Commons.load_url_json(url)[0]
         cat_url = cat_obj["url"]
         return event.create_response(cat_url)

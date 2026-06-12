@@ -7,13 +7,13 @@ from hallo.events import EventMessage
 
 
 @pytest.mark.external_integration
-def test_weather(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+async def test_weather(mock_chooser, hallo_getter):
+    test_hallo = await hallo_getter({"random"})
     # Check API key is set
     if test_hallo.get_api_key("youtube") is None:
         # Read from env variable
         test_hallo.add_api_key("youtube", os.getenv("test_api_key_youtube"))
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "nightvale weather")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -30,13 +30,13 @@ def test_weather(mock_chooser, hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_passive(mock_chooser, hallo_getter):
-    test_hallo = hallo_getter({"random"})
+async def test_passive(mock_chooser, hallo_getter):
+    test_hallo = await hallo_getter({"random"})
     # Check API key is set
     if test_hallo.get_api_key("youtube") is None:
         # Read from env variable
         test_hallo.add_api_key("youtube", os.getenv("test_api_key_youtube"))
-    test_hallo.function_dispatcher.dispatch_passive(
+    await test_hallo.function_dispatcher.dispatch_passive(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,
@@ -58,13 +58,13 @@ def test_passive(mock_chooser, hallo_getter):
 
 
 @pytest.mark.external_integration
-def test_no_api_key(hallo_getter):
-    test_hallo = hallo_getter({"random"})
+async def test_no_api_key(hallo_getter):
+    test_hallo = await hallo_getter({"random"})
     # Check there's no API key
     if test_hallo.get_api_key("youtube") is not None:
         del test_hallo.api_key_list["youtube"]
     # Test function
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "nightvale weather")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)

@@ -1,5 +1,5 @@
-from threading import Lock, Thread
-from typing import TYPE_CHECKING, Callable
+import asyncio
+from typing import TYPE_CHECKING, Awaitable
 
 import telegram
 from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Update, Message, TelegramError
@@ -18,7 +18,7 @@ from hallo.events import (
     EventMessageWithPhoto,
     RawDataTelegramOutbound, EventMenuCallback, ServerEvent, ChannelUserTextEvent,
 )
-from hallo.inc.commons import all_subclasses
+from hallo.inc.commons import all_subclasses, Commons
 from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
 
@@ -67,19 +67,15 @@ class ServerTelegram(Server):
         self.auto_connect = (
             True  # Whether to automatically connect to this server when hallo starts
         )
-        self.channel_list = (
-            []
-        )  # List of channels on this server (which may or may not be currently active)
-        """ :type : list[Destination.Channel]"""
-        self.user_list = []  # Users on this server (not all of which are online)
-        """ :type : list[Destination.User]"""
+        # List of channels on this server (which may or may not be currently active)
+        self.channel_list: list[Channel] = []
+        self.user_list: list[User] = []  # Users on this server (not all of which are online)
         self.nick = None  # Nickname to use on this server
         self.prefix = None  # Prefix to use with functions on this server
         self.full_name = None  # Full name to use on this server
         self.permission_mask = PermissionMask()  # PermissionMask for the server
         # Dynamic/unsaved class variables
         self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
-        self._connect_lock = Lock()
         request = Request(con_pool_size=8)
         self.bot = telegram.Bot(token=self.api_key, request=request)
         self.bot.logger.setLevel(logging.INFO)
@@ -127,8 +123,7 @@ class ServerTelegram(Server):
         if self.state != Server.STATE_CLOSED:
             raise ServerException("Already started.")
         self.state = Server.STATE_CONNECTING
-        with self._connect_lock:
-            Thread(target=self.connect).start()
+        asyncio.create_task(self.connect)
 
     def connect(self) -> None:
         """
@@ -141,17 +136,14 @@ class ServerTelegram(Server):
             self.state = Server.STATE_OPEN
             self._msg_queue.start()
 
-    def disconnect(self, force: bool = False) -> None:
+    async def disconnect(self, force: bool = False) -> None:
         self.state = Server.STATE_DISCONNECTING
         with self._connect_lock:
             self.updater.stop()
             self._msg_queue.stop()
             self.state = Server.STATE_CLOSED
 
-    def reconnect(self) -> None:
-        super().reconnect()
-
-    def parse_private_message(self, update: Update, context: CallbackContext) -> None:
+    async def parse_private_message(self, update: Update, context: CallbackContext) -> None:
         """
         Handles a new private message
         :param update: Update object from telegram API
@@ -188,9 +180,9 @@ class ServerTelegram(Server):
             server_type=self.__class__.__name__,
             event_type=message_evt.__class__.__name__
         ).inc()
-        self.hallo.function_dispatcher.dispatch(message_evt)
+        await self.hallo.function_dispatcher.dispatch(message_evt)
 
-    def parse_group_message(self, update: Update, context: CallbackContext) -> None:
+    async def parse_group_message(self, update: Update, context: CallbackContext) -> None:
         """
         Handles a new group or supergroup message (does not handle channel posts)
         :param update: Update object from telegram API
@@ -234,17 +226,17 @@ class ServerTelegram(Server):
         function_dispatcher = self.hallo.function_dispatcher
         if message_evt.is_prefixed:
             if message_evt.is_prefixed is True:
-                function_dispatcher.dispatch(message_evt)
+                await function_dispatcher.dispatch(message_evt)
             else:
-                function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
+                await function_dispatcher.dispatch(message_evt, [message_evt.is_prefixed])
         else:
-            function_dispatcher.dispatch_passive(message_evt)
+            await function_dispatcher.dispatch_passive(message_evt)
 
     def parse_join(self, update: Update, context: CallbackContext) -> None:
         # TODO
         pass
 
-    def parse_menu_callback(self, update: Update, context: CallbackContext) -> None:
+    async def parse_menu_callback(self, update: Update, context: CallbackContext) -> None:
         # Get sender object
         message_sender_name = update.effective_user.full_name
         message_sender_addr = update.effective_user.id
@@ -276,7 +268,7 @@ class ServerTelegram(Server):
         ).inc()
         # Send event to function dispatcher or passive dispatcher
         function_dispatcher = self.hallo.function_dispatcher
-        function_dispatcher.dispatch_passive(callback_evt)
+        await function_dispatcher.dispatch_passive(callback_evt)
 
     def parse_unhandled(self, update: Update, context: CallbackContext) -> None:
         """
@@ -294,11 +286,11 @@ class ServerTelegram(Server):
             event_type="other-unhandled"
         ).inc()
 
-    def send(
+    async def send(
             self,
             event: ServerEvent,
             *,
-            after_sent_callback: Callable[[ServerEvent], None] | None = None,
+            after_sent_callback: Awaitable[None] | None = None,
             reply_to_id: int | None = None
     ) -> None:
         is_group = False
@@ -309,17 +301,17 @@ class ServerTelegram(Server):
             event_type=event.__class__.__name__
         ).inc()
         prom = promise.Promise(
-            self._send_raw,
-            (event, ),
-            {"after_sent_callback": after_sent_callback, "reply_to_id": reply_to_id}
+            lambda: Commons.sync_async(
+                self._send_raw(event, after_sent_callback=after_sent_callback, reply_to_id=reply_to_id),
+            )
         )
         self._msg_queue(prom, is_group)
 
-    def _send_raw(
+    async def _send_raw(
             self,
             event: ServerEvent,
             *,
-            after_sent_callback: Callable[[ServerEvent], None] | None = None,
+            after_sent_callback: Awaitable[None] | None = None,
             reply_to_id: int | None = None
     ) -> None:
         if isinstance(event, EventMessageWithPhoto):
@@ -387,29 +379,29 @@ class ServerTelegram(Server):
             logger.error(error.get_log_line())
             raise NotImplementedError()
         event.log()
-        if after_sent_callback:
-            after_sent_callback(event)
+        if after_sent_callback is not None:
+            await after_sent_callback
         return
 
-    def reply(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage:
+    async def reply(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage | None:
         """
         :type old_event: events.ChannelUserTextEvent
         :param new_event:
         :return:
         """
         # Do checks
-        super().reply(old_event, new_event)
+        await super().reply(old_event, new_event)
         if old_event.raw_data is None or not isinstance(
             old_event.raw_data, RawDataTelegram
         ):
             raise ServerException("Old event has no telegram data associated with it")
         reply_to_id = old_event.message_id
         # Send event
-        return self.send(new_event, reply_to_id=reply_to_id)
+        return await self.send(new_event, reply_to_id=reply_to_id)
 
-    def edit(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage:
+    async def edit(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage:
         # Do checks
-        super().edit(old_event, new_event)
+        await super().edit(old_event, new_event)
         if isinstance(old_event, EventMessageWithPhoto) != isinstance(new_event, EventMessageWithPhoto):
             raise ServerException("Can't change whether a message has a photo when editing.")
         self.outgoing.labels(
@@ -419,7 +411,7 @@ class ServerTelegram(Server):
         # Edit event
         return self.edit_by_id(old_event.message_id, new_event, has_photo=isinstance(old_event, EventMessageWithPhoto))
 
-    def edit_by_id(
+    async def edit_by_id(
             self,
             message_id: int,
             new_event: EventMessage,
@@ -522,9 +514,9 @@ class ServerTelegram(Server):
             new_server.add_user(User.from_json(user, new_server))
         return new_server
 
-    def join_channel(self, channel_obj: Channel) -> None:
+    async def join_channel(self, channel_obj: Channel) -> None:
         pass
         # TODO
 
-    def check_user_identity(self, user_obj: User) -> bool:
+    async def check_user_identity(self, user_obj: User) -> bool:
         return True

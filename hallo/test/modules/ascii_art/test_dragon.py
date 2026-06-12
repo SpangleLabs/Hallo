@@ -1,9 +1,9 @@
 from hallo.events import EventMessage
 
 
-def test_dragon_simple(hallo_getter):
-    test_hallo = hallo_getter({"ascii_art"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_dragon_simple(hallo_getter):
+    test_hallo = await hallo_getter({"ascii_art"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "dragon")
     )
     data = test_hallo.test_server.get_send_data()
@@ -11,11 +11,11 @@ def test_dragon_simple(hallo_getter):
     assert "\n" in data[0].text, "Dragon output should be multiple lines."
 
 
-def test_dragon_deer(hallo_getter):
-    test_hallo = hallo_getter({"ascii_art"})
+async def test_dragon_deer(hallo_getter):
+    test_hallo = await hallo_getter({"ascii_art"})
     found_deer = False
     for _ in range(1000):
-        test_hallo.function_dispatcher.dispatch(
+        await test_hallo.function_dispatcher.dispatch(
             EventMessage(test_hallo.test_server, None, test_hallo.test_user, "dragon")
         )
         data = test_hallo.test_server.get_send_data()

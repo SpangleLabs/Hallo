@@ -23,8 +23,8 @@ def test_add_reply_message():
     assert rm2 in rml1.reply_message_list
 
 
-def test_get_response(hallo_getter):
-    test_hallo = hallo_getter({"silly"})
+async def test_get_response(hallo_getter):
+    test_hallo = await hallo_getter({"silly"})
     # Setup common testing objects
     serv1 = ServerMock(test_hallo)
     serv1.name = "test_serv1"

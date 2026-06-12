@@ -27,11 +27,11 @@ class RandomPerson(Function):
             "Format: random person"
         )
 
-    def run(self, event):
+    async def run(self, event):
         input_clean = event.command_args.strip().lower()
         url = "https://api.randomuser.me/0.6/?nat=gb&format=json"
         # Get api response
-        json_dict = Commons.load_url_json(url)
+        json_dict = await Commons.load_url_json(url)
         user_dict = json_dict["results"][0]["user"]
         # Construct response
         name = "{} {} {}".format(

@@ -4,10 +4,11 @@ import logging
 import re
 import json
 import random
+from collections.abc import Awaitable
 from datetime import timedelta
 from typing import TypeVar, Callable, Generic, Type
 
-import requests
+import aiohttp
 from prometheus_client import Gauge
 from publicsuffixlist import PublicSuffixList
 
@@ -150,27 +151,29 @@ class Commons(object):
         return headers_dict
 
     @staticmethod
-    def load_url_string(url: str, headers: list[list[str]] = None) -> str:
+    def sync_async(awaitable: Awaitable[T]) -> T:
+        # TODO (async): temporary, try and avoid this and replace it
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(awaitable)
+        else:
+            return loop.run_until_complete(awaitable)
+
+    @staticmethod
+    async def load_url_string(url: str, headers: list[list[str]] = None) -> str:
         """
         Takes a url, pulls it and returns the body of the page.
         :param url: URL to download
-        :param headers: List of HTTP headers to add to request
+        :param headers: List of HTTP headers to add to request, as a list of key-value pairs
         """
         headers_dict = Commons.create_headers_dict(headers)
-        resp = requests.get(url, headers=headers_dict, timeout=10)
-        return resp.text
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=headers) as resp:
+                return await resp.text()
 
     @staticmethod
-    def load_url_json(url: str, headers: list[list[str]] = None, json_fix: bool = False) -> dict:
-        """
-        Takes a url to a json resource, pulls it and returns a dictionary.
-        :param url: URL of json to download
-        :param headers: List of HTTP headers to add to request
-        :param json_fix: Whether to "fix" the JSON being returned for parse errors
-        """
-        if headers is None:
-            headers = []
-        code = Commons.load_url_string(url, headers)
+    def parse_web_json(code: str, json_fix: bool) -> dict:
         if json_fix:
             code = re.sub(",+", ",", code)
             code = code.replace("[,", "[").replace(",]", "]")
@@ -182,7 +185,18 @@ class Commons(object):
         return output_dict
 
     @staticmethod
-    def put_json_to_url(url: str, data: dict, headers: list[list[str]] = None) -> None:
+    async def load_url_json(url: str, headers: list[list[str]] = None, json_fix: bool = False) -> dict:
+        """
+        Takes a url to a json resource, pulls it and returns a dictionary.
+        :param url: URL of json to download
+        :param headers: List of HTTP headers to add to request
+        :param json_fix: Whether to "fix" the JSON being returned for parse errors
+        """
+        code = await Commons.load_url_string(url, headers)
+        return Commons.parse_web_json(code, json_fix)
+
+    @staticmethod
+    async def put_json_to_url(url: str, data: dict, headers: list[list[str]] = None) -> None:
         """
         Converts data to JSON and PUT it to the specified URL
         :param url: URL to send PUT request to
@@ -190,7 +204,9 @@ class Commons(object):
         :param headers: List of HTTP headers to add to the request
         """
         headers_dict = Commons.create_headers_dict(headers)
-        requests.put(url, headers=headers_dict, json=data)
+        async with aiohttp.ClientSession() as session:
+            async with session.put(url, headers=headers_dict, json=data) as resp:
+                return
 
     @staticmethod
     def check_numbers(message: str) -> bool:
@@ -401,24 +417,24 @@ class Commons(object):
 
 
 class CachedObject(Generic[S]):
-    def __init__(self, setter: Callable[[], S], cache_expiry: timedelta | None = None) -> None:
+    def __init__(self, setter: Callable[[], Awaitable[S]], cache_expiry: timedelta | None = None) -> None:
         """
         :type setter: Callable
         :type cache_expiry: timedelta
         """
-        self.setter: Callable[[], S] = setter
+        self.setter: Callable[[], Awaitable[S]] = setter
         self.cache_expiry: timedelta = (
             cache_expiry if cache_expiry is not None else timedelta(minutes=5)
         )
         self.cache_time: datetime.datetime | None = None
         self.value: S | None = None
 
-    def get(self) -> S:
+    async def get(self) -> S:
         if (
             self.cache_time is None
             or (self.cache_time + self.cache_expiry) < datetime.datetime.now()
         ):
-            self.value = self.setter()
+            self.value = await self.setter()
             self.cache_time = datetime.datetime.now()
         return self.value
 

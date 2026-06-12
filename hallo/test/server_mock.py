@@ -1,9 +1,9 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Awaitable
 
 from hallo.server import Server
 
 if TYPE_CHECKING:
-    from hallo.events import ChannelUserTextEvent
+    from hallo.events import ChannelUserTextEvent, ServerEvent
 
 
 class ServerMock(Server):
@@ -15,13 +15,13 @@ class ServerMock(Server):
         self.type = Server.TYPE_MOCK
         self.prefix = ""
 
-    def join_channel(self, channel_obj):
+    async def join_channel(self, channel_obj):
         pass
 
     def start(self):
         self.state = Server.STATE_OPEN
 
-    def disconnect(self, force=False):
+    async def disconnect(self, force=False):
         self.state = Server.STATE_CLOSED
 
     def get_type(self):
@@ -31,26 +31,31 @@ class ServerMock(Server):
     def from_xml(xml_string, hallo):
         pass
 
-    def leave_channel(self, channel_obj):
-        super().leave_channel(channel_obj)
+    async def leave_channel(self, channel_obj):
+        await super().leave_channel(channel_obj)
         self.left_channels.append(channel_obj)
 
-    def send(self, event, *, after_sent_callback=None):
+    async def send(
+            self,
+            event: 'ServerEvent',
+            *,
+            after_sent_callback: Awaitable[None] | None = None,
+    ) -> None:
         self.send_data.append(event)
         if after_sent_callback:
             after_sent_callback(event)
 
-    def reply(self, old_event, new_event):
-        super().reply(old_event, new_event)
+    async def reply(self, old_event, new_event):
+        await super().reply(old_event, new_event)
+        await self.send(new_event)
+
+    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
         self.send(new_event)
 
-    def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
-        self.send(new_event)
-
-    def reconnect(self):
+    async def reconnect(self):
         pass
 
-    def check_user_identity(self, user_obj):
+    async def check_user_identity(self, user_obj):
         pass
 
     def get_name_by_address(self, address):

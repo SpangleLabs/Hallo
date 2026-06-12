@@ -1,13 +1,11 @@
 import hallo.modules.dailys.dailys_field_factory
 from hallo.function import Function
 import hallo.modules.dailys.dailys_field
+from hallo.events import EventMessage
 
 
 class DailysAddField(Function):
-    def __init__(self):
-        """
-        Constructor
-        """
+    def __init__(self) -> None:
         super().__init__()
         # Name for use in help listing
         self.help_name = "add dailys field"
@@ -26,7 +24,7 @@ class DailysAddField(Function):
             " Format: add dailys field <field name>"
         )
 
-    def run(self, event):
+    async def run(self, event: EventMessage) -> EventMessage:
         # Get spreadsheet repo
         hallo_obj = event.server.hallo
         function_dispatcher = hallo_obj.function_dispatcher
@@ -34,7 +32,7 @@ class DailysAddField(Function):
         sub_check_obj = function_dispatcher.get_function_object(
             sub_check_function
         )
-        dailys_repo = sub_check_obj.get_dailys_repo(hallo_obj)
+        dailys_repo = await sub_check_obj.get_dailys_repo(hallo_obj)
         # Get the active spreadsheet for this person and destination
         spreadsheet = dailys_repo.get_by_location(event)
         if spreadsheet is None:
@@ -64,7 +62,7 @@ class DailysAddField(Function):
             )
         # Try and create the field
         matching_field = matching_fields[0]
-        new_field = matching_field.create_from_input(event, spreadsheet)
+        new_field = await matching_field.create_from_input(event, spreadsheet)
         # TODO: check if field already assigned, or if we already have a field of that type?
         spreadsheet.add_field(new_field)
         dailys_repo.save_json()

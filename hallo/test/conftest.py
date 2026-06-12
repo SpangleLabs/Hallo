@@ -1,5 +1,4 @@
-import time
-from threading import Thread
+import asyncio
 
 import pytest
 
@@ -69,20 +68,19 @@ class TestHallo(Hallo):
         return self._test_chan
 
 
-@pytest.fixture
-def hallo_getter():
+@pytest.fixture # TODO: async this sometime
+async def hallo_getter():
     # Create a Hallo
     hallo = TestHallo()
-    hallo_thread = Thread(target=hallo.start, )
 
-    def function(modules: set[str] | None = None, disconnect_servers: bool = False):
+    async def function(modules: set[str] | None = None, disconnect_servers: bool = False):
         hallo.set_modules(modules)
         # Start hallo thread
-        hallo_thread.start()
+        hallo.start_task()
         # Wait until hallo is open
         count = 0
         while not hallo.open:
-            time.sleep(0.01)
+            await asyncio.sleep(0.01)
             count += 1
             assert count < 1000, "Hallo took too long to start."
             if count > 1000:
@@ -92,10 +90,10 @@ def hallo_getter():
         # Disconnect servers if wanted
         if disconnect_servers:
             for server in hallo.server_list:
-                server.disconnect(True)
+                await server.disconnect(True)
             hallo.server_list.clear()
         return hallo
 
     yield function
-    hallo.close()
-    hallo_thread.join()
+    await hallo.close()
+    asyncio.get_event_loop().run_until_complete(hallo.end_task())

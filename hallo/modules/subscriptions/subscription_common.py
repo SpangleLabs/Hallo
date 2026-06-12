@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 class SubscriptionCommon(ABC):
     type_name: str = ""
 
-    def __init__(self, hallo_obj: 'Hallo'):
+    def __init__(self, hallo_obj: 'Hallo') -> None:
         self.hallo = hallo_obj
 
     def to_json(self) -> dict | None:

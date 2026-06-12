@@ -5,9 +5,9 @@ from hallo.test.modules.convert.convert_function_test_base import ConvertFunctio
 
 
 class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase):
-    def test_specify_invalid_type(self):
+    async def test_specify_invalid_type(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -21,10 +21,10 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit1a.abbr_list) == abbr_unit1a
         ), "Shouldn't have added abbreviation"
 
-    def test_specified_unit_wrong(self):
+    async def test_specified_unit_wrong(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -41,10 +41,10 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit1b.abbr_list) == abbr_unit1b
         ), "Shouldn't have added abbreviation anywhere"
 
-    def test_specified_unit_ambiguous(self):
+    async def test_specified_unit_ambiguous(self):
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -61,10 +61,10 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit2b.abbr_list) == abbr_unit2b
         ), "Shouldn't have added abbreviation anywhere"
 
-    def test_specified_unit_ambiguous_but_type_specified(self):
+    async def test_specified_unit_ambiguous_but_type_specified(self):
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -83,12 +83,12 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit2b.abbr_list) == abbr_unit2b
         ), "Shouldn't have added abbreviation to type2 same_name"
 
-    def test_specified_abbreviation(self):
+    async def test_specified_abbreviation(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -113,12 +113,12 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit2b.abbr_list) == abbr_unit2b
         ), "Shouldn't have added abbreviation to unit2b"
 
-    def test_specified_abbreviation_not_unit(self):
+    async def test_specified_abbreviation_not_unit(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -143,12 +143,12 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit2b.abbr_list) == abbr_unit2b
         ), "Shouldn't have added abbreviation to unit2b"
 
-    def test_abbr_first(self):
+    async def test_abbr_first(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -173,12 +173,12 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit2b.abbr_list) == abbr_unit2b
         ), "Shouldn't have added abbreviation to unit2b"
 
-    def test_abbr_last(self):
+    async def test_abbr_last(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -203,12 +203,12 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit2b.abbr_list) == abbr_unit2b
         ), "Shouldn't have added abbreviation to unit2b"
 
-    def test_multi_word_abbr(self):
+    async def test_multi_word_abbr(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -233,7 +233,7 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit2b.abbr_list) == abbr_unit2b
         ), "Shouldn't have added abbreviation to unit2b"
 
-    def test_multi_word_unit(self):
+    async def test_multi_word_unit(self):
         # Add name with a space in it for unit1a
         self.test_unit1a.add_name("unit 1a")
         abbr_unit1a = len(self.test_unit1a.abbr_list)
@@ -241,7 +241,7 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
         # Check it works
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -266,7 +266,7 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit2b.abbr_list) == abbr_unit2b
         ), "Shouldn't have added abbreviation to unit2b"
 
-    def test_multi_word_unit_and_abbr(self):
+    async def test_multi_word_unit_and_abbr(self):
         # Add name with a space in it for unit1a
         self.test_unit1a.add_name("unit 1a")
         abbr_unit1a = len(self.test_unit1a.abbr_list)
@@ -274,7 +274,7 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
         abbr_unit2a = len(self.test_unit1a.abbr_list)
         abbr_unit2b = len(self.test_unit2b.abbr_list)
         # Check it works
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -299,13 +299,13 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit2b.abbr_list) == abbr_unit2b
         ), "Shouldn't have added abbreviation to unit2b"
 
-    def test_multi_word_ambiguous(self):
+    async def test_multi_word_ambiguous(self):
         # Setup 'unit1a second' as alt name for unit1b
         self.test_unit1b.add_name("unit1a second")
         abbr_unit1a = len(self.test_unit1a.abbr_list)
         abbr_unit1b = len(self.test_unit1b.abbr_list)
         # Check it fails to find correct unit
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -326,9 +326,9 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit1b.abbr_list) == abbr_unit1b
         ), "Shouldn't have added abbreviation to unit1b"
 
-    def test_no_abbreviation(self):
+    async def test_no_abbreviation(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -344,9 +344,9 @@ class ConvertUnitAddAbbreviationTest(ConvertFunctionTestBase, unittest.TestCase)
             len(self.test_unit1a.abbr_list) == abbr_unit1a
         ), "Shouldn't have added any abbreviation to unit1a"
 
-    def test_no_abbreviation_specified(self):
+    async def test_no_abbreviation_specified(self):
         abbr_unit1a = len(self.test_unit1a.abbr_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,

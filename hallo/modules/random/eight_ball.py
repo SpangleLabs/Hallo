@@ -48,7 +48,7 @@ class EightBall(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Magic 8 ball. Format: eightball"
 
-    def run(self, event):
+    async def run(self, event):
         responses = (
             EightBall.RESPONSES_YES_TOTALLY
             + EightBall.RESPONSES_YES_PROBABLY

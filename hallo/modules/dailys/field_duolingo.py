@@ -1,37 +1,37 @@
 import json
 from datetime import timedelta
+from typing import TYPE_CHECKING, Type
 
 import duolingo
 
-from hallo.events import EventDay
+from hallo.events import EventDay, EventMenuCallback, Event
 import hallo.modules.dailys.dailys_field
+
+if TYPE_CHECKING:
+    from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
 
 
 class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
     type_name = "duolingo"
 
-    def __init__(self, spreadsheet, username, password):
+    def __init__(self, spreadsheet: 'DailysSpreadsheet', username: str, password: str) -> None:
         super().__init__(spreadsheet)
-        self.username = username
-        self.password = password
+        self.username: str = username
+        self.password: str = password
 
     @staticmethod
-    def passive_events():
+    def passive_events() -> list[Type[Event]]:
         """
         :rtype: list[type]
         """
         return [EventDay]
 
-    def passive_trigger(self, evt):
-        """
-        :type evt: Event.Event
-        :rtype: None
-        """
+    async def passive_trigger(self, evt: Event) -> None:
         try:
             lingo = duolingo.Duolingo(self.username, password=self.password)
             friends = lingo.get_friends()
         except Exception:
-            self.message_channel(
+            await self.message_channel(
                 "It seems the password no longer works for Duolingo account {}. "
                 "Please reset it.".format(self.username)
             )
@@ -41,12 +41,12 @@ class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
             result[friend["username"]] = friend["points"]
         result_str = json.dumps(result)
         d = (evt.get_send_time() - timedelta(1)).date()
-        self.save_data(result, d)
+        await self.save_data(result, d)
         # Send date to destination
-        self.message_channel(result_str)
+        await self.message_channel(result_str)
 
     @staticmethod
-    def _check_duo_username(username, password):
+    def _check_duo_username(username: str, password: str):
         try:
             lingo = duolingo.Duolingo(username, password=password)
             lingo.get_friends()
@@ -55,7 +55,7 @@ class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
             return False
 
     @staticmethod
-    def create_from_input(event, spreadsheet):
+    async def create_from_input(event: EventMessage, spreadsheet: 'DailysSpreadsheet') -> 'DailysDuolingoField':
         clean_input = (
             event.command_args[len(DailysDuolingoField.type_name):].strip().split()
         )
@@ -74,15 +74,15 @@ class DailysDuolingoField(hallo.modules.dailys.dailys_field.DailysField):
                 "Could not access a duolingo account with that username and password."
             )
 
-    def to_json(self):
-        json_obj = dict()
-        json_obj["type_name"] = self.type_name
-        json_obj["username"] = self.username
-        json_obj["password"] = self.password
-        return json_obj
+    def to_json(self) -> dict:
+        return {
+            "type_name": self.type_name,
+            "username": self.username,
+            "password": self.password,
+        }
 
     @staticmethod
-    def from_json(json_obj, spreadsheet):
+    async def from_json(json_obj: dict, spreadsheet: 'DailysSpreadsheet') -> 'DailysDuolingoField':
         password = None
         if "password" in json_obj:
             password = json_obj["password"]

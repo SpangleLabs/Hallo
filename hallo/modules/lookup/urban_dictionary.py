@@ -19,10 +19,10 @@ class UrbanDictionary(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Gives the top urban dictionary definition for a word. Format: urban dictionary <word>"
 
-    def run(self, event):
+    async def run(self, event):
         url_line = event.command_args.replace(" ", "+").lower()
         url = "https://api.urbandictionary.com/v0/define?term={}".format(url_line)
-        urban_dict = Commons.load_url_json(url)
+        urban_dict = await Commons.load_url_json(url)
         if len(urban_dict["list"]) > 0:
             definition = (
                 urban_dict["list"][0]["definition"].replace("\r", "").replace("\n", "")

@@ -6,11 +6,11 @@ from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 from hallo.test.modules.subscriptions.mock_subscriptions import mock_sub_repo
 
 
-def test_invalid_subscription(tmp_path, hallo_getter):
+async def test_invalid_subscription(tmp_path, hallo_getter):
     SubscriptionRepo.STORE_FILE = tmp_path / "subs.json"
     SubscriptionRepo.MENU_STORE_FILE = tmp_path / "menu.json"
-    test_hallo = hallo_getter({"subscriptions"})
-    test_hallo.function_dispatcher.dispatch(
+    test_hallo = await hallo_getter({"subscriptions"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "rss sub add ::")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_chan, EventMessage)
@@ -19,10 +19,10 @@ def test_invalid_subscription(tmp_path, hallo_getter):
     ), "No error in response. Response was: {}".format(data[0].text)
 
 
-def test_add_search(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_add_search(tmp_path, hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "add e621 sub cabinet"
         )
@@ -53,10 +53,10 @@ def test_add_search(tmp_path, hallo_getter):
     assert len(e6_sub.source.last_keys) >= 50
 
 
-def test_add_search_user(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_add_search_user(tmp_path, hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "add e621 sub cabinet")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -85,10 +85,10 @@ def test_add_search_user(tmp_path, hallo_getter):
     assert len(e6_sub.source.last_keys) >= 50
 
 
-def test_add_search_period(tmp_path, hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_add_search_period(tmp_path, hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     mock_sub_repo(tmp_path, test_hallo)
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(
             test_hallo.test_server,
             test_hallo.test_chan,

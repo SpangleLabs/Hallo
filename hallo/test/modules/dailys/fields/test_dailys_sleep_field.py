@@ -19,8 +19,8 @@ def get_telegram_time(date_time_val):
     return fake_telegram_obj
 
 
-def test_create_from_input_col_specified(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_create_from_input_col_specified(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     # Setup
     cmd_name = "setup dailys field"
     cmd_args = "sleep"
@@ -37,8 +37,8 @@ def test_create_from_input_col_specified(hallo_getter):
     assert field.spreadsheet == spreadsheet
 
 
-def test_telegram_time(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_telegram_time(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
     field = DailysSleepField(spreadsheet)
@@ -58,8 +58,8 @@ def test_telegram_time(hallo_getter):
     assert notif_dict["sleep_time"] == msg_date.isoformat()
 
 
-def test_now_time(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_now_time(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
     field = DailysSleepField(spreadsheet)
@@ -78,8 +78,8 @@ def test_now_time(hallo_getter):
     assert logged_time - now < timedelta(0, 10)
 
 
-def test_sleep_before_5(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_sleep_before_5(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
     field = DailysSleepField(spreadsheet)
@@ -95,8 +95,8 @@ def test_sleep_before_5(hallo_getter):
     assert notif_dict["sleep_time"] == sleep_time.isoformat()
 
 
-def test_sleep_after_5(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_sleep_after_5(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
     field = DailysSleepField(spreadsheet)
@@ -132,8 +132,8 @@ def test_sleep_after_5(hallo_getter):
         }
     ]
 )
-def test_sleep_wake(sleep, hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_sleep_wake(sleep, hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     sleep_date = date(2018, 12, 23)
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Setup field
@@ -208,8 +208,8 @@ def test_sleep_wake(sleep, hallo_getter):
         }
     ]
 )
-def test_sleep_wake_sleep_wake(sleep, hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_sleep_wake_sleep_wake(sleep, hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     sleep_date = date(2018, 12, 23)
 
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
@@ -304,8 +304,8 @@ def test_sleep_wake_sleep_wake(sleep, hallo_getter):
     assert "good morning" in data_wake[0].text.lower()
 
 
-def test_two_interruptions(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_two_interruptions(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     sleep_date = date(2018, 12, 23)
     sleep = {
         "sleep": datetime(2018, 12, 24, 0, 44, 13),
@@ -472,8 +472,8 @@ def test_two_interruptions(hallo_getter):
     assert "good morning" in data_wake[0].text.lower()
 
 
-def test_sleep_sleep_wake(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_sleep_sleep_wake(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     sleep_date = date(2018, 12, 23)
     # before midnight
     sleep = {
@@ -532,8 +532,8 @@ def test_sleep_sleep_wake(hallo_getter):
     assert "good morning" in data_wake[0].text.lower()
 
 
-def test_sleep_wake_wake(hallo_getter):
-    test_hallo = hallo_getter({"dailys"})
+async def test_sleep_wake_wake(hallo_getter):
+    test_hallo = await hallo_getter({"dailys"})
     sleep_date = date(2018, 12, 23)
     # before midnight
     sleep = {

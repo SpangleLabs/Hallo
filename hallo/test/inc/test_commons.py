@@ -338,9 +338,9 @@ def test_list_greater():
 
 
 @pytest.mark.external_integration
-def test_load_url_json():
+async def test_load_url_json():
     url1 = "https://httpbin.org/get"
-    data1 = Commons.load_url_json(url1)
+    data1 = await Commons.load_url_json(url1)
     assert "args" in data1, "Element missing from json dict response."
     assert "headers" in data1, "Element missing from json dict response."
     assert "origin" in data1, "Element missing from json dict response."
@@ -348,7 +348,7 @@ def test_load_url_json():
     assert data1["url"] == url1, "JSON data incorrect."
     url2 = "https://httpbin.org/headers"
     headers2 = [["User-Agent", "Example data"]]
-    data2 = Commons.load_url_json(url2, headers2)
+    data2 = await Commons.load_url_json(url2, headers2)
     assert "headers" in data2, "Element missing from json response dict."
     assert "User-Agent" in data2["headers"], "Header missing from request."
     assert (
@@ -357,15 +357,15 @@ def test_load_url_json():
 
 
 @pytest.mark.external_integration
-def test_load_url_string():
+async def test_load_url_string():
     url1 = "https://httpbin.org/get"
-    data1 = Commons.load_url_string(url1)
+    data1 = await Commons.load_url_string(url1)
     data1split = data1.split("\n")
     assert data1split[0] == "{", "First line incorrect."
     assert data1split[1] == '  "args": {}, ', "String response incorrect."
     url2 = "https://httpbin.org/headers"
     headers2 = [["User-Agent", "Example data"]]
-    data2 = Commons.load_url_string(url2, headers2)
+    data2 = await Commons.load_url_string(url2, headers2)
     data2split = data2.split("\n")
     assert data2split[0] == "{", "First line incorrect."
     assert data2split[1] == '  "headers": {', "String response incorrect."

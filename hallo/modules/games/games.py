@@ -1,10 +1,10 @@
+import asyncio
 from hallo.destination import Channel, User
 from hallo.events import EventMessage
 import random
 import time
 
 from hallo.inc.commons import Commons
-from threading import Thread
 
 import hallo.modules.games.cards
 
@@ -378,9 +378,9 @@ class DDRGame(Game):
 
     def start_game(self):
         """Launches the new thread to play the game."""
-        Thread(target=self.run).start()
+        asyncio.create_task(self.run)
 
-    def run(self):
+    async def run(self):
         """Launched into a new thread, this function actually plays the DDR game."""
         server_obj = self.destination.server
         chan_obj = self.destination if isinstance(self.destination, Channel) else None
@@ -405,16 +405,16 @@ class DDRGame(Game):
         ]
         # Send first message and wait for new players to join
         output_string = "Starting new game of DDR in 5 seconds, say 'join' to join."
-        server_obj.send(
+        await server_obj.send(
             EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False)
         )
-        time.sleep(5)
+        await asyncio.sleep(5)
         # Output how many players joined and begin
         self.can_join = False
         output_string = "{} players joined: {}. Starting game.".format(
             len(self.players), ", ".join([p.name for p in self.players])
         )
-        server_obj.send(
+        await server_obj.send(
             EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False)
         )
         # Do the various turns of the game
@@ -425,27 +425,27 @@ class DDRGame(Game):
             self.last_move = direction
             self.players_moved = set()
             self.update_time()
-            server_obj.send(
+            await server_obj.send(
                 EventMessage(server_obj, chan_obj, user_obj, direction, inbound=False)
             )
-            time.sleep(random.uniform(time_min, time_max))
+            await asyncio.sleep(random.uniform(time_min, time_max))
         # end game
         # Set game over
         self.game_over = True
         output_string = "Game has finished!"
-        server_obj.send(
+        await server_obj.send(
             EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False)
         )
         # See who wins
         winner_player = self.find_winner()
         output_string = "Winner is: " + winner_player.name
-        server_obj.send(
+        await server_obj.send(
             EventMessage(server_obj, chan_obj, user_obj, output_string, inbound=False)
         )
         # Output player ratings
         for player in self.players:
             output_string = self.player_rating(player)
-            server_obj.send(
+            await server_obj.send(
                 EventMessage(
                     server_obj, chan_obj, user_obj, output_string, inbound=False
                 )
@@ -464,7 +464,7 @@ class DDRGame(Game):
                 ),
                 inbound=False,
             )
-            server_obj.send(highscore_evt)
+            await server_obj.send(highscore_evt)
             # Game ended
 
     def find_winner(self):

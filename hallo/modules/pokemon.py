@@ -20,7 +20,7 @@ class RandomPokemon(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Picks a random pokemon from generation I to generation V. Format: i choose you"
 
-    def run(self, event):
+    async def run(self, event):
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
         pokemon_list_elem = doc.getElementsByTagName("pokemon_list")[0]
@@ -52,7 +52,7 @@ class PickATeam(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Generates a team of pokemon for you."
 
-    def run(self, event):
+    async def run(self, event):
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
         pokemon_list_elem = doc.getElementsByTagName("pokemon_list")[0]
@@ -93,7 +93,7 @@ class FullyEvolvedTeam(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Pick a fully evolved pokemon team."
 
-    def run(self, event):
+    async def run(self, event):
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")
         pokemon_list_elem = doc.getElementsByTagName("pokemon_list")[0]
@@ -132,7 +132,7 @@ class Pokedex(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a random pokedex entry for a given pokemon."
 
-    def run(self, event):
+    async def run(self, event):
         line_clean = event.command_args.lower().split()
         # Load XML
         doc = minidom.parse("store/pokemon/pokemon.xml")

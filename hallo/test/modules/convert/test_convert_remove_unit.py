@@ -5,9 +5,9 @@ from hallo.test.modules.convert.convert_function_test_base import ConvertFunctio
 
 
 class ConvertRemoveUnitTest(ConvertFunctionTestBase, unittest.TestCase):
-    def test_unrecognised_type(self):
+    async def test_unrecognised_type(self):
         type1_units = len(self.test_type1.unit_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -23,9 +23,9 @@ class ConvertRemoveUnitTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_type1.unit_list) == type1_units
         ), "Shouldn't have removed the unit"
 
-    def test_specified_type_unrecognised_unit(self):
+    async def test_specified_type_unrecognised_unit(self):
         type1_units = len(self.test_type1.unit_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -41,9 +41,9 @@ class ConvertRemoveUnitTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_type1.unit_list) == type1_units
         ), "Shouldn't have removed the unit"
 
-    def test_specified_type_but_its_base_unit(self):
+    async def test_specified_type_but_its_base_unit(self):
         type1_units = len(self.test_type1.unit_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -61,9 +61,9 @@ class ConvertRemoveUnitTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_type1.unit_list) == type1_units
         ), "Shouldn't have removed the unit"
 
-    def test_specified_type_removes_unit(self):
+    async def test_specified_type_removes_unit(self):
         type1_units = len(self.test_type1.unit_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -79,9 +79,9 @@ class ConvertRemoveUnitTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_type1.unit_list) == type1_units - 1
         ), "Should have removed the unit"
 
-    def test_specified_type_with_duplicated_unit_name(self):
+    async def test_specified_type_with_duplicated_unit_name(self):
         type1_units = len(self.test_type1.unit_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server,
                 None,
@@ -97,9 +97,9 @@ class ConvertRemoveUnitTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_type1.unit_list) == type1_units - 1
         ), "Should have removed the unit"
 
-    def test_no_unit_no_type(self):
+    async def test_no_unit_no_type(self):
         type1_units = len(self.test_type1.unit_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert remove unit new_unit"
             )
@@ -113,10 +113,10 @@ class ConvertRemoveUnitTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_type1.unit_list) == type1_units
         ), "Shouldn't have removed the unit"
 
-    def test_multiple_matching_units(self):
+    async def test_multiple_matching_units(self):
         type1_units = len(self.test_type1.unit_list)
         type2_units = len(self.test_type2.unit_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert remove unit same_name"
             )
@@ -138,9 +138,9 @@ class ConvertRemoveUnitTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_type2.unit_list) == type2_units
         ), "Shouldn't have removed the unit from type2"
 
-    def test_no_type_but_base_unit(self):
+    async def test_no_type_but_base_unit(self):
         type1_units = len(self.test_type1.unit_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert remove unit unit1a"
             )
@@ -155,9 +155,9 @@ class ConvertRemoveUnitTest(ConvertFunctionTestBase, unittest.TestCase):
             len(self.test_type1.unit_list) == type1_units
         ), "Shouldn't have removed the unit"
 
-    def test_no_type_removes_unit(self):
+    async def test_no_type_removes_unit(self):
         type1_units = len(self.test_type1.unit_list)
-        self.function_dispatcher.dispatch(
+        await self.function_dispatcher.dispatch(
             EventMessage(
                 self.server, None, self.test_user, "convert remove unit unit1b"
             )

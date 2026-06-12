@@ -1,18 +1,18 @@
 from hallo.events import EventMessage
 
 
-def test_fraction_simple(hallo_getter):
-    test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_fraction_simple(hallo_getter):
+    test_hallo = await hallo_getter({"math"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 6/4")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert "3/2." in data[0].text[-4:], "Simplify fraction fails for small fractions."
 
 
-def test_fraction_complex(hallo_getter):
-    test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_fraction_complex(hallo_getter):
+    test_hallo = await hallo_getter({"math"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 360679/22")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -21,9 +21,9 @@ def test_fraction_complex(hallo_getter):
     ), "Simplify fraction fails for large fractions."
 
 
-def test_fraction_multi_slash(hallo_getter):
-    test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_fraction_multi_slash(hallo_getter):
+    test_hallo = await hallo_getter({"math"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 360679/22/2")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -32,9 +32,9 @@ def test_fraction_multi_slash(hallo_getter):
     ), "Simplify fraction should return error when given more than 1 slash."
 
 
-def test_fraction_integer(hallo_getter):
-    test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_fraction_integer(hallo_getter):
+    test_hallo = await hallo_getter({"math"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 22/2")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -43,9 +43,9 @@ def test_fraction_integer(hallo_getter):
     ), "Simplify fraction should return integer when result is integer."
 
 
-def test_fraction_one_arg(hallo_getter):
-    test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_fraction_one_arg(hallo_getter):
+    test_hallo = await hallo_getter({"math"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 104779")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -54,32 +54,32 @@ def test_fraction_one_arg(hallo_getter):
     ), "Simplify fraction should return error when not given a fraction."
 
 
-def test_fraction_unsimplify(hallo_getter):
-    test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_fraction_unsimplify(hallo_getter):
+    test_hallo = await hallo_getter({"math"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 17/3")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert "17/3." == data[0].text[-5:]
 
 
-def test_factors_float(hallo_getter):
-    test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_factors_float(hallo_getter):
+    test_hallo = await hallo_getter({"math"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 17.5/2")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
         "error" in data[0].text.lower()
     ), "Simplify fraction should return error when given a float."
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 17/2.2")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
         "error" in data[0].text.lower()
     ), "Simplify fraction should return error when given a float."
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 6.6/2.2")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -88,23 +88,23 @@ def test_factors_float(hallo_getter):
     ), "Simplify fraction should return error when given a float."
 
 
-def test_factors_negative(hallo_getter):
-    test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_factors_negative(hallo_getter):
+    test_hallo = await hallo_getter({"math"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 24/-10")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
         " -12/5." in data[0].text[-7:]
     ), "Simplify fraction not working for negative denominators."
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction -24/10")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
     assert (
         " -12/5." in data[0].text[-7:]
     ), "Simplify fraction not working for negative numerators."
-    test_hallo.function_dispatcher.dispatch(
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "fraction 24/10")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)
@@ -113,9 +113,9 @@ def test_factors_negative(hallo_getter):
     ), "Simplify fraction not working for negative numerators & denominators."
 
 
-def test_factors_word(hallo_getter):
-    test_hallo = hallo_getter({"math"})
-    test_hallo.function_dispatcher.dispatch(
+async def test_factors_word(hallo_getter):
+    test_hallo = await hallo_getter({"math"})
+    await test_hallo.function_dispatcher.dispatch(
         EventMessage(test_hallo.test_server, None, test_hallo.test_user, "factors hello/7")
     )
     data = test_hallo.test_server.get_send_data(1, test_hallo.test_user, EventMessage)

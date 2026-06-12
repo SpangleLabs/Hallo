@@ -21,7 +21,7 @@ class RandomCocktail(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Delivers ingredients and recipes for a random cocktail. Format: random cocktail"
 
-    def run(self, event):
+    async def run(self, event):
         # Load XML
         doc = minidom.parse("store/cocktail_list.xml")
         cocktail_list_elem = doc.getElementsByTagName("cocktail_list")[0]

@@ -2,8 +2,8 @@ from hallo.function_dispatcher import FunctionDispatcher
 from hallo.hallo import Hallo
 
 
-def test_fd_load_order(hallo_getter):
-    test_hallo = hallo_getter({})
+async def test_fd_load_order(hallo_getter):
+    test_hallo = await hallo_getter({})
     # Create a blank function dispatcher
     fd = FunctionDispatcher(set(), test_hallo)
     try:
@@ -19,8 +19,8 @@ def test_fd_load_order(hallo_getter):
         fd.close()
 
 
-def test_fd_disallowed_module(hallo_getter):
-    test_hallo = hallo_getter({})
+async def test_fd_disallowed_module(hallo_getter):
+    test_hallo = await hallo_getter({})
     # Create a blank function dispatcher
     fd = FunctionDispatcher(set(), test_hallo)
     try:
@@ -30,7 +30,7 @@ def test_fd_disallowed_module(hallo_getter):
         fd.close()
 
 
-def test_init():
+async def test_init():
     # Create some basic stuff
     test_modules = {"euler"}
     test_hallo = Hallo()
@@ -52,11 +52,11 @@ def test_init():
         assert len(fd.function_names) != 0, "Functions were not added to function_names"
     finally:
         fd.close()
-        test_hallo.close()
+        await test_hallo.close()
 
 
-def test_open_close(hallo_getter):
-    test_hallo = hallo_getter({})
+async def test_open_close(hallo_getter):
+    test_hallo = await hallo_getter({})
     # Set up
     test_module = "euler"
     test_modules = {test_module}

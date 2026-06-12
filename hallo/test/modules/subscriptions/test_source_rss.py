@@ -46,14 +46,14 @@ def test_title():
     assert "Example rss feed" in rf.title
 
 
-def test_from_input(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_from_input(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
 
     rf = RssSource.from_input(TEST_RSS, test_hallo.test_user, sub_repo)
 
     assert rf.url == TEST_RSS
-    assert rf.feed_title == "Example rss feed"
+    assert rf._feed_title == "Example rss feed"
 
 
 @pytest.mark.external_integration
@@ -113,8 +113,8 @@ def test_item_to_key__no_guid_or_link():
     assert key1 == key2
 
 
-def test_item_to_event(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_item_to_event(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     rf = RssSource(TEST_RSS, "feed title")
     rss_data = (
         """<item>
@@ -134,11 +134,12 @@ def test_item_to_event(hallo_getter):
     assert "http://example.com/item" in event.text
 
 
-def test_json(hallo_getter):
-    test_hallo = hallo_getter({"subscriptions"})
+async def test_json(hallo_getter):
+    test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
     rf = RssSource(TEST_RSS)
     rf.last_keys = ["item3", "item2", "item1"]
+    feed_title1 = await rf.get_feed_title()
 
     rf_json = rf.to_json()
 
@@ -148,7 +149,8 @@ def test_json(hallo_getter):
     assert "title" in rf_json
 
     rf2 = RssSource.from_json(rf_json, test_hallo.test_chan, sub_repo)
+    feed_title = await rf2.get_feed_title()
 
     assert rf2.url == TEST_RSS
-    assert rf2.feed_title == rf.feed_title
+    assert feed_title2 == feed_title1
     assert rf2.last_keys == rf.last_keys

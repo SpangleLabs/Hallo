@@ -27,7 +27,7 @@ class Hailstone(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "The hailstone function has to be given with a number (to generate the collatz sequence of.)"
 
-    def run(self, event):
+    async def run(self, event):
         """Returns the hailstone sequence for a given number. Format: hailstone <number>"""
         line_clean = event.command_args.strip().lower()
         if not line_clean.isdigit():
@@ -75,7 +75,7 @@ class NumberWord(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the textual representation of a given number. Format: number <number>"
 
-    def run(self, event):
+    async def run(self, event):
         if event.command_args.count(" ") == 0:
             number = event.command_args
             lang = "american"
@@ -281,7 +281,7 @@ class PrimeFactors(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns the prime factors of a given number. Format: prime factors <number>"
 
-    def run(self, event):
+    async def run(self, event):
         line_clean = event.command_args.strip().lower()
         if line_clean.isdigit():
             number = int(line_clean)
@@ -345,7 +345,7 @@ class ChangeOptions(Function):
             "coins.) Format: change_options <number>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         """
         Returns the number of ways to give change for a given amount (in pence, using british coins.)
         Format: change_options <number>
@@ -404,7 +404,7 @@ class Average(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Finds the average of a list of numbers. Format: average <number1> <number2> ... <number n>"
 
-    def run(self, event):
+    async def run(self, event):
         number_list = event.command_args.split()
         try:
             number_sum = sum(float(x) for x in number_list)
@@ -437,7 +437,7 @@ class HighestCommonFactor(Function):
             "Format: highest common factor <number1> <number2>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         # Getting function_dispatcher and required function objects
         hallo_obj = event.server.hallo
         function_dispatcher = hallo_obj.function_dispatcher
@@ -497,7 +497,7 @@ class SimplifyFraction(Function):
         # Help documentation, if it's just a single line, can be set here
         self.help_docs = "Returns a fraction in its simplest form. Format: simplify fraction <numerator>/<denominator>"
 
-    def run(self, event):
+    async def run(self, event):
         # Getting function_dispatcher and required function objects
         hallo_obj = event.server.hallo
         function_dispatcher = hallo_obj.function_dispatcher
@@ -587,7 +587,7 @@ class Calculate(Function):
             "Format: calc <calculation>"
         )
 
-    def run(self, event):
+    async def run(self, event):
         calc = event.command_args
         # check for equals signs, and split at them if so.
         if calc.count("=") >= 1:
@@ -630,7 +630,7 @@ class Calculate(Function):
         """Returns a list of events which this function may want to respond to in a passive way"""
         return {EventMessage}
 
-    def passive_run(self, event, hallo_obj):
+    async def passive_run(self, event, hallo_obj):
         """Replies to an event not directly addressed to the bot."""
         if not isinstance(event, EventMessage):
             return
