@@ -1,5 +1,6 @@
 from urllib.error import HTTPError
 
+from hallo.events import EventMessage
 from hallo.function import Function
 from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
 
