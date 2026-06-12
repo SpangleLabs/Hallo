@@ -1,7 +1,11 @@
+from typing import TYPE_CHECKING
+
 from hallo.server import Server
 from hallo.server_irc import ServerIRC
 from hallo.server_telegram import ServerTelegramBot
 
+if TYPE_CHECKING:
+    from hallo import Hallo
 
 class ServerFactory:
     """
@@ -9,7 +13,7 @@ class ServerFactory:
     Basically looks at xml, finds server type, and passes to appropriate Server object constructor
     """
 
-    def __init__(self, hallo):
+    def __init__(self, hallo: 'Hallo') -> None:
         """
         Constructs the Server Factory, stores Hallo object.
         :param hallo: Hallo object which owns this server factory
@@ -17,7 +21,7 @@ class ServerFactory:
         """
         self.hallo = hallo
 
-    def new_server_from_json(self, json_obj):
+    def new_server_from_json(self, json_obj: dict) -> Server:
         server_type = json_obj["type"]
         if server_type == Server.TYPE_IRC:
             return ServerIRC.from_json(json_obj, self.hallo)
