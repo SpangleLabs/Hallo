@@ -92,8 +92,12 @@ class FAKey:
             url = f"{fa_api_url}/{path}"
             if needs_cookie:
                 cookie_string = "b=" + self.b + "; a=" + self.a
-                return await  Commons.load_url_json(url, [["FA_COOKIE", cookie_string]])
-            return await Commons.load_url_json(url)
+                data = await Commons.load_url_json(url, [["FA_COOKIE", cookie_string]])
+            else:
+                data = await Commons.load_url_json(url)
+            if "error" in data:
+                raise ValueError(f"Received error from FA API: {data['error']}")
+            return data
 
         async def _new_notification_page(self) -> 'FAKey.FAReader.FANotificationsPage':
             page_data = await self._get_api_data("notifications/others.json", True)
