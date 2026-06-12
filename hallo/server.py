@@ -36,7 +36,7 @@ class Server(metaclass=ABCMeta):
     # Constants
     TYPE_IRC = "irc"
     TYPE_MOCK = "mock"
-    TYPE_TELEGRAM = "telegram"
+    TYPE_TELEGRAM_BOT = "telegram_bot"
     STATE_CLOSED = "disconnected"
     STATE_OPEN = "connected"
     STATE_CONNECTING = "connecting"
@@ -168,7 +168,7 @@ class Server(metaclass=ABCMeta):
         return
 
     @abstractmethod
-    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
+    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent'):
         raise NotImplementedError
 
     def to_json(self) -> dict:
@@ -255,14 +255,19 @@ class Server(metaclass=ABCMeta):
         """
         for channel in self.channel_list:
             if channel.address == address:
+                if channel_name is not None:
+                    channel.name = channel_name
                 return channel
         if channel_name is None:
-            channel_name = self.get_name_by_address(address)
+            channel_name = self.get_initial_name_by_address(address)
         new_channel = Channel(self, address, channel_name)
         self.add_channel(new_channel)
         return new_channel
 
-    def get_name_by_address(self, address: str) -> str:
+    def get_initial_name_by_address(self, address: str) -> str:
+        raise NotImplementedError()
+
+    async def get_name_by_address(self, address: str) -> str:
         """
         Returns the name of a destination, based on the address
         """
@@ -315,9 +320,11 @@ class Server(metaclass=ABCMeta):
         """
         for user in self.user_list:
             if user.address == address:
+                if user_name is not None:
+                    user.name = user_name
                 return user
         if user_name is None:
-            user_name = self.get_name_by_address(address)
+            user_name = self.get_initial_name_by_address(address)
         # No user by that name exists, so create one
         new_user = User(self, address, user_name)
         self.add_user(new_user)

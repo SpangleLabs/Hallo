@@ -386,7 +386,7 @@ class ServerIRC(Server):
         await super().edit(old_event, new_event)
         await self.edit_by_id(old_event.message_id, new_event)
 
-    async def edit_by_id(self, message_id: int, new_event: EventMessage, *, has_photo: bool = False):
+    async def edit_by_id(self, message_id: int, new_event: EventMessage):
         # We can't do any fancy edit mechanics on IRC, so just send the event.
         await self.send(new_event)
 
@@ -1317,7 +1317,10 @@ class ServerIRC(Server):
                 )
             )
 
-    def get_name_by_address(self, address: str) -> str:
+    def get_initial_name_by_address(self, address: str) -> str:
+        return address
+
+    async def get_name_by_address(self, address: str) -> str:
         return address
 
     def to_json(self) -> dict:

@@ -151,16 +151,6 @@ class Commons(object):
         return headers_dict
 
     @staticmethod
-    def sync_async(awaitable: Awaitable[T]) -> T:
-        # TODO (async): temporary, try and avoid this and replace it
-        try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            return asyncio.run(awaitable)
-        else:
-            return loop.run_until_complete(awaitable)
-
-    @staticmethod
     async def load_url_string(url: str, headers: list[list[str]] = None) -> str:
         """
         Takes a url, pulls it and returns the body of the page.

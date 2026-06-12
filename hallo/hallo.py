@@ -104,6 +104,7 @@ class Hallo:
         # Connect to auto-connect servers
         logger.info("Connecting to servers")
         for server in self.server_list:
+            logger.info("Connecting to %s server: %s", server.type, server.name)
             if server.get_auto_connect():
                 server.start()
         count = 0

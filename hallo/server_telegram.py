@@ -1,14 +1,10 @@
 import asyncio
 from typing import TYPE_CHECKING, Awaitable
 
-import telegram
-from telegram import Chat, InputMediaPhoto, InlineKeyboardButton, InlineKeyboardMarkup, Update, Message, TelegramError
-from telegram.ext import Updater, Filters, BaseFilter, CallbackQueryHandler, CallbackContext
+import telethon
 import logging
-from telegram.ext import MessageHandler
-from telegram.ext import messagequeue as mq
-from telegram.utils import promise
-from telegram.utils.request import Request
+from telethon import TelegramClient, events, Button
+from telethon.tl.types import KeyboardButtonCallback
 
 from hallo.destination import User, Channel
 from hallo.errors import MessageError
@@ -16,9 +12,9 @@ from hallo.events import (
     EventMessage,
     RawDataTelegram,
     EventMessageWithPhoto,
-    RawDataTelegramOutbound, EventMenuCallback, ServerEvent, ChannelUserTextEvent,
+    RawDataTelegramOutbound, EventMenuCallback, ServerEvent
 )
-from hallo.inc.commons import all_subclasses, Commons
+from hallo.inc.commons import all_subclasses
 from hallo.permission_mask import PermissionMask
 from hallo.server import Server, ServerException
 
@@ -29,44 +25,52 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def event_menu_for_telegram(event: EventMessage) -> InlineKeyboardMarkup | None:
+def event_menu_for_telegram(event: EventMessage) -> list[list[KeyboardButtonCallback]] | None:
     if not event.menu_buttons:
         return None
     menu = []
     for row in event.menu_buttons:
         menu.append([
-            InlineKeyboardButton(button.text, callback_data=button.data)
+            Button.inline(button.text, data=button.data)
             for button in row
         ])
-    return InlineKeyboardMarkup(menu)
+    return menu
 
 
 def formatting_to_telegram_mode(event_formatting: EventMessage.Formatting) -> str | None:
     return {
-        EventMessage.Formatting.MARKDOWN: telegram.ParseMode.MARKDOWN,
-        EventMessage.Formatting.HTML: telegram.ParseMode.HTML,
+        EventMessage.Formatting.MARKDOWN: "markdown",
+        EventMessage.Formatting.HTML: "html",
     }.get(event_formatting)
 
 
-class ServerTelegram(Server):
+def entity_name(entity) -> str:
+    if hasattr(entity, "title"):
+        return entity.title
+    names_list = [entity.first_name, entity.last_name]
+    return " ".join([name for name in names_list if name is not None])
 
-    type = Server.TYPE_TELEGRAM
+
+
+class ServerTelegramBot(Server):
+
+    type = Server.TYPE_TELEGRAM_BOT
     image_extensions = ["jpg", "jpeg", "png"]
 
-    def __init__(self, hallo: 'Hallo', api_key: str) -> None:
+    def __init__(self, hallo: 'Hallo', api_id: int, api_hash: str, bot_token: str) -> None:
         super().__init__(hallo)
         """
         Constructor for server object
         :param hallo: Hallo Instance of hallo that contains this server object
-        :type hallo: Hallo.Hallo
         """
         self.hallo = hallo  # The hallo object that created this server
         # Persistent/saved class variables
-        self.api_key = api_key
-        self.name = "Telegram"  # Server name #TODO: needs to be configurable!
-        self.auto_connect = (
-            True  # Whether to automatically connect to this server when hallo starts
-        )
+        self.api_id = api_id
+        self.api_hash = api_hash
+        self.bot_token = bot_token
+        self.name = "Telegram"  # Server name, configurable in config
+        # Whether to automatically connect to this server when hallo starts
+        self.auto_connect = True
         # List of channels on this server (which may or may not be currently active)
         self.channel_list: list[Channel] = []
         self.user_list: list[User] = []  # Users on this server (not all of which are online)
@@ -75,32 +79,15 @@ class ServerTelegram(Server):
         self.full_name = None  # Full name to use on this server
         self.permission_mask = PermissionMask()  # PermissionMask for the server
         # Dynamic/unsaved class variables
-        self.state = Server.STATE_CLOSED  # Current state of the server, replacing open
-        request = Request(con_pool_size=8)
-        self.bot = telegram.Bot(token=self.api_key, request=request)
-        self.bot.logger.setLevel(logging.INFO)
-        self.updater = Updater(bot=self.bot)
-        self.dispatcher = self.updater.dispatcher
-        logging.basicConfig(
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            level=logging.ERROR,
-        )
+        self.state = Server.STATE_CLOSED  # Current state of the server connection
+        session_name = f"{type(self).__name__}_{self.name}"
+        self.client = TelegramClient(session_name, api_id, api_hash)
         # Message handlers
-        self.private_msg_handler = MessageHandler(
-            Filters.private, self.parse_private_message
-        )
-        self.dispatcher.add_handler(self.private_msg_handler)
-        self.group_msg_handler = MessageHandler(Filters.group, self.parse_group_message)
-        self.dispatcher.add_handler(self.group_msg_handler)
-        callback_handler = CallbackQueryHandler(self.parse_menu_callback)
-        self.dispatcher.add_handler(callback_handler)
+        self.client.add_event_handler(self.parse_private_message, events.NewMessage(incoming=True, func=lambda e: e.is_private))
+        self.client.add_event_handler(self.parse_group_message, events.NewMessage(incoming=True, func=lambda e: not e.is_private))
+        self.client.add_event_handler(self.parse_menu_callback, events.CallbackQuery())
         # Catch-all message handler for anything not already handled.
-        self.core_msg_handler = MessageHandler(
-            Filters.all, self.parse_unhandled, channel_post_updates=True
-        )
-        self.dispatcher.add_handler(self.core_msg_handler)
-        # Message queue, for flood control. Half group limit, because retries might double it
-        self._msg_queue = mq.MessageQueue(group_burst_limit=10, autostart=False)
+        self.client.add_event_handler(self.parse_unhandled, None)
         # Initialise labels
         for evt_class in all_subclasses(ServerEvent):
             self.incoming.labels(
@@ -112,10 +99,6 @@ class ServerTelegram(Server):
                 event_type=evt_class.__name__
             )
 
-    class ChannelFilter(BaseFilter):
-        def filter(self, message: Message) -> bool:
-            return message.chat.type in [Chat.CHANNEL]
-
     def start(self) -> None:
         """
         Starts up the server and launches the new thread
@@ -123,57 +106,47 @@ class ServerTelegram(Server):
         if self.state != Server.STATE_CLOSED:
             raise ServerException("Already started.")
         self.state = Server.STATE_CONNECTING
-        asyncio.create_task(self.connect)
+        asyncio.create_task(self.connect())
 
-    def connect(self) -> None:
+    async def connect(self) -> None:
         """
         Internal method
         Method to read from stream and process. Will connect and call internal parsing methods or whatnot.
         Needs to be started in it's own thread, only exits when the server connection ends
         """
-        with self._connect_lock:
-            self.updater.start_polling()
-            self.state = Server.STATE_OPEN
-            self._msg_queue.start()
+        # noinspection PyUnresolvedReferences
+        await self.client.start(bot_token=self.bot_token)
+        self.state = Server.STATE_OPEN
 
     async def disconnect(self, force: bool = False) -> None:
         self.state = Server.STATE_DISCONNECTING
-        with self._connect_lock:
-            self.updater.stop()
-            self._msg_queue.stop()
-            self.state = Server.STATE_CLOSED
+        # noinspection PyUnresolvedReferences
+        await self.client.disconnect()
+        self.state = Server.STATE_CLOSED
 
-    async def parse_private_message(self, update: Update, context: CallbackContext) -> None:
+    async def parse_private_message(self, event: events.NewMessage.Event) -> None:
         """
         Handles a new private message
-        :param update: Update object from telegram API
-        :type update: telegram.Update
-        :param context: Callback Context from the telegram API
-        :type context: telegram.CallbackContext
+        :param event: Message event object from telegram API
         """
+        telegram_chat = await event.message.get_chat()
         # Get sender object
-        telegram_chat = update.message.chat
-        names_list = [telegram_chat.first_name, telegram_chat.last_name]
-        message_sender_name = " ".join(
-            [name for name in names_list if name is not None]
-        )
-        message_sender_addr = update.message.chat.id
-        message_sender = self.get_user_by_address(
-            message_sender_addr, message_sender_name
-        )
+        message_sender_name = entity_name(telegram_chat)
+        message_sender_addr = telegram_chat.id
+        message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
         # Create Event object
-        if update.message.photo:
-            photo_id = update.message.photo[-1]["file_id"]
-            message_text = update.message.caption or ""
+        if event.message.photo:
+            photo_id = event.message.photo.id
+            message_text = event.message.text or ""
             message_evt = EventMessageWithPhoto(
                 self, None, message_sender, message_text, photo_id
-            ).with_raw_data(RawDataTelegram(update))
+            ).with_raw_data(RawDataTelegram(event))
         else:
-            message_text = update.message.text
+            message_text = event.message.text
             message_evt = EventMessage(
                 self, None, message_sender, message_text
-            ).with_raw_data(RawDataTelegram(update))
+            ).with_raw_data(RawDataTelegram(event))
         # Print and Log the private message
         message_evt.log()
         self.incoming.labels(
@@ -182,40 +155,35 @@ class ServerTelegram(Server):
         ).inc()
         await self.hallo.function_dispatcher.dispatch(message_evt)
 
-    async def parse_group_message(self, update: Update, context: CallbackContext) -> None:
+    async def parse_group_message(self, event: events.NewMessage.Event) -> None:
         """
         Handles a new group or supergroup message (does not handle channel posts)
-        :param update: Update object from telegram API
-        :param context: Callback Context from the telegram API
+        :param event: Message event object from telegram API
         """
+        telegram_sender = await event.message.get_sender()
+        telegram_chat = await event.message.get_chat()
         # Get sender object
-        message_sender_name = " ".join(
-            [update.message.from_user.first_name, update.message.from_user.last_name]
-        )
-        message_sender_addr = update.message.from_user.id
-        message_sender = self.get_user_by_address(
-            message_sender_addr, message_sender_name
-        )
+        message_sender_name = entity_name(telegram_sender)
+        message_sender_addr = telegram_sender.id
+        message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
-        # Get channel object
-        message_channel_name = update.message.chat.title
-        message_channel_addr = update.message.chat.id
-        message_channel = self.get_channel_by_address(
-            message_channel_addr, message_channel_name
-        )
+        # Get group object
+        message_chat_name = entity_name(telegram_chat)
+        message_chat_addr = telegram_chat.id
+        message_channel = self.get_channel_by_address(message_chat_addr, message_chat_name)
         message_channel.update_activity()
         # Create message event object
-        if update.message.photo:
-            photo_id = update.message.photo[-1]["file_id"]
-            message_text = update.message.caption or ""
+        if event.message.photo:
+            photo_id = event.message.photo.id
+            message_text = event.message.text or ""
             message_evt = EventMessageWithPhoto(
                 self, message_channel, message_sender, message_text, photo_id
-            ).with_raw_data(RawDataTelegram(update))
+            ).with_raw_data(RawDataTelegram(event))
         else:
-            message_text = update.message.text
+            message_text = event.message.text
             message_evt = EventMessage(
                 self, message_channel, message_sender, message_text
-            ).with_raw_data(RawDataTelegram(update))
+            ).with_raw_data(RawDataTelegram(event))
         # Print and log the public message
         message_evt.log()
         self.incoming.labels(
@@ -232,34 +200,32 @@ class ServerTelegram(Server):
         else:
             await function_dispatcher.dispatch_passive(message_evt)
 
-    def parse_join(self, update: Update, context: CallbackContext) -> None:
+    def parse_join(self, event: events.ChatAction.Event) -> None:
         # TODO
         pass
 
-    async def parse_menu_callback(self, update: Update, context: CallbackContext) -> None:
+    async def parse_menu_callback(self, event: events.CallbackQuery.Event) -> None:
         # Get sender object
-        message_sender_name = update.effective_user.full_name
-        message_sender_addr = update.effective_user.id
-        message_sender = self.get_user_by_address(
-            message_sender_addr, message_sender_name
-        )
+        message_sender = await event.get_sender()
+        message_sender_name = entity_name(message_sender)
+        message_sender_addr = message_sender.id
+        message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
         # Get channel object
-        message_channel_name = update.effective_chat.title
-        message_channel_addr = update.effective_chat.id
+        message_chat = await event.get_chat()
+        message_channel_name = entity_name(message_chat)
+        message_channel_addr = message_chat.id
         if message_channel_addr == message_sender_addr:
             message_channel = None
         else:
-            message_channel = self.get_channel_by_address(
-                message_channel_addr, message_channel_name
-            )
+            message_channel = self.get_channel_by_address(message_channel_addr, message_channel_name)
             message_channel.update_activity()
         # Create message event object
-        message_id = update.effective_message.message_id
-        callback_data = update.callback_query.data
+        message_id = event.message_id
+        callback_data = event.data
         callback_evt = EventMenuCallback(
             self, message_channel, message_sender, message_id, callback_data
-        ).with_raw_data(RawDataTelegram(update))
+        ).with_raw_data(RawDataTelegram(event))
         # Print and log the public message
         callback_evt.log()
         self.incoming.labels(
@@ -270,16 +236,13 @@ class ServerTelegram(Server):
         function_dispatcher = self.hallo.function_dispatcher
         await function_dispatcher.dispatch_passive(callback_evt)
 
-    def parse_unhandled(self, update: Update, context: CallbackContext) -> None:
+    async def parse_unhandled(self, event: telethon.events.raw.Raw) -> None:
         """
         Parses an unhandled message from the server
-        :param update: Update object from telegram API
-        :param context: Callback Context from the telegram API
+        :param event: Raw event from the telegram API
         """
         # Print it to console
-        error = MessageError(
-            "Unhandled data received on Telegram server: {}".format(update)
-        )
+        error = MessageError(f"Unhandled data received on Telegram server: {event}")
         logger.error(error.get_log_line())
         self.incoming.labels(
             server_type=self.__class__.__name__,
@@ -300,12 +263,7 @@ class ServerTelegram(Server):
             server_type=self.__class__.__name__,
             event_type=event.__class__.__name__
         ).inc()
-        prom = promise.Promise(
-            lambda: Commons.sync_async(
-                self._send_raw(event, after_sent_callback=after_sent_callback, reply_to_id=reply_to_id),
-            )
-        )
-        self._msg_queue(prom, is_group)
+        await self._send_raw(event, after_sent_callback=after_sent_callback, reply_to_id=reply_to_id)
 
     async def _send_raw(
             self,
@@ -315,67 +273,62 @@ class ServerTelegram(Server):
             reply_to_id: int | None = None
     ) -> None:
         if isinstance(event, EventMessageWithPhoto):
-            destination = event.destination
             try:
                 if isinstance(event.photo_id, list):
-                    media = [InputMediaPhoto(x) for x in event.photo_id]
-                    media[0].caption = event.text
-                    media[0].parse_mode = formatting_to_telegram_mode(event.formatting)
-                    msg = self.bot.send_media_group(
-                        chat_id=destination.address,
-                        media=media,
-                        reply_to_message_id=reply_to_id,
+                    msgs = await self.client.send_file(
+                        entity=event.destination.address,
+                        file=event.photo_id,
+                        caption=event.text,
+                        parse_mode=formatting_to_telegram_mode(event.formatting),
+                        reply_to=reply_to_id,
                     )
+                    msg = msgs[0]
                 elif any(
                     [
                         event.photo_id.lower().endswith("." + x)
-                        for x in ServerTelegram.image_extensions
+                        for x in ServerTelegramBot.image_extensions
                     ]
                 ):
-                    msg = self.bot.send_photo(
-                        chat_id=destination.address,
-                        photo=event.photo_id,
+                    msg = await self.client.send_file(
+                        entity=event.destination.address,
+                        file=event.photo_id,
                         caption=event.text,
-                        reply_markup=event_menu_for_telegram(event),
+                        buttons=event_menu_for_telegram(event),
                         parse_mode=formatting_to_telegram_mode(event.formatting),
-                        reply_to_message_id=reply_to_id,
+                        reply_to=reply_to_id,
                     )
                 else:
-                    msg = self.bot.send_document(
-                        chat_id=destination.address,
-                        document=event.photo_id,
+                    msg = await self.client.send_file(
+                        entity=event.destination.address,
+                        file=event.photo_id,
                         caption=event.text,
-                        reply_markup=event_menu_for_telegram(event),
+                        buttons=event_menu_for_telegram(event),
                         parse_mode=formatting_to_telegram_mode(event.formatting),
-                        reply_to_message_id=reply_to_id,
+                        reply_to=reply_to_id,
                     )
             except Exception as e:
                 logger.warning(
                     "Failed to send message with picture. Sending without. Picture path %s", event.photo_id, exc_info=e
                 )
-                msg = self.bot.send_message(
-                    chat_id=destination.address,
-                    text=event.text,
-                    reply_markup=event_menu_for_telegram(event),
+                msg = await self.client.send_message(
+                    entity=event.destination.address,
+                    message=event.text,
+                    buttons=event_menu_for_telegram(event),
                     parse_mode=formatting_to_telegram_mode(event.formatting),
-                    reply_to_message_id=reply_to_id,
+                    reply_to=reply_to_id,
                 )
             event.with_raw_data(RawDataTelegramOutbound(msg))
         elif isinstance(event, EventMessage):
-            msg = self.bot.send_message(
-                chat_id=event.destination.address,
-                text=event.text,
+            msg = await self.client.send_message(
+                entity=event.destination.address,
+                message=event.text,
                 parse_mode=formatting_to_telegram_mode(event.formatting),
-                reply_markup=event_menu_for_telegram(event),
-                reply_to_message_id=reply_to_id,
+                buttons=event_menu_for_telegram(event),
+                reply_to=reply_to_id,
             )
             event.with_raw_data(RawDataTelegramOutbound(msg))
         else:
-            error = MessageError(
-                "Unsupported event type, {}, sent to Telegram server".format(
-                    event.__class__.__name__
-                )
-            )
+            error = MessageError(f"Unsupported event type, {event.__class__.__name__}, sent to Telegram server")
             logger.error(error.get_log_line())
             raise NotImplementedError()
         event.log()
@@ -384,16 +337,9 @@ class ServerTelegram(Server):
         return
 
     async def reply(self, old_event: EventMessage, new_event: EventMessage) -> EventMessage | None:
-        """
-        :type old_event: events.ChannelUserTextEvent
-        :param new_event:
-        :return:
-        """
         # Do checks
         await super().reply(old_event, new_event)
-        if old_event.raw_data is None or not isinstance(
-            old_event.raw_data, RawDataTelegram
-        ):
+        if old_event.raw_data is None or not isinstance(old_event.raw_data, RawDataTelegram):
             raise ServerException("Old event has no telegram data associated with it")
         reply_to_id = old_event.message_id
         # Send event
@@ -408,75 +354,76 @@ class ServerTelegram(Server):
             server_type=self.__class__.__name__,
             event_type=new_event.__class__.__name__
         ).inc()
+        msg_id = old_event.message_id
+        if msg_id is None:
+            raise ServerException("Can't edit a message which does not have an associated message ID")
         # Edit event
-        return self.edit_by_id(old_event.message_id, new_event, has_photo=isinstance(old_event, EventMessageWithPhoto))
+        return await self.edit_by_id(msg_id, new_event)
 
-    async def edit_by_id(
-            self,
-            message_id: int,
-            new_event: EventMessage,
-            *,
-            has_photo: bool = False
-    ) -> EventMessage:
+    async def edit_by_id(self, message_id: int, new_event: EventMessage) -> EventMessage:
         if not message_id:
-            raise ServerException("Old event has no message id associated with it")
+            raise ServerException("Old event has no message id specified")
         self.outgoing.labels(
             server_type=self.__class__.__name__,
             event_type=new_event.__class__.__name__
         ).inc()
-        prom = promise.Promise(self._edit_by_id_raw, (message_id, new_event), {"has_photo": has_photo})
-        self._msg_queue(prom, False)
+        return await self._edit_by_id_raw(message_id, new_event)
 
-    def _edit_by_id_raw(
+    async def _edit_by_id_raw(
             self,
             message_id: int,
             new_event: EventMessage,
-            *,
-            has_photo: bool = False
     ) -> EventMessage:
         destination = new_event.destination
-        if has_photo or isinstance(new_event, EventMessageWithPhoto):
+        if isinstance(new_event, EventMessageWithPhoto):
             try:
-                msg = self.bot.edit_message_caption(
-                    chat_id=destination.address,
-                    message_id=message_id,
-                    caption=new_event.text,
-                    reply_markup=event_menu_for_telegram(new_event),
-                    parse_mode=formatting_to_telegram_mode(new_event.formatting)
-                )
-            except TelegramError:
-                msg = self.bot.edit_message_text(
-                    chat_id=destination.address,
-                    message_id=message_id,
+                msg = await self.client.edit_message(
+                    entity=destination.address,
+                    message=message_id,
                     text=new_event.text,
-                    reply_markup=event_menu_for_telegram(new_event),
+                    buttons=event_menu_for_telegram(new_event),
+                    parse_mode=formatting_to_telegram_mode(new_event.formatting),
+                    file=new_event.photo_id,
+                )
+            except Exception as e:
+                logger.warning(
+                    "Failed to edit message with picture. Editing without. Picture path %s",
+                    new_event.photo_id, exc_info=e
+                )
+                msg = await self.client.edit_message(
+                    entity=destination.address,
+                    message=message_id,
+                    text=new_event.text,
+                    buttons=event_menu_for_telegram(new_event),
                     parse_mode=formatting_to_telegram_mode(new_event.formatting)
                 )
         else:
-            msg = self.bot.edit_message_text(
-                chat_id=destination.address,
-                message_id=message_id,
+            msg = await self.client.edit_message(
+                entity=destination.address,
+                message=message_id,
                 text=new_event.text,
-                reply_markup=event_menu_for_telegram(new_event),
+                buttons=event_menu_for_telegram(new_event),
                 parse_mode=formatting_to_telegram_mode(new_event.formatting)
             )
         new_event.with_raw_data(RawDataTelegramOutbound(msg))
         new_event.log()
         return new_event
 
-    def get_name_by_address(self, address: str) -> str:
-        chat = self.bot.get_chat(address)
-        if chat.type == chat.PRIVATE:
-            return " ".join([chat.first_name, chat.last_name])
-        if chat.type in [chat.GROUP, chat.SUPERGROUP, chat.CHANNEL]:
-            return chat.title
+    def get_initial_name_by_address(selfself, address: str) -> str:
+        return f"Entity #{address}"
+
+    async def get_name_by_address(self, address: str) -> str:
+        address_id = int(address)
+        input_entity = await self.client.get_input_entity(address_id)
+        entity = await self.client.get_entity(input_entity)
+        return entity_name(entity)
 
     def to_json(self) -> dict:
         """
         Creates a dict of configuration for the server, to store as json
         """
         json_obj = dict()
-        json_obj["type"] = Server.TYPE_TELEGRAM
+        json_obj["type"] = Server.TYPE_TELEGRAM_BOT
         json_obj["name"] = self.name
         json_obj["auto_connect"] = self.auto_connect
         json_obj["channels"] = []
@@ -491,15 +438,20 @@ class ServerTelegram(Server):
             json_obj["prefix"] = self.prefix
         if not self.permission_mask.is_empty():
             json_obj["permission_mask"] = self.permission_mask.to_json()
-        json_obj["api_key"] = self.api_key
+        json_obj["api_id"] = self.api_id
+        json_obj["api_hash"] = self.api_hash
+        json_obj["bot_token"] = self.bot_token
         return json_obj
 
     @staticmethod
-    def from_json(json_obj: dict, hallo: 'Hallo') -> 'ServerTelegram':
-        api_key = json_obj["api_key"]
-        new_server = ServerTelegram(hallo, api_key)
+    def from_json(json_obj: dict, hallo: 'Hallo') -> 'ServerTelegramBot':
+        api_id = json_obj["api_id"]
+        api_hash = json_obj["api_hash"]
+        bot_token = json_obj["bot_token"]
+        new_server = ServerTelegramBot(hallo, api_id, api_hash, bot_token)
         new_server.name = json_obj["name"]
-        new_server.auto_connect = json_obj["auto_connect"]
+        if "auto_connect" in json_obj:
+            new_server.auto_connect = json_obj["auto_connect"]
         if "nick" in json_obj:
             new_server.nick = json_obj["nick"]
         if "prefix" in json_obj:
@@ -508,9 +460,9 @@ class ServerTelegram(Server):
             new_server.permission_mask = PermissionMask.from_json(
                 json_obj["permission_mask"]
             )
-        for channel in json_obj["channels"]:
+        for channel in json_obj.get("channels", []):
             new_server.add_channel(Channel.from_json(channel, new_server))
-        for user in json_obj["users"]:
+        for user in json_obj.get("users", []):
             new_server.add_user(User.from_json(user, new_server))
         return new_server
 

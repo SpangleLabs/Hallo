@@ -1,6 +1,6 @@
 from hallo.server import Server
 from hallo.server_irc import ServerIRC
-from hallo.server_telegram import ServerTelegram
+from hallo.server_telegram import ServerTelegramBot
 
 
 class ServerFactory:
@@ -21,7 +21,7 @@ class ServerFactory:
         server_type = json_obj["type"]
         if server_type == Server.TYPE_IRC:
             return ServerIRC.from_json(json_obj, self.hallo)
-        elif server_type == Server.TYPE_TELEGRAM:
-            return ServerTelegram.from_json(json_obj, self.hallo)
+        elif server_type == Server.TYPE_TELEGRAM_BOT:
+            return ServerTelegramBot.from_json(json_obj, self.hallo)
         else:
             return None

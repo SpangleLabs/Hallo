@@ -1,13 +1,11 @@
 import asyncio
-import functools
 from datetime import timedelta, time, date
 from typing import TYPE_CHECKING, Type
 
-from hallo.events import EventMessage, EventMinute, RawDataTelegram, RawDataTelegramOutbound, Event
+from hallo.events import EventMessage, EventMinute, Event
 from hallo.modules.dailys.dailys_field import DailysField, DailysException
 from hallo.modules.dailys.field_sleep import DailysSleepField
 from hallo.modules.dailys.field_mood_models import MoodTime, MoodDay, MoodTriggeredCache, MoodTimeList
-from hallo.inc.commons import Commons
 
 if TYPE_CHECKING:
     from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
@@ -117,13 +115,8 @@ class DailysMoodField(DailysField):
             ) or input_clean.isdigit():
                 unanswered_requests = mood_day.list_unanswered_requests()
                 # Check if telegram message, and reply to a message
-                if (
-                    isinstance(evt.raw_data, RawDataTelegram)
-                    and evt.raw_data.update_obj.message.reply_to_message is not None
-                ):
-                    reply_id = (
-                        evt.raw_data.update_obj.message.reply_to_message.message_id
-                    )  # TODO: This should just be a method in event.
+                if evt.reply_to_msg_id is not None:
+                    reply_id = evt.reply_to_msg_id
                     unanswered_ids = {
                         request.message_id: request for request in unanswered_requests
                     }
@@ -173,9 +166,7 @@ class DailysMoodField(DailysField):
         # Send message
         evt = await self.message_channel(msg)
         # Get message_id, if telegram outbound message
-        sent_msg_id = -1
-        if isinstance(evt.raw_data, RawDataTelegramOutbound):
-            sent_msg_id = evt.raw_data.sent_msg_object.message_id
+        sent_msg_id = evt.message_id
         # Update data
         async with self.lock:
             mood_day.add_request(time_val, sent_msg_id)

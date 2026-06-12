@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 from hallo.function import Function
 import math
@@ -14,7 +15,7 @@ class Euler(Function):
     euler project functions
     """
 
-    mHalloObject = None  # Todo: Rename and type hint.
+    hallo = None
 
     def __init__(self):
         """
@@ -33,7 +34,7 @@ class Euler(Function):
 
     async def run(self, event):
         # Some functions might need this.
-        self.mHalloObject = event.server.hallo
+        self.hallo = event.server.hallo
         line_clean = event.command_args.strip().lower()
         if line_clean == "list":
             return event.create_response(self.list_all())
@@ -49,31 +50,25 @@ class Euler(Function):
             )
             output_string = (
                 "I'm learning to complete the project Euler programming problems. "
-                "I've not done many so far, I've only done {} of the 514 problems. ".format(
-                    count_solutions
-                )
-            )
-            output_string += (
-                "But I'm working at it... say 'Hallo Euler list' and I'll list what I've done so far, "
-                "say 'Hallo Euler {num}' for the answer to challenge number {num}."
+                f"I've not done many so far, I've only done {count_solutions} of the 514 problems. "
+                "But I'm working at it... say 'Hallo: Euler list' and I'll list what I've done so far, "
+                "say 'Hallo: Euler {num}' for the answer to challenge number {num}."
             )
             return event.create_response(output_string)
 
     def list_all(self):
         # list all available project Euler answers
-        problem_func_names = []
+        problem_func_names: list[str] = []
         for func_name in dir(self):
             if func_name[:5] == "euler" and func_name[5:].isdigit():
                 problem_func_names.append(func_name[5:])
         problem_func_names = sorted(problem_func_names, key=int)
-        output_string = "Currently I can do {} Project Euler problems ".format(
-            len(problem_func_names)
-        )
+        output_string = f"Currently I can do {len(problem_func_names)} Project Euler problems "
         output_string += ", ".join(problem_func_names[:-1])
         output_string += " and " + problem_func_names[-1] + "."
         return output_string
 
-    def run_function(self, number_string):
+    def run_function(self, number_string: str) -> str:
         function_name = "euler" + number_string
         function_names = [
             func_name
@@ -86,15 +81,15 @@ class Euler(Function):
         if not hasattr(function_obj, "__call__"):
             return "Error, That doesn't seem to work."
         try:
-            output_string = "Euler project problem {}? I think the answer is: {}.".format(
-                number_string, function_obj()
-            )
+            result = function_obj()
+            output_string = f"Euler project problem {number_string}? I think the answer is: {result}."
         except Exception as e:
             output_string = "Hmm, seems that one has an error... darnit."
             logger.error("Euler error: ", exc_info=e)
         return output_string
 
-    def check_prime(self, input_number):
+    # noinspection PyMethodMayBeStatic
+    def check_prime(self, input_number: int) -> bool:
         check_prime = input_number
         if check_prime <= 1:
             return False
@@ -103,13 +98,15 @@ class Euler(Function):
                 return False
         return True
 
-    def check_palindrome(self, input_string):
+    # noinspection PyMethodMayBeStatic
+    def check_palindrome(self, input_string: str) -> bool:
         if input_string == input_string[::-1]:
             return True
         else:
             return False
 
-    def check_list_in_list(self, list_small, list_big):
+    # noinspection PyMethodMayBeStatic
+    def check_list_in_list(self, list_small: list[Any], list_big: list[Any]) -> bool:
         list_test = list(list_big)
         for x in list_small:
             if x in list_test:
@@ -118,7 +115,7 @@ class Euler(Function):
                 return False
         return True
 
-    def check_concat_primes(self, number_one, number_two):
+    def check_concat_primes(self, number_one: int, number_two: int) -> bool:
         check_one = self.check_prime(int(str(number_one) + str(number_two)))
         if not check_one:
             return False
@@ -127,7 +124,8 @@ class Euler(Function):
             return False
         return True
 
-    def find_number_of_factors(self, number):
+    # noinspection PyMethodMayBeStatic
+    def find_number_of_factors(self, number: int) -> int:
         number = int(number)
         num_factors = 2
         for x in range(2, int(math.sqrt(number)) + 1):
@@ -135,7 +133,8 @@ class Euler(Function):
                 num_factors += 2
         return num_factors
 
-    def find_factors(self, number):
+    # noinspection PyMethodMayBeStatic
+    def find_factors(self, number: int) -> list[int]:
         number = int(number)
         factors = []
         for x in range(1, int(math.sqrt(number)) + 1):
@@ -145,21 +144,24 @@ class Euler(Function):
                     factors.append(number / x)
         return factors
 
-    def find_word_value(self, word):
+    # noinspection PyMethodMayBeStatic
+    def find_word_value(self, word: str) -> int:
         value = 0
         word = word.upper()
         for char in word:
             value += ord(char) - 64
         return value
 
-    def remove_list_items(self, input_list, remove_item):
+    # noinspection PyMethodMayBeStatic
+    def remove_list_items(self, input_list: list[Any], remove_item: Any) -> list[Any]:
         new_list = []
         for item in input_list:
             if item != remove_item:
                 new_list.append(item)
         return new_list
 
-    def get_list_pandigitals(self):
+    # noinspection PyMethodMayBeStatic
+    def get_list_pandigitals(self) -> list[int]:
         pandigitals = []
         digits = list(range(10))
         for a in range(9):
@@ -310,7 +312,7 @@ class Euler(Function):
 
     def euler8(self):
         # Get SimplifyFraction function
-        function_dispatcher = self.mHalloObject.function_dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("simplify fraction")
         function_obj = function_dispatcher.get_function_object(
             function_class
@@ -492,7 +494,7 @@ class Euler(Function):
 
     def euler17(self):
         # Get Number function
-        function_dispatcher = self.mHalloObject.function_dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("number")
         function_obj = function_dispatcher.get_function_object(
             function_class
@@ -642,7 +644,7 @@ class Euler(Function):
 
     def euler26(self):
         # Get PrimeFactors function
-        function_dispatcher = self.mHalloObject.function_dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
         function_obj = function_dispatcher.get_function_object(
             function_class
@@ -713,7 +715,7 @@ class Euler(Function):
 
     def euler29(self):
         # Get PrimeFactors function
-        function_dispatcher = self.mHalloObject.function_dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
         function_obj = function_dispatcher.get_function_object(
             function_class
@@ -749,7 +751,7 @@ class Euler(Function):
 
     def euler31(self):
         # Get ChangeOptions function
-        function_dispatcher = self.mHalloObject.function_dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("change options")
         function_obj = function_dispatcher.get_function_object(
             function_class
@@ -834,7 +836,7 @@ class Euler(Function):
 
     def euler33(self):
         # Get PrimeFactors function
-        function_dispatcher = self.mHalloObject.function_dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
         function_obj = function_dispatcher.get_function_object(
             function_class
@@ -1144,7 +1146,7 @@ class Euler(Function):
 
     def euler47(self):
         # Get PrimeFactors function
-        function_dispatcher = self.mHalloObject.function_dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
         function_class = function_dispatcher.get_function_by_name("prime factors")
         function_obj = function_dispatcher.get_function_object(
             function_class
@@ -1248,7 +1250,7 @@ class Euler(Function):
 
     def euler52(self):
         # Get SimplifyFraction function
-        function_dispatcher = self.mHalloObject.function_dispatcher
+        function_dispatcher = self.hallo.function_dispatcher
         simp_frac_class = function_dispatcher.get_function_by_name("simplify fraction")
         simp_frac_obj = function_dispatcher.get_function_object(
             simp_frac_class

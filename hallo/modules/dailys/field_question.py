@@ -6,8 +6,7 @@ import dateutil.parser
 import isodate
 
 from hallo.modules.dailys.dailys_field import DailysField, DailysException
-from hallo.events import EventMessage, EventMinute, Event, RawDataTelegram
-from hallo.inc.commons import Commons
+from hallo.events import EventMessage, EventMinute, Event
 
 if TYPE_CHECKING:
     from hallo.modules.dailys.dailys_spreadsheet import DailysSpreadsheet
@@ -430,13 +429,8 @@ class QuestionsField(DailysField):
         if evt.text.strip().lower() in ["questions", "open questions", "unanswered question"]:
             return await self._handle_questions_list_request(evt)
         # Check if it's a reply to a question
-        if (
-            isinstance(evt.raw_data, RawDataTelegram)
-            and evt.raw_data.update_obj.message.reply_to_message is not None
-        ):
-            reply_id = (
-                evt.raw_data.update_obj.message.reply_to_message.message_id
-            )
+        reply_id = evt.reply_to_msg_id
+        if reply_id is not None:
             return await self._handle_answer_reply(evt, reply_id, evt.text)
         # Handle manual answers
         text_split = evt.text.split(maxsplit=2)

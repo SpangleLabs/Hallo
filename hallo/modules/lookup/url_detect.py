@@ -40,7 +40,7 @@ class UrlDetect(Function):
         """Replies to an event not directly addressed to the bot."""
         if not isinstance(event, EventMessage):
             return
-        if event.server.type == Server.TYPE_TELEGRAM:
+        if event.server.type == Server.TYPE_TELEGRAM_BOT:
             return
         # Get hallo object for stuff to use
         self.hallo_obj = hallo_obj

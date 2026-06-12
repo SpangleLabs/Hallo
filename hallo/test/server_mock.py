@@ -43,14 +43,14 @@ class ServerMock(Server):
     ) -> None:
         self.send_data.append(event)
         if after_sent_callback:
-            after_sent_callback(event)
+            await after_sent_callback
 
     async def reply(self, old_event, new_event):
         await super().reply(old_event, new_event)
         await self.send(new_event)
 
-    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent', *, has_photo: bool = False):
-        self.send(new_event)
+    async def edit_by_id(self, message_id: int, new_event: 'ChannelUserTextEvent'):
+        await self.send(new_event)
 
     async def reconnect(self):
         pass
@@ -58,7 +58,10 @@ class ServerMock(Server):
     async def check_user_identity(self, user_obj):
         pass
 
-    def get_name_by_address(self, address):
+    def get_initial_name_by_address(self, address: str) -> str:
+        return address
+
+    async def get_name_by_address(self, address):
         return address
 
     def to_json(self):
