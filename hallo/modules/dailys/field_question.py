@@ -420,7 +420,7 @@ class QuestionsField(DailysField):
             answer.question_msg_id = event.message_id
             await self.data.save_answer(answer)
         # Send message
-        await self.message_channel(msg, after_msg_sent(msg))
+        await self.message_channel(msg, after_msg_sent)
         # Save answer
         await self.data.save_answer(answer)
 

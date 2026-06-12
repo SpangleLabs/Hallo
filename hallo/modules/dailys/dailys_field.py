@@ -1,8 +1,7 @@
 import datetime
 import logging
 from abc import ABCMeta
-from datetime import date
-from typing import Type, TYPE_CHECKING, Awaitable
+from typing import Type, TYPE_CHECKING, Awaitable, Callable
 
 from hallo.events import Event, EventMessage
 
@@ -52,7 +51,7 @@ class DailysField(metaclass=ABCMeta):
     async def message_channel(
             self,
             text: str,
-            after_sent_callback: Awaitable[None] | None = None
+            after_sent_callback: Callable[[EventMessage], Awaitable[None]] | None = None
     ) -> EventMessage:
         evt = EventMessage(
             self.spreadsheet.destination.server,
@@ -61,7 +60,10 @@ class DailysField(metaclass=ABCMeta):
             text,
             inbound=False,
         )
-        await self.spreadsheet.user.server.send(evt, after_sent_callback=after_sent_callback)
+        after_sent_awaitable = None
+        if after_sent_callback is not None:
+            after_sent_awaitable = after_sent_callback(evt)
+        await self.spreadsheet.user.server.send(evt, after_sent_callback=after_sent_awaitable)
         return evt
 
 
