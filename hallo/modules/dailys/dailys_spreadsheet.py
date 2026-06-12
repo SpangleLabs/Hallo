@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING
 import datetime
 
+from hallo.destination import Destination, User
+from hallo.hallo import Hallo
 from hallo.inc.commons import Commons
 from hallo.modules.dailys.dailys_field import DailysException, DailysField
 from hallo.modules.dailys.dailys_field_factory import DailysFieldFactory
-
-if TYPE_CHECKING:
-    from hallo.destination import Destination, User
-    from hallo.hallo import Hallo
 
 
 class DailysSpreadsheet:
