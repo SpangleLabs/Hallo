@@ -213,7 +213,9 @@ class DailysMoodField(DailysField):
         mood_times = self.time_list.sorted()
         for mood_time in mood_times:
             mood_entry = mood_day.get_entry(mood_time)
-            entry_str = mood_entry.to_status_str(mood_fields)
+            entry_str = "None"
+            if mood_entry is not None:
+                entry_str = mood_entry.to_status_str(mood_fields)
             msg_lines += [f"- {mood_time}: {entry_str}"]
         msg = "\n".join(msg_lines)
         return await evt.reply(evt.create_response(msg))
