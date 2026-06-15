@@ -69,7 +69,7 @@ class Subscription(Generic[State, Update]):
                 None,
                 None
             )
-            subscription.update(False)
+            await subscription.update(False)
         except Exception as e:
             raise SubscriptionException(f"Failed to create {source_class.type_name} subscription", e)
         return subscription
@@ -81,13 +81,13 @@ class Subscription(Generic[State, Update]):
             return True
         return False
 
-    def update(self, send: bool = True) -> bool:
+    async def update(self, send: bool = True) -> bool:
         """
         Update subscriptions, get new state, find the change, send messages, and save state
         :param send: Whether to send messages
         :return: Whether messages were sent
         """
-        new_state = self.source.current_state()
+        new_state = await self.source.current_state()
         was_update = False
         if send:
             update = self.source.state_change(new_state)

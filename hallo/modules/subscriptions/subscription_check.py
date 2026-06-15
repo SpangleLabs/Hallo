@@ -98,7 +98,7 @@ class SubscriptionCheck(Function):
             update = False
             for search_sub in matching_subs:
                 try:
-                    update = search_sub.update() or update
+                    update = (await search_sub.update()) or update
                 except Exception as e:
                     error = SubscriptionCheckError(search_sub, e)
                     logger.error(error.get_log_line(), exc_info=e)
@@ -125,7 +125,7 @@ class SubscriptionCheck(Function):
                 for sub in sub_repo.sub_list:
                     wants_update = await sub.passive_run(event, hallo_obj)
                     if wants_update:
-                        sub.update()
+                        await sub.update()
             return
         if isinstance(event, EventMinute):
             # Check through all feeds to see which need updates
@@ -138,7 +138,7 @@ class SubscriptionCheck(Function):
                         # Get new items
                         try:
                             logger.debug("SubCheck - Checking %s", search_sub.source.title)
-                            search_sub.update()
+                            await search_sub.update()
                         except Exception as e:
                             error = SubscriptionCheckError(search_sub, e)
                             logger.error(error.get_log_line(), exc_info=e)
