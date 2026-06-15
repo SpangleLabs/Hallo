@@ -54,9 +54,11 @@ class SubscriptionCheck(Function):
 
     def get_sub_repo(self, hallo_obj: Hallo) -> SubscriptionRepo:
         if self.subscription_repo is None:
-            self.subscription_repo = SubscriptionRepo.load_json(hallo_obj)
+            sub_repo = SubscriptionRepo.load_json(hallo_obj)
             # Add menus last, after common config
-            self.subscription_repo.load_menu_cache(hallo_obj)
+            sub_repo.load_menu_cache(hallo_obj)
+            self.subscription_repo = sub_repo
+            return sub_repo
         return self.subscription_repo
 
     @staticmethod
