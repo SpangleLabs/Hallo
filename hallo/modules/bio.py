@@ -85,5 +85,5 @@ class Protein(Function):
             check_message = check_message.replace(valid_char, "")
         if check_message == "":
             event.split_command_text("", clean_line)
-            return self.run(event)
+            return await self.run(event)
         return None
