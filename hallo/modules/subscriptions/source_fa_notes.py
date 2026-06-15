@@ -162,8 +162,8 @@ class FANotesSource(Source[FANotesState, FANotesUpdate]):
 
     async def current_state(self) -> FANotesState:
         return FANotesState(
-            inbox=self.inbox_source.current_state(),
-            outbox=self.outbox_source.current_state(),
+            inbox=await self.inbox_source.current_state(),
+            outbox=await self.outbox_source.current_state(),
         )
 
     def state_change(self, state: FANotesState) -> FANotesUpdate | None:

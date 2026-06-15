@@ -279,9 +279,9 @@ class FACommentNotificationsSource(Source[FACommentNotificationsState, FAComment
 
     async def current_state(self) -> FACommentNotificationsState:
         return FACommentNotificationsState(
-            submissions=self.submission_source.current_state(),
-            journals=self.journal_source.current_state(),
-            shouts=self.shout_source.current_state(),
+            submissions=await self.submission_source.current_state(),
+            journals=await self.journal_source.current_state(),
+            shouts=await self.shout_source.current_state(),
         )
 
     def state_change(self, state: FACommentNotificationsState) -> FACommentNotificationsUpdate | None:
