@@ -132,7 +132,7 @@ class ServerTelegramBot(Server):
         telegram_chat = await event.message.get_chat()
         # Get sender object
         message_sender_name = entity_name(telegram_chat)
-        message_sender_addr = telegram_chat.id
+        message_sender_addr = telethon.utils.get_peer_id(telegram_chat)
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
         # Create Event object
@@ -164,12 +164,12 @@ class ServerTelegramBot(Server):
         telegram_chat = await event.message.get_chat()
         # Get sender object
         message_sender_name = entity_name(telegram_sender)
-        message_sender_addr = telegram_sender.id
+        message_sender_addr = telethon.utils.get_peer_id(telegram_sender)
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
         # Get group object
         message_chat_name = entity_name(telegram_chat)
-        message_chat_addr = telegram_chat.id
+        message_chat_addr = telethon.utils.get_peer_id(telegram_chat)
         message_channel = self.get_channel_by_address(message_chat_addr, message_chat_name)
         message_channel.update_activity()
         # Create message event object
@@ -208,13 +208,13 @@ class ServerTelegramBot(Server):
         # Get sender object
         message_sender = await event.get_sender()
         message_sender_name = entity_name(message_sender)
-        message_sender_addr = message_sender.id
+        message_sender_addr = telethon.utils.get_peer_id(message_sender)
         message_sender = self.get_user_by_address(message_sender_addr, message_sender_name)
         message_sender.update_activity()
         # Get channel object
         message_chat = await event.get_chat()
         message_channel_name = entity_name(message_chat)
-        message_channel_addr = message_chat.id
+        message_channel_addr = telethon.utils.get_peer_id(message_chat)
         if message_channel_addr == message_sender_addr:
             message_channel = None
         else:
@@ -409,7 +409,7 @@ class ServerTelegramBot(Server):
         new_event.log()
         return new_event
 
-    def get_initial_name_by_address(selfself, address: str) -> str:
+    def get_initial_name_by_address(self, address: str) -> str:
         return f"Entity #{address}"
 
     async def get_name_by_address(self, address: str) -> str:
