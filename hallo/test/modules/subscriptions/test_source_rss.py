@@ -124,7 +124,7 @@ async def test_item_to_event(hallo_getter):
     )
     rss_elem = ElementTree.fromstring(rss_data)
 
-    event = rf.item_to_event(test_hallo.test_server, test_hallo.test_chan, None, rss_elem)
+    event = await rf.item_to_event(test_hallo.test_server, test_hallo.test_chan, None, rss_elem)
 
     assert event.server == test_hallo.test_server
     assert event.channel == test_hallo.test_chan
@@ -149,7 +149,7 @@ async def test_json(hallo_getter):
     assert "title" in rf_json
 
     rf2 = RssSource.from_json(rf_json, test_hallo.test_chan, sub_repo)
-    feed_title = await rf2.get_feed_title()
+    feed_title2 = await rf2.get_feed_title()
 
     assert rf2.url == TEST_RSS
     assert feed_title2 == feed_title1

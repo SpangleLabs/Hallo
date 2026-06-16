@@ -26,6 +26,8 @@ class DailysSleepField(DailysField):
         return [EventMessage]
 
     async def passive_trigger(self, evt: Event) -> None:
+        if not isinstance(evt, EventMessage):
+            return
         input_clean = evt.text.strip().lower()
         now = evt.get_send_time()
         time_str = now.isoformat()

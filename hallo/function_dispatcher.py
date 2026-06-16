@@ -493,7 +493,7 @@ class FunctionDispatcher(object):
     def close(self) -> None:
         """Shut down FunctionDispatcher, save all functions, etc"""
         for module_object in list(self.function_dict):
-            self.unload_module_functi(module_object)
+            self.unload_module_functions(module_object)
 
     def to_json(self) -> dict:
         """

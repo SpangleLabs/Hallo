@@ -5,7 +5,7 @@ from hallo.server_irc import ServerIRC
 from hallo.server_telegram import ServerTelegramBot
 
 if TYPE_CHECKING:
-    from hallo import Hallo
+    from hallo.hallo import Hallo
 
 class ServerFactory:
     """

@@ -103,5 +103,5 @@ async def test_create_from_input(hallo_getter):
     key = FAKeyData("cookie_a", "cookie_b")
     udp.set_user_data(test_hallo.test_user, key)
     # Create from input
-    field = DailysFAField.create_from_input(evt, spreadsheet)
+    field = await DailysFAField.create_from_input(evt, spreadsheet)
     assert field.spreadsheet == spreadsheet

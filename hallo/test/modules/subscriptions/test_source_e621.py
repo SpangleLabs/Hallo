@@ -38,7 +38,7 @@ async def test_from_input(hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
 
-    rf = E621Source.from_input("cabinet", test_hallo.test_user, sub_repo)
+    rf = await E621Source.from_input("cabinet", test_hallo.test_user, sub_repo)
 
     assert rf.search == "cabinet"
 

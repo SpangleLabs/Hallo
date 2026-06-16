@@ -46,7 +46,7 @@ async def test_from_input(hallo_getter):
     sub_repo = SubscriptionRepo(test_hallo)
     test_hallo.test_user.extra_data_dict[E6KeyData.type_name] = E6KeyData("test_username", "test_api_key").to_json()
 
-    rf = E621TaggingSource.from_input("cabinet tags=\"table legs\"", test_hallo.test_user, sub_repo)
+    rf = await E621TaggingSource.from_input("cabinet tags=\"table legs\"", test_hallo.test_user, sub_repo)
 
     assert rf.search == "cabinet"
     assert rf.tags == ["table", "legs"]

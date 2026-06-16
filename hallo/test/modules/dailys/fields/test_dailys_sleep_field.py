@@ -33,7 +33,7 @@ async def test_create_from_input_col_specified(hallo_getter):
     evt.split_command_text(cmd_name, cmd_args)
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
-    field = DailysSleepField.create_from_input(evt, spreadsheet)
+    field = await DailysSleepField.create_from_input(evt, spreadsheet)
     assert field.spreadsheet == spreadsheet
 
 

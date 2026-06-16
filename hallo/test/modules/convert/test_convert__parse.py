@@ -1,6 +1,7 @@
 import unittest
 
-import hallo.modules
+from hallo.modules.convert.convert import Convert
+from hallo.modules.convert.convert_repo import ConvertMeasure
 from hallo.test.modules.convert.convert_function_test_base import ConvertFunctionTestBase
 from hallo.test.modules.convert.test_convert_view_repo import MockMethod
 
@@ -13,17 +14,17 @@ class ConvertConvertParseTest(ConvertFunctionTestBase, unittest.TestCase):
         self.output_two = "{convert two called}"
         self.mock_one = MockMethod(self.output_one)
         self.mock_two = MockMethod(self.output_two)
-        self.conv_one = hallo.modules.convert.convert.Convert.convert_one_unit
-        self.conv_two = hallo.modules.convert.convert.Convert.convert_two_unit
-        hallo.modules.convert.convert.Convert.convert_one_unit = self.mock_one.method
-        hallo.modules.convert.convert.Convert.convert_two_unit = self.mock_two.method
+        self.conv_one = Convert.convert_one_unit
+        self.conv_two = Convert.convert_two_unit
+        Convert.convert_one_unit = self.mock_one.method
+        Convert.convert_two_unit = self.mock_two.method
         # Get the Convert function object
         conv_cls = self.function_dispatcher.get_function_by_name("convert")
         self.conv_obj = self.function_dispatcher.get_function_object(conv_cls)
 
     def tearDown(self):
-        hallo.modules.convert.convert.Convert.convert_one_unit = self.conv_one
-        hallo.modules.convert.convert.Convert.convert_two_unit = self.conv_two
+        Convert.convert_one_unit = self.conv_one
+        Convert.convert_two_unit = self.conv_two
         super().tearDown()
 
     def test_no_split_words(self):
@@ -33,7 +34,7 @@ class ConvertConvertParseTest(ConvertFunctionTestBase, unittest.TestCase):
         assert isinstance(self.mock_one.arg[0], list)
         assert len(self.mock_one.arg[0]) == 1
         measure = self.mock_one.arg[0][0]
-        assert isinstance(measure, hallo.modules.convert.convert_repo.ConvertMeasure)
+        assert isinstance(measure, ConvertMeasure)
         assert measure.amount == 5
         assert measure.unit == self.test_unit1b
 
@@ -70,7 +71,7 @@ class ConvertConvertParseTest(ConvertFunctionTestBase, unittest.TestCase):
         assert isinstance(self.mock_two.arg[2], bool)
         assert len(self.mock_two.arg[0]) == 1
         measure = self.mock_two.arg[0][0]
-        assert isinstance(measure, hallo.modules.convert.convert_repo.ConvertMeasure)
+        assert isinstance(measure, ConvertMeasure)
         assert measure.amount == 3
         assert measure.unit == self.test_unit1b
         assert self.mock_two.arg[1].strip() == "unit1a"
@@ -86,7 +87,7 @@ class ConvertConvertParseTest(ConvertFunctionTestBase, unittest.TestCase):
         assert isinstance(self.mock_two.arg[2], bool)
         assert len(self.mock_two.arg[0]) == 1
         measure = self.mock_two.arg[0][0]
-        assert isinstance(measure, hallo.modules.convert.convert_repo.ConvertMeasure)
+        assert isinstance(measure, ConvertMeasure)
         assert measure.amount == 3
         assert measure.unit == self.test_unit1b
         assert self.mock_two.arg[1].strip() == "unit1a"
