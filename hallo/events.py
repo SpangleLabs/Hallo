@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Any, Optional, TYPE_CHECKING, Type
 
 from telethon import events
+# noinspection PyUnresolvedReferences
 from telethon.tl.types import Message
 
 if TYPE_CHECKING:

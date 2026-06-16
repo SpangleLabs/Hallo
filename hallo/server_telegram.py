@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Awaitable
 import telethon
 import logging
 from telethon import TelegramClient, events, Button
+# noinspection PyUnresolvedReferences
 from telethon.tl.types import KeyboardButtonCallback
 
 from hallo.destination import User, Channel
