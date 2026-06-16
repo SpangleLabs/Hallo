@@ -45,7 +45,7 @@ async def test_two_mock_servers(hallo_getter):
     serv1.name = "server_list_test1"
     serv1.auto_connect = True
     serv1.nick = "hallo"
-    serv1.disconnect()
+    await serv1.disconnect()
     test_hallo.add_server(serv1)
     serv2 = ServerMock(test_hallo)
     serv2.name = "server_list_test2"

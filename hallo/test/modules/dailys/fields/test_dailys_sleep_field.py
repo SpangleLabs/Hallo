@@ -49,7 +49,7 @@ async def test_telegram_time(hallo_getter):
     evt = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(msg_date)))
-    field.passive_trigger(evt)
+    await field.passive_trigger(evt)
     # Check data is saved
     notif_dict = spreadsheet.saved_data["sleep"][
         yesterday if msg_date.hour <= 16 else today
@@ -68,7 +68,7 @@ async def test_now_time(hallo_getter):
     now = datetime.now()
     today_date = now.date()
     yesterday_date = today_date - timedelta(1)
-    field.passive_trigger(evt)
+    await field.passive_trigger(evt)
     # Check data is saved
     notif_dict = spreadsheet.saved_data["sleep"][
         yesterday_date if now.hour <= 16 else today_date
@@ -88,7 +88,7 @@ async def test_sleep_before_5(hallo_getter):
     evt = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(sleep_time)))
-    field.passive_trigger(evt)
+    await field.passive_trigger(evt)
     # Check data is saved to yesterday
     notif_dict = spreadsheet.saved_data["sleep"][sleep_time.date() - timedelta(1)]
     assert "sleep_time" in notif_dict
@@ -105,7 +105,7 @@ async def test_sleep_after_5(hallo_getter):
     evt = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(sleep_time)))
-    field.passive_trigger(evt)
+    await field.passive_trigger(evt)
     # Check data is saved to today
     notif_dict = spreadsheet.saved_data["sleep"][sleep_time.date()]
     assert "sleep_time" in notif_dict
@@ -143,7 +143,7 @@ async def test_sleep_wake(sleep, hallo_getter):
     evt_sleep = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_sleep)))
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     # Check sleep time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -156,7 +156,7 @@ async def test_sleep_wake(sleep, hallo_getter):
     evt_wake = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_wake)))
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -221,7 +221,7 @@ async def test_sleep_wake_sleep_wake(sleep, hallo_getter):
     evt_sleep = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_sleep)))
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     # Check sleep time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -237,7 +237,7 @@ async def test_sleep_wake_sleep_wake(sleep, hallo_getter):
     ).with_raw_data(
         RawDataTelegram(get_telegram_time(date_interrupt_start))
     )
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -255,7 +255,7 @@ async def test_sleep_wake_sleep_wake(sleep, hallo_getter):
     ).with_raw_data(
         RawDataTelegram(get_telegram_time(date_interrupt_end))
     )
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -281,7 +281,7 @@ async def test_sleep_wake_sleep_wake(sleep, hallo_getter):
     evt_wake = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_wake)))
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -325,7 +325,7 @@ async def test_two_interruptions(hallo_getter):
     evt_sleep = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_sleep)))
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     # Check sleep time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -339,7 +339,7 @@ async def test_two_interruptions(hallo_getter):
     evt_wake = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_interrupt1_start)))
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -355,7 +355,7 @@ async def test_two_interruptions(hallo_getter):
     evt_wake = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_interrupt1_end)))
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -381,7 +381,7 @@ async def test_two_interruptions(hallo_getter):
     evt_wake = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_interrupt2_start)))
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -407,7 +407,7 @@ async def test_two_interruptions(hallo_getter):
     evt_wake = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_interrupt2_end)))
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -441,7 +441,7 @@ async def test_two_interruptions(hallo_getter):
     evt_wake = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_wake)))
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -492,7 +492,7 @@ async def test_sleep_sleep_wake(hallo_getter):
     evt_sleep = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_sleep1)))
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     # Check sleep time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -506,7 +506,7 @@ async def test_sleep_sleep_wake(hallo_getter):
     evt_sleep = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_sleep2)))
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     # Check sleep time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -520,7 +520,7 @@ async def test_sleep_sleep_wake(hallo_getter):
     evt_wake = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_wake)))
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -552,7 +552,7 @@ async def test_sleep_wake_wake(hallo_getter):
     evt_sleep = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_sleep)))
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     # Check sleep time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -566,7 +566,7 @@ async def test_sleep_wake_wake(hallo_getter):
     evt_sleep = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_wake1)))
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     # Check sleep time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict
@@ -582,7 +582,7 @@ async def test_sleep_wake_wake(hallo_getter):
     evt_wake = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning"
     ).with_raw_data(RawDataTelegram(get_telegram_time(date_wake2)))
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check wake time is logged
     notif_dict = spreadsheet.saved_data["sleep"][sleep_date]
     assert "sleep_time" in notif_dict

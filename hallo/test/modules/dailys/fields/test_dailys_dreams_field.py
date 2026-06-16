@@ -17,7 +17,7 @@ async def test_ignore_other(hallo_getter):
     )
 
     # Send a message event
-    field.passive_trigger(evt)
+    await field.passive_trigger(evt)
 
     assert field.type_name not in spreadsheet.saved_data
 
@@ -39,7 +39,7 @@ async def test_record_dream(hallo_getter):
     )
 
     # Send a message event
-    field.passive_trigger(evt)
+    await field.passive_trigger(evt)
 
     dream_dict = spreadsheet.saved_data[field.type_name][
         evt.get_send_time().date()
@@ -80,7 +80,7 @@ async def test_record_second_dream(hallo_getter):
     field = DailysDreamField(spreadsheet)
 
     # Send a message event
-    field.passive_trigger(evt)
+    await field.passive_trigger(evt)
 
     # Check data is added
     dream_dict = spreadsheet.saved_data[field.type_name][

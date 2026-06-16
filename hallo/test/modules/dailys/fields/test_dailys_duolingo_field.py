@@ -22,7 +22,7 @@ async def test_day_rollover(hallo_getter):
     field = DailysDuolingoField(spreadsheet, TEST_USERNAME, TEST_PASSWORD)
     # Send a new day event
     evt = EventDay()
-    field.passive_trigger(evt)
+    await field.passive_trigger(evt)
     assert (
             field.type_name not in spreadsheet.saved_data
             or evt.get_send_time().date() not in spreadsheet.saved_data[field.type_name]

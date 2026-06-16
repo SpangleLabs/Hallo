@@ -19,7 +19,7 @@ async def test_day_rollover_no_data(hallo_getter):
     field = DailysFAField(spreadsheet)
     # Send a new day event
     try:
-        field.passive_trigger(EventDay())
+        await field.passive_trigger(EventDay())
         assert False, "Should have failed to check FA data."
     except hallo.modules.dailys.dailys_field.DailysException as e:
         assert (
@@ -40,7 +40,7 @@ async def test_day_rollover(hallo_getter):
     field = DailysFAField(spreadsheet)
     # Send a new day event
     evt = EventDay()
-    field.passive_trigger(evt)
+    await field.passive_trigger(evt)
     assert evt.get_send_time().date() not in spreadsheet.saved_data
     notif_dict = spreadsheet.saved_data["furaffinity"][
         evt.get_send_time().date() - timedelta(1)
@@ -75,7 +75,7 @@ async def test_create_from_input_no_fa_data(hallo_getter):
     spreadsheet = DailysSpreadsheetMock(test_hallo.test_user, test_hallo.test_chan)
     # Create from input
     try:
-        DailysFAField.create_from_input(evt, spreadsheet)
+        await DailysFAField.create_from_input(evt, spreadsheet)
         assert (
             False
         ), "Should have failed to create DailysFAField due to missing FA login info."

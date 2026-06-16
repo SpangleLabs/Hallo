@@ -50,7 +50,7 @@ async def test_from_input(hallo_getter):
     test_hallo = await hallo_getter({"subscriptions"})
     sub_repo = SubscriptionRepo(test_hallo)
 
-    rf = RssSource.from_input(TEST_RSS, test_hallo.test_user, sub_repo)
+    rf = await RssSource.from_input(TEST_RSS, test_hallo.test_user, sub_repo)
 
     assert rf.url == TEST_RSS
     assert rf._feed_title == "Example rss feed"

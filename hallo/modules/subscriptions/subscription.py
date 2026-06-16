@@ -94,7 +94,7 @@ class Subscription(Generic[State, Update]):
             if update:
                 was_update = True
                 self.last_update = datetime.now()
-                self.send(update)
+                await self.send(update)
         self.source.save_state(new_state)
         self.last_check = datetime.now()
         return was_update
@@ -118,7 +118,7 @@ class Subscription(Generic[State, Update]):
         """
         :return: True if it would like to be updated
         """
-        return self.source.passive_run(event, hallo_obj)
+        return await self.source.passive_run(event, hallo_obj)
 
     @classmethod
     def from_json(cls, json_data: dict, hallo_obj: 'Hallo', sub_repo: 'SubscriptionRepo') -> 'Subscription':

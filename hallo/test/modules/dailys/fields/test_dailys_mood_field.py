@@ -108,7 +108,7 @@ async def test_trigger_morning_query(hallo_getter):
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_wake = EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning")
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check mood query is sent
     notif_dict = spreadsheet.saved_data["mood"][evt_wake.get_send_time().date()]
     assert MoodTime.WAKE in notif_dict
@@ -142,7 +142,7 @@ async def test_trigger_sleep_query(hallo_getter):
     times = [MoodTime(MoodTime.WAKE), MoodTime(time(14, 0)), MoodTime(MoodTime.SLEEP)]
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     # Check mood query is sent
     notif_dict = spreadsheet.saved_data["mood"][evt_sleep.get_send_time().date()]
     assert MoodTime.SLEEP in notif_dict
@@ -166,7 +166,7 @@ async def test_trigger_morning_no_query_if_not_in_times(hallo_getter):
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_wake = EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning")
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check mood query is not sent or added to saved data
     assert evt_wake.get_send_time().date() not in spreadsheet.saved_data["mood"]
     test_hallo.test_server.get_send_data(0)
@@ -184,7 +184,7 @@ async def test_trigger_sleep_no_query_if_not_in_times(hallo_getter):
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_sleep = EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "night")
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     # Check mood query is not sent or added to saved data
     assert evt_sleep.get_send_time().date() not in spreadsheet.saved_data["mood"]
     test_hallo.test_server.get_send_data(0)
@@ -213,7 +213,7 @@ async def test_trigger_sleep_no_query_if_already_given(hallo_getter):
     field = DailysMoodField(spreadsheet, times, moods)
     # Send message
     evt_sleep1 = EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "night")
-    field.passive_trigger(evt_sleep1)
+    await field.passive_trigger(evt_sleep1)
     # Check mood query is sent
     notif_dict = spreadsheet.saved_data["mood"][evt_sleep1.get_send_time().date()]
     assert MoodTime.SLEEP in notif_dict
@@ -229,7 +229,7 @@ async def test_trigger_sleep_no_query_if_already_given(hallo_getter):
     spreadsheet.saved_data["mood"][evt_sleep1.get_send_time().date()] = notif_dict
     # Send second sleep query
     evt_sleep2 = EventMessage(test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "night")
-    field.passive_trigger(evt_sleep2)
+    await field.passive_trigger(evt_sleep2)
     # Check no mood query is sent
     notif_dict = spreadsheet.saved_data["mood"][evt_sleep1.get_send_time().date()]
     assert notif_dict[MoodTime.SLEEP]["message_id"] == msg_id
@@ -260,7 +260,7 @@ async def test_trigger_sleep_after_midnight(hallo_getter):
     evt_sleep = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "night"
     ).with_raw_data(RawDataTelegram(get_telegram_time(sleep_time)))
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     # Check mood query is sent for previous day
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.SLEEP in notif_dict
@@ -291,12 +291,12 @@ async def test_trigger_time_exactly_once(hallo_getter):
     evt3 = EventMinute()
     evt3.send_time = datetime(2019, 1, 18, 14, 1, 11)
     # Send time before trigger time
-    field.passive_trigger(evt1)
+    await field.passive_trigger(evt1)
     # Check mood data not updated and query not sent
     assert mood_date not in spreadsheet.saved_data["mood"]
     test_hallo.test_server.get_send_data(0)
     # Send time after trigger time
-    field.passive_trigger(evt2)
+    await field.passive_trigger(evt2)
     # Check mood query is sent
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert str(time(14, 0, 0)) in notif_dict
@@ -311,7 +311,7 @@ async def test_trigger_time_exactly_once(hallo_getter):
     notif_dict[str(time(14, 0, 0))]["message_id"] = msg_id
     spreadsheet.saved_data["mood"][mood_date] = notif_dict
     # Send another time after trigger time
-    field.passive_trigger(evt3)
+    await field.passive_trigger(evt3)
     # Check mood data not updated and query not sent
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert notif_dict[str(time(14, 0, 0))]["message_id"] == msg_id
@@ -340,7 +340,7 @@ async def test_process_reply_to_query(hallo_getter):
     ).with_raw_data(
         RawDataTelegram(get_telegram_time_reply(mood_datetime, msg_id))
     )
-    field.passive_trigger(evt_mood)
+    await field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.WAKE in notif_dict
@@ -377,7 +377,7 @@ async def test_process_most_recent_query(hallo_getter):
     evt_mood = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "413"
     ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
-    field.passive_trigger(evt_mood)
+    await field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.WAKE in notif_dict
@@ -413,7 +413,7 @@ async def test_process_most_recent_sleep_query_after_midnight(hallo_getter):
     evt_sleep = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(sleep_datetime)))
-    field.passive_trigger(evt_sleep)
+    await field.passive_trigger(evt_sleep)
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.SLEEP in notif_dict
     assert "message_id" in notif_dict[MoodTime.SLEEP]
@@ -424,7 +424,7 @@ async def test_process_most_recent_sleep_query_after_midnight(hallo_getter):
     evt_mood = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "413"
     ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
-    field.passive_trigger(evt_mood)
+    await field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.SLEEP in notif_dict
@@ -463,7 +463,7 @@ async def test_process_no_mood_query(hallo_getter):
     evt_mood = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "413"
     ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
-    field.passive_trigger(evt_mood)
+    await field.passive_trigger(evt_mood)
     # Check mood response is not logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.WAKE in notif_dict
@@ -499,7 +499,7 @@ async def test_process_time_specified(hallo_getter):
     evt_mood = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "HAT 1400 413"
     ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
-    field.passive_trigger(evt_mood)
+    await field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.WAKE in notif_dict
@@ -534,7 +534,7 @@ async def test_process_wake_specified(hallo_getter):
     evt_mood = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "HAT wake 413"
     ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
-    field.passive_trigger(evt_mood)
+    await field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.WAKE in notif_dict
@@ -564,7 +564,7 @@ async def test_process_sleep_specified(hallo_getter):
     evt_mood = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "HAT sleep 413"
     ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
-    field.passive_trigger(evt_mood)
+    await field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.SLEEP in notif_dict
@@ -602,7 +602,7 @@ async def test_no_trigger_after_processed(hallo_getter):
     evt_mood = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "HAT 1400 413"
     ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
-    field.passive_trigger(evt_mood)
+    await field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.WAKE in notif_dict
@@ -624,7 +624,7 @@ async def test_no_trigger_after_processed(hallo_getter):
     # Check that when the time happens, a query isn't sent
     evt_time = EventMinute()
     evt_time.send_time = datetime.combine(mood_date, time(14, 3, 10))
-    field.passive_trigger(evt_time)
+    await field.passive_trigger(evt_time)
     # Check data isn't added
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert str(time(14, 0, 0)) in notif_dict
@@ -651,7 +651,7 @@ async def test_no_trigger_wake_after_processed(hallo_getter):
     evt_mood = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "HAT wake 413"
     ).with_raw_data(RawDataTelegram(get_telegram_time(mood_datetime)))
-    field.passive_trigger(evt_mood)
+    await field.passive_trigger(evt_mood)
     # Check mood response is logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.WAKE in notif_dict
@@ -669,7 +669,7 @@ async def test_no_trigger_wake_after_processed(hallo_getter):
     evt_wake = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "morning"
     ).with_raw_data(RawDataTelegram(get_telegram_time(wake_datetime)))
-    field.passive_trigger(evt_wake)
+    await field.passive_trigger(evt_wake)
     # Check query isn't logged
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.WAKE in notif_dict
@@ -707,7 +707,7 @@ async def test_no_trigger_sleep_after_processed_sleep_and_midnight(hallo_getter)
     evt_sleep1 = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(sleep_datetime)))
-    field.passive_trigger(evt_sleep1)
+    await field.passive_trigger(evt_sleep1)
     # Check mood query is given and stuff
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.SLEEP in notif_dict
@@ -724,7 +724,7 @@ async def test_no_trigger_sleep_after_processed_sleep_and_midnight(hallo_getter)
     ).with_raw_data(
         RawDataTelegram(get_telegram_time_reply(mood_datetime, msg_id))
     )
-    field.passive_trigger(evt_mood)
+    await field.passive_trigger(evt_mood)
     # Check mood is recorded and response given
     notif_dict = spreadsheet.saved_data["mood"][mood_date]
     assert MoodTime.SLEEP in notif_dict
@@ -743,6 +743,6 @@ async def test_no_trigger_sleep_after_processed_sleep_and_midnight(hallo_getter)
     evt_sleep1 = EventMessage(
         test_hallo.test_server, test_hallo.test_chan, test_hallo.test_user, "sleep"
     ).with_raw_data(RawDataTelegram(get_telegram_time(sleep2_datetime)))
-    field.passive_trigger(evt_sleep1)
+    await field.passive_trigger(evt_sleep1)
     # Check there's no response
     test_hallo.test_server.get_send_data(0)

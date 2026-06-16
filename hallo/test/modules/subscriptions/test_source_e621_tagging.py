@@ -58,7 +58,7 @@ async def test_from_input__no_user_data(hallo_getter):
     sub_repo = SubscriptionRepo(test_hallo)
 
     with pytest.raises(hallo.modules.subscriptions.subscription_exception.SubscriptionException) as e:
-        E621TaggingSource.from_input("cabinet tags=\"table legs\"", test_hallo.test_user, sub_repo)
+        await E621TaggingSource.from_input("cabinet tags=\"table legs\"", test_hallo.test_user, sub_repo)
 
     assert "you must specify an e621 username and api key" in str(e).lower()
     assert "setup e621 user data <username> <api_key>" in str(e).lower()
