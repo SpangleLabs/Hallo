@@ -159,7 +159,7 @@ class Commons(object):
         """
         headers_dict = Commons.create_headers_dict(headers)
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as resp:
+            async with session.get(url, headers=headers_dict) as resp:
                 return await resp.text()
 
     @staticmethod
@@ -195,7 +195,7 @@ class Commons(object):
         """
         headers_dict = Commons.create_headers_dict(headers)
         async with aiohttp.ClientSession() as session:
-            async with session.put(url, headers=headers_dict, json=data) as resp:
+            async with session.put(url, headers=headers_dict, json=data):
                 return
 
     @staticmethod
