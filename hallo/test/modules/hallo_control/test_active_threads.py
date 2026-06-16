@@ -1,7 +1,5 @@
 import asyncio
 
-import time
-
 from hallo.events import EventMessage
 
 

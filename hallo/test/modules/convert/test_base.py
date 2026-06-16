@@ -1,12 +1,10 @@
 import asyncio
-
 import gc
+import unittest
 
 from hallo.function_dispatcher import FunctionDispatcher
 from hallo.hallo import Hallo
-import unittest
 from hallo.test.server_mock import ServerMock
-import time
 
 
 class TestBase(unittest.TestCase):

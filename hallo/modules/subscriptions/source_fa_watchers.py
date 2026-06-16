@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 
-from hallo.inc.commons import Commons
 from hallo.modules.subscriptions.subscription_exception import SubscriptionException
 from hallo.destination import Destination, User, Channel
 from hallo.events import EventMessage
