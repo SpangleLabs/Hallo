@@ -48,7 +48,7 @@ class Source(ABC, Generic[State, Update]):
         pass
 
     @abstractmethod
-    def events(
+    async def events(
             self,
             server: Server,
             channel: Channel | None,

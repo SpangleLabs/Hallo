@@ -180,12 +180,12 @@ class FANotesSource(Source[FANotesState, FANotesUpdate]):
         self.inbox_source.save_state(state["inbox"])
         self.outbox_source.save_state(state["outbox"])
 
-    def events(
+    async def events(
             self, server: Server, channel: Channel | None, user: User | None, update: FANotesUpdate
     ) -> list[EventMessage]:
         return (
-                self.inbox_source.events(server, channel, user, update["inbox"])
-                + self.outbox_source.events(server, channel, user, update["outbox"])
+                await self.inbox_source.events(server, channel, user, update["inbox"])
+                + await self.outbox_source.events(server, channel, user, update["outbox"])
         )
 
     @classmethod

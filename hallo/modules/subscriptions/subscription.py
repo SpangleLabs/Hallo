@@ -102,7 +102,7 @@ class Subscription(Generic[State, Update]):
     async def send(self, update: Update) -> None:
         channel = self.destination if isinstance(self.destination, Channel) else None
         user = self.destination if isinstance(self.destination, User) else None
-        events = self.source.events(self.server, channel, user, update)
+        events = await self.source.events(self.server, channel, user, update)
         for event in events:
             try:
                 await self.server.send(event)

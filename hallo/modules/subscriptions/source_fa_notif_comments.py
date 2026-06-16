@@ -301,13 +301,13 @@ class FACommentNotificationsSource(Source[FACommentNotificationsState, FAComment
         self.journal_source.save_state(state["journals"])
         self.shout_source.save_state(state["shouts"])
 
-    def events(
+    async def events(
             self, server: Server, channel: Channel | None, user: User | None, update: FACommentNotificationsUpdate
     ) -> list[EventMessage]:
         return (
-                self.submission_source.events(server, channel, user, update["submissions"])
-                + self.journal_source.events(server, channel, user, update["journals"])
-                + self.shout_source.events(server, channel, user, update["shouts"])
+                await self.submission_source.events(server, channel, user, update["submissions"])
+                + await self.journal_source.events(server, channel, user, update["journals"])
+                + await self.shout_source.events(server, channel, user, update["shouts"])
         )
 
     @classmethod

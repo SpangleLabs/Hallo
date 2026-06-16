@@ -41,14 +41,14 @@ class StreamSource(Source[list[Item], list[Item]], Generic[Item]):
     def save_state(self, state: list[Item]) -> None:
         self.last_keys = [self.item_to_key(item) for item in state]
 
-    def events(
+    async def events(
             self,
             server: Server,
             channel: Channel | None,
             user: User | None,
             update: list[Item]
     ) -> list[EventMessage]:
-        return [self.item_to_event(server, channel, user, item) for item in update[::-1]]
+        return [await self.item_to_event(server, channel, user, item) for item in update[::-1]]
 
     @abstractmethod
     def item_to_key(self, item: Item) -> Key:
