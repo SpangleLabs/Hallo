@@ -36,7 +36,7 @@ class DailysRegister(Function):
         sub_check_obj = function_dispatcher.get_function_object(
             sub_check_function
         )  # type: Dailys
-        dailys_repo = await sub_check_obj.get_dailys_repo(hallo)
+        dailys_repo = await sub_check_obj.get_dailys_repo(hallo_obj)
         # Check if there's already a spreadsheet here
         if dailys_repo.get_by_location(event) is not None:
             return event.create_response(
