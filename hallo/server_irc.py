@@ -3,7 +3,7 @@ import datetime
 import logging
 import re
 import socket
-from typing import TYPE_CHECKING, Awaitable
+from typing import TYPE_CHECKING, Awaitable, Any
 
 from prometheus_client import Gauge
 
@@ -1324,14 +1324,15 @@ class ServerIRC(Server):
         return address
 
     def to_json(self) -> dict:
-        json_obj = {}
-        json_obj["type"] = Server.TYPE_IRC
-        json_obj["name"] = self.name
-        json_obj["auto_connect"] = self.auto_connect
-        json_obj["channels"] = []
+        json_obj: dict[str, Any] = {
+            "type": Server.TYPE_IRC,
+            "name": self.name,
+            "auto_connect": self.auto_connect,
+            "channels": [],
+            "users": [],
+        }
         for channel in self.channel_list:
             json_obj["channels"].append(channel.to_json())
-        json_obj["users"] = []
         for user in self.user_list:
             json_obj["users"].append(user.to_json())
         if self.nick is not None:
