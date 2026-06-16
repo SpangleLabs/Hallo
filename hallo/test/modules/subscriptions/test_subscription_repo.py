@@ -17,7 +17,7 @@ async def test_add_feed(hallo_getter):
     sub_repo = SubscriptionRepo(test_hallo)
     assert sub_repo.sub_list == []
     # Create example rss feed
-    rf = RssSource("http://spangle.org.uk/hallo/test_rss.xml", "feed title")
+    rf = RssSource("https://spangle.org.uk/hallo/test_rss.xml", "feed title")
     sub = Subscription(test_hallo.test_server, test_hallo.test_chan, rf, timedelta(days=1), None, None)
     sub_repo.add_sub(sub)
     assert len(sub_repo.sub_list) == 1
@@ -35,20 +35,20 @@ async def test_get_feeds_by_destination(hallo_getter):
     chan3 = serv2.get_channel_by_address("test_chan3".lower(), "test_chan3")
     # Setup a feed list
     rfl = SubscriptionRepo(test_hallo)
-    rf1 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?1", "feed 1")
+    rf1 = RssSource("https://spangle.org.uk/hallo/test_rss.xml?1", "feed 1")
     sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
     rfl.add_sub(sub1)
-    rf2 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?2", "feed 2")
+    rf2 = RssSource("https://spangle.org.uk/hallo/test_rss.xml?2", "feed 2")
     sub2 = Subscription(serv1, user2, rf2, timedelta(days=1), None, None)
     rfl.add_sub(sub2)
-    rf3 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?3", "feed 3")
+    rf3 = RssSource("https://spangle.org.uk/hallo/test_rss.xml?3", "feed 3")
     sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
     rfl.add_sub(sub3)
-    rf4 = RssSource("http://spangle.org.uk/hallo/test_rss.xml?4", "feed 4")
+    rf4 = RssSource("https://spangle.org.uk/hallo/test_rss.xml?4", "feed 4")
     sub4 = Subscription(serv2, chan3, rf4, timedelta(days=1), None, None)
     rfl.add_sub(sub4)
     rf5 = RssSource(
-        "http://spangle.org.uk/hallo/test_rss.xml?5",
+        "https://spangle.org.uk/hallo/test_rss.xml?5",
         feed_title="feed 5",
     )
     sub5 = Subscription(serv2, chan3, rf5, timedelta(days=1), None, None)
@@ -73,31 +73,31 @@ async def test_get_feeds_by_title(hallo_getter):
     # Setup a feed list
     sub_repo = SubscriptionRepo(test_hallo)
     rf1 = RssSource(
-        "http://spangle.org.uk/hallo/test_feed.xml?1",
+        "https://spangle.org.uk/hallo/test_feed.xml?1",
         feed_title="test_feed1",
     )
     sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
     sub_repo.add_sub(sub1)
     rf2 = RssSource(
-        "http://spangle.org.uk/hallo/test_feed.xml?2",
+        "https://spangle.org.uk/hallo/test_feed.xml?2",
         feed_title="test_feed2",
     )
     sub2 = Subscription(serv1, user2, rf2, timedelta(days=1), None, None)
     sub_repo.add_sub(sub2)
     rf3 = RssSource(
-        "http://spangle.org.uk/hallo/test_feed.xml?3",
+        "https://spangle.org.uk/hallo/test_feed.xml?3",
         feed_title="test_feed3",
     )
     sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
     sub_repo.add_sub(sub3)
     rf4 = RssSource(
-        "http://spangle.org.uk/hallo/test_feed.xml?4",
+        "https://spangle.org.uk/hallo/test_feed.xml?4",
         feed_title="test_feed4",
     )
     sub4 = Subscription(serv2, chan3, rf4, timedelta(days=1), None, None)
     sub_repo.add_sub(sub4)
     rf5 = RssSource(
-        "http://spangle.org.uk/hallo/test_feed.xml?5",
+        "https://spangle.org.uk/hallo/test_feed.xml?5",
         feed_title="test_feed3",
     )
     sub5 = Subscription(serv2, chan3, rf5, timedelta(days=1), None, None)
@@ -121,38 +121,38 @@ async def test_get_feeds_by_url(hallo_getter):
     # Setup a feed list
     sub_repo = SubscriptionRepo(test_hallo)
     rf1 = RssSource(
-        "http://spangle.org.uk/hallo/test_feed.xml?1",
+        "https://spangle.org.uk/hallo/test_feed.xml?1",
         feed_title="test_feed1",
     )
     sub1 = Subscription(serv1, chan1, rf1, timedelta(days=1), None, None)
     sub_repo.add_sub(sub1)
     rf2 = RssSource(
-        "http://spangle.org.uk/hallo/test_feed.xml?2",
+        "https://spangle.org.uk/hallo/test_feed.xml?2",
         feed_title="test_feed2",
     )
     sub2 = Subscription(serv1, user2, rf2, timedelta(days=1), None, None)
     sub_repo.add_sub(sub2)
     rf3 = RssSource(
-        "http://spangle.org.uk/hallo/test_feed.xml?3",
+        "https://spangle.org.uk/hallo/test_feed.xml?3",
         feed_title="test_feed3",
     )
     sub3 = Subscription(serv2, chan3, rf3, timedelta(days=1), None, None)
     sub_repo.add_sub(sub3)
     rf4 = RssSource(
-        "http://spangle.org.uk/hallo/test_feed.xml?4",
+        "https://spangle.org.uk/hallo/test_feed.xml?4",
         feed_title="test_feed4",
     )
     sub4 = Subscription(serv2, chan3, rf4, timedelta(days=1), None, None)
     sub_repo.add_sub(sub4)
     rf5 = RssSource(
-        "http://spangle.org.uk/hallo/test_feed.xml?4",
+        "https://spangle.org.uk/hallo/test_feed.xml?4",
         feed_title="test_feed3",
     )
     sub5 = Subscription(serv2, chan3, rf5, timedelta(days=1), None, None)
     sub_repo.add_sub(sub5)
     # Check function
     feed_list = sub_repo.get_subs_by_name(
-        "http://spangle.org.uk/hallo/test_feed.xml?4", chan3
+        "https://spangle.org.uk/hallo/test_feed.xml?4", chan3
     )
     assert len(feed_list) == 2
     assert sub4 in feed_list
@@ -164,12 +164,12 @@ async def test_remove_feed(hallo_getter):
     # Setup a feed list
     sub_repo = SubscriptionRepo(test_hallo)
     rf1 = RssSource(
-        "http://spangle.org.uk/hallo/test_rss.xml?1", "title1"
+        "https://spangle.org.uk/hallo/test_rss.xml?1", "title1"
     )
     sub1 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf1, timedelta(days=1), None, None)
     sub_repo.add_sub(sub1)
     rf2 = RssSource(
-        "http://spangle.org.uk/hallo/test_rss.xml?2", "title2"
+        "https://spangle.org.uk/hallo/test_rss.xml?2", "title2"
     )
     sub2 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf2, timedelta(days=1), None, None)
     sub_repo.add_sub(sub2)
@@ -187,19 +187,19 @@ async def test_json(hallo_getter, tmp_path):
     # Setup a feed list
     sub_repo = SubscriptionRepo(test_hallo)
     rf1 = RssSource(
-        "http://spangle.org.uk/hallo/test_rss.xml?1",
+        "https://spangle.org.uk/hallo/test_rss.xml?1",
         feed_title="test_feed1",
     )
     sub1 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf1, timedelta(days=1), None, None)
     sub_repo.add_sub(sub1)
     rf2 = RssSource(
-        "http://spangle.org.uk/hallo/test_rss.xml?2",
+        "https://spangle.org.uk/hallo/test_rss.xml?2",
         feed_title="test_feed2",
     )
     sub2 = Subscription(test_hallo.test_server, test_hallo.test_user, rf2, timedelta(days=1), None, None)
     sub_repo.add_sub(sub2)
     rf3 = RssSource(
-        "http://spangle.org.uk/hallo/test_rss.xml?3",
+        "https://spangle.org.uk/hallo/test_rss.xml?3",
         feed_title="test_feed3",
     )
     sub3 = Subscription(test_hallo.test_server, test_hallo.test_chan, rf3, timedelta(hours=1), None, None)

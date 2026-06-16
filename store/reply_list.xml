@@ -16,7 +16,7 @@
 	</reply>
 	<reply>
 		<prompt>haskell.jpg</prompt>
-		<response>http://dr-spangle.com/haskell.jpg</response>
+		<response>https://dr-spangle.com/haskell.jpg</response>
 		<whitelist>
 			<server>shadowworld</server>
 			<channel>#ecco-the-dolphin</channel>

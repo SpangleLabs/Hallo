@@ -5,7 +5,7 @@ import pytest
 from hallo.modules.subscriptions.source_rss import RssSource
 from hallo.modules.subscriptions.subscription_repo import SubscriptionRepo
 
-TEST_RSS = "http://spangle.org.uk/hallo/test_rss.xml"
+TEST_RSS = "https://spangle.org.uk/hallo/test_rss.xml"
 
 
 @pytest.mark.external_integration
@@ -66,7 +66,7 @@ def test_current_state():
     assert len(state) == 3
     assert isinstance(state[0], ElementTree.Element)
     assert state[0].find("title").text == "Item 3"
-    assert state[0].find("link").text == "http://example.com/item3"
+    assert state[0].find("link").text == "https://example.com/item3"
 
 
 def test_item_to_key():
@@ -74,7 +74,7 @@ def test_item_to_key():
         """<item>
             <guid>GUID1234</guid>
             <title>Item title</title>
-            <link>http://example.com/item</link>
+            <link>https://example.com/item</link>
         </item>"""
     )
     rss_elem = ElementTree.fromstring(rss_data)
@@ -87,13 +87,13 @@ def test_item_to_key__no_guid():
     rss_data = (
         """<item>
             <title>Item title</title>
-            <link>http://example.com/item</link>
+            <link>https://example.com/item</link>
         </item>"""
     )
     rss_elem = ElementTree.fromstring(rss_data)
     rf = RssSource(TEST_RSS)
 
-    assert rf.item_to_key(rss_elem) == "http://example.com/item"
+    assert rf.item_to_key(rss_elem) == "https://example.com/item"
 
 
 def test_item_to_key__no_guid_or_link():
@@ -119,7 +119,7 @@ async def test_item_to_event(hallo_getter):
     rss_data = (
         """<item>
             <title>Item title</title>
-            <link>http://example.com/item</link>
+            <link>https://example.com/item</link>
         </item>"""
     )
     rss_elem = ElementTree.fromstring(rss_data)
@@ -131,7 +131,7 @@ async def test_item_to_event(hallo_getter):
     assert event.user is None
     assert "\"feed title\"" in event.text
     assert "Item title" in event.text
-    assert "http://example.com/item" in event.text
+    assert "https://example.com/item" in event.text
 
 
 async def test_json(hallo_getter):

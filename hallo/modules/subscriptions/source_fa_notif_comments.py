@@ -191,14 +191,14 @@ class FAShoutSource(StreamSource[FAKey.FAReader.FANotificationShout]):
                 )
             return EventMessage(
                 server, channel, user,
-                f"You have a new shout, from {item.name} ( http://furaffinity.net/user/{item.username}/ ) "
+                f"You have a new shout, from {item.name} ( https://furaffinity.net/user/{item.username}/ ) "
                 f"has left a shout saying: \n\n{shout[0].text}",
                 inbound=False
             )
         except HTTPError:
             return EventMessage(
                 server, channel, user,
-                f"You have a new shout, from {item.name} ( http://furaffinity.net/user/{item.username}/ ) "
+                f"You have a new shout, from {item.name} ( https://furaffinity.net/user/{item.username}/ ) "
                 "has left a shout but I can't find it on your user page: \n"
                 f"https://furaffinity.net/user/{item.page_username}/",
                 inbound=False

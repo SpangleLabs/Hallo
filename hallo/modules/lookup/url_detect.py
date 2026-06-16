@@ -55,7 +55,7 @@ class UrlDetect(Function):
         url_address = url_search.group(1)
         # Add protocol if missing
         if "://" not in url_address:
-            url_address = "http://" + url_address
+            url_address = "https://" + url_address
         # Ignore local links.
         if (
             "127.0.0.1" in url_address

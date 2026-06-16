@@ -40,7 +40,7 @@ class Translate(Function):
         trans_safe = urllib.parse.quote(trans_string.strip(), "")
         # This uses google's secret translate API, it's not meant to be used by robots, and often it won't work
         url = (
-            "http://translate.google.com/translate_a/t?client=t&text={}&hl=en&sl={}&tl={}"
+            "https://translate.google.com/translate_a/t?client=t&text={}&hl=en&sl={}&tl={}"
             "&ie=UTF-8&oe=UTF-8&multires=1&otf=1&pc=1&trs=1&ssel=3&tsel=6&sc=1".format(
                 trans_safe, lang_from, lang_to
             )

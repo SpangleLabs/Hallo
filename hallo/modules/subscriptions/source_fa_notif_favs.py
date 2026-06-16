@@ -40,7 +40,7 @@ class FAFavNotificationsSource(StreamSource[FAKey.FAReader.FANotificationFavouri
     ) -> EventMessage:
         return EventMessage(
             server, channel, user,
-            f"You have a new favourite notification, {item.name} ( http://furaffinity.net/user/{item.username}/ ) "
+            f"You have a new favourite notification, {item.name} ( https://furaffinity.net/user/{item.username}/ ) "
             f'has favourited your submission "{item.submission_name}" {item.submission_link}'
         )
 

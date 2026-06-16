@@ -175,11 +175,11 @@ def test_get_digits_from_start_or_end(string, digits):
 @pytest.mark.parametrize(
     "url, domain",
     [
-        ("https://github.com/joshcoales", "github"),
-        ("http://spangle.org.uk/things/stuff/hallo.html.com", "spangle"),
+        ("https://github.com/SpangleLabs", "github"),
+        ("https://spangle.org.uk/things/stuff/hallo.html.com", "spangle"),
         ("irc://irc.freenode.net:6666", "freenode"),
         (
-            "http://www.longurlmaker.com/go?id=143GetShortyShrtndspread%2Bout1tprotractedlongishYepItlofty1stre"
+            "https://www.longurlmaker.com/go?id=143GetShortyShrtndspread%2Bout1tprotractedlongishYepItlofty1stre"
             "tch100RedirxMyURL1Sitelutionsspread%2Bout56706Ne1kfar%2Breachingstretchenlarged8U76SimURL01URLvi00"
             "distantr1towering46URLcutNe14m3q5stringy0elongatedremote7RubyURLRubyURL0300lasting52ny54blnk.inRed"
             "irx0t0akstretchedst765330DigBigf14922f8014v03121qeURl.ied99FhURL1MyURLFhURL8sustainedlingeringrunn"
@@ -203,7 +203,7 @@ def test_get_digits_from_start_or_end(string, digits):
             "Ld1runningfar%2Breaching06stretching1U76spun%2Bout1cstretch",
             "longurlmaker",
         ),
-        ("http://domains.ninja", "domains"),
+        ("https://domains.ninja", "domains"),
     ],
 )
 def test_domain_name(url, domain):
@@ -437,4 +437,4 @@ def test_upper():
 
 
 def test_upper__with_url():
-    assert Commons.upper("test http://google.com url") == "TEST http://google.com URL"
+    assert Commons.upper("test https://google.com url") == "TEST https://google.com URL"
