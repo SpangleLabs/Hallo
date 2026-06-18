@@ -87,75 +87,76 @@ class DailysMoodField(DailysField):
         msg_date = evt.get_send_time().date()
         mood_day = await self.get_current_mood_data(msg_date)
         if isinstance(evt, EventMinute):
-            latest_time = self.time_list.most_recent_time(evt.get_send_time().time())
-            if latest_time is None:
-                return None
-            if not mood_day.has_time(latest_time):
-                return await self.send_mood_query(mood_day, latest_time)
-            return None
+            return await self._passive_minute(evt, mood_day)
         if isinstance(evt, EventMessage):
-            input_clean = evt.text.strip().lower()
-            # Check if it's asking for current mood status
-            if input_clean in self.STATUS_COMMANDS:
-                return await self.post_mood_status(evt)
-            # Check if it's a morning/night messag
-            if (
-                input_clean in DailysSleepField.WAKE_WORDS
-            ):
-                if self.time_list.has_wake() and not mood_day.has_wake_time():
-                    return await self.send_mood_query(mood_day, MoodTime(MoodTime.WAKE))
-                return None
-            if (
-                input_clean in DailysSleepField.SLEEP_WORDS
-            ):
-                if self.time_list.has_sleep() and mood_day.awaiting_sleep(self.time_list):
-                    return await self.send_mood_query(mood_day, MoodTime(MoodTime.SLEEP))
-                return None
-            # Check if it's a reply to a mood message, or if there's an unanswered mood message
-            input_split = input_clean.split()
-            if (
-                len(input_split) == 2 and input_split[0].upper() == self.mood_acronym()
-            ) or input_clean.isdigit():
-                unanswered_requests = mood_day.list_unanswered_requests()
-                # Check if telegram message, and reply to a message
-                if evt.reply_to_msg_id is not None:
-                    reply_id = evt.reply_to_msg_id
-                    unanswered_ids = {
-                        request.message_id: request for request in unanswered_requests
-                    }
-                    if reply_id in unanswered_ids:
-                        return await self.process_mood_response(
-                            evt, input_split[-1], unanswered_ids[reply_id].mood_time, mood_day
-                        )
-                # Otherwise, use the most recent mood query
-                if len(unanswered_requests) > 0:
-                    return await self.process_mood_response(
-                        evt, input_split[-1], unanswered_requests[-1].mood_time, mood_day
-                    )
-                return await evt.reply(evt.create_response(
-                    "Is this a mood measurement, because I can't find a mood query."
-                ))
-            # Check if it's a more complicated message
-            if len(input_split) == 3 and input_split[0].upper() == self.mood_acronym():
-                input_time = input_split[1]
-                time_val = None
-                if input_time.lower() in DailysSleepField.WAKE_WORDS:
-                    time_val = MoodTime(MoodTime.WAKE)
-                elif input_time.lower() in DailysSleepField.SLEEP_WORDS:
-                    time_val = MoodTime(MoodTime.SLEEP)
-                else:
-                    try:
-                        time_val = MoodTime(time(int(input_time[:2]), int(input_time[-2:])))
-                    except ValueError:
-                        return await evt.reply(evt.create_response(
-                            "Could not parse the time in that mood measurement."
-                        ))
-                if not self.time_list.contains_time(time_val):
-                    return await evt.reply(evt.create_response(
-                        "That time value is not being tracked for mood measurements."
-                    ))
-                return await self.process_mood_response(evt, input_split[-1], time_val, mood_day)
+            return await self._passive_message(evt, mood_day)
         return None
+
+    async def _passive_minute(self, evt: EventMinute, mood_day: MoodDay) -> None:
+        latest_time = self.time_list.most_recent_time(evt.get_send_time().time())
+        if latest_time is None:
+            return None
+        if not mood_day.has_time(latest_time):
+            return await self.send_mood_query(mood_day, latest_time)
+        return None
+
+    async def _passive_message(self, evt: EventMessage, mood_day: MoodDay) -> None:
+        input_clean = evt.text.strip().lower()
+        # Check if it's asking for current mood status
+        if input_clean in self.STATUS_COMMANDS:
+            return await self.post_mood_status(evt)
+        # Check if it's a morning message
+        if input_clean in DailysSleepField.WAKE_WORDS:
+            if self.time_list.has_wake() and not mood_day.has_wake_time():
+                return await self.send_mood_query(mood_day, MoodTime(MoodTime.WAKE))
+            return None
+        # Check if it's a night message
+        if input_clean in DailysSleepField.SLEEP_WORDS:
+            if self.time_list.has_sleep() and mood_day.awaiting_sleep(self.time_list):
+                return await self.send_mood_query(mood_day, MoodTime(MoodTime.SLEEP))
+            return None
+        # Check if it's a reply to a mood message, or if there's an unanswered mood message
+        input_split = input_clean.split()
+        if (len(input_split) == 2 and input_split[0].upper() == self.mood_acronym()) or input_clean.isdigit():
+            unanswered_requests = mood_day.list_unanswered_requests()
+            # Check if telegram message, and reply to a message
+            if evt.reply_to_msg_id is not None:
+                reply_id = evt.reply_to_msg_id
+                unanswered_ids = {
+                    request.message_id: request for request in unanswered_requests
+                }
+                if reply_id in unanswered_ids:
+                    return await self.process_mood_response(
+                        evt, input_split[-1], unanswered_ids[reply_id].mood_time, mood_day
+                    )
+            # Otherwise, use the most recent mood query
+            if len(unanswered_requests) > 0:
+                return await self.process_mood_response(
+                    evt, input_split[-1], unanswered_requests[-1].mood_time, mood_day
+                )
+            return await evt.reply(evt.create_response(
+                "Is this a mood measurement, because I can't find a mood query."
+            ))
+        # Check if it's a more complicated message
+        if len(input_split) == 3 and input_split[0].upper() == self.mood_acronym():
+            input_time = input_split[1]
+            time_val = None
+            if input_time.lower() in DailysSleepField.WAKE_WORDS:
+                time_val = MoodTime(MoodTime.WAKE)
+            elif input_time.lower() in DailysSleepField.SLEEP_WORDS:
+                time_val = MoodTime(MoodTime.SLEEP)
+            else:
+                try:
+                    time_val = MoodTime(time(int(input_time[:2]), int(input_time[-2:])))
+                except ValueError:
+                    return await evt.reply(evt.create_response(
+                        "Could not parse the time in that mood measurement."
+                    ))
+            if not self.time_list.contains_time(time_val):
+                return await evt.reply(evt.create_response(
+                    "That time value is not being tracked for mood measurements."
+                ))
+            return await self.process_mood_response(evt, input_split[-1], time_val, mood_day)
 
     def mood_acronym(self) -> str:
         return "".join([m[0] for m in self.moods]).upper()
