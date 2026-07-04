@@ -61,12 +61,13 @@ class Dailys(Function):
         )
 
     async def run(self, event: EventMessage) -> EventMessage:
-        if event.text.strip().lower() in ["reload", "redeploy", "refresh"]:
+        evt_cmd = event.text.strip().removeprefix("dailys").strip().lower()
+        if evt_cmd in ["reload", "redeploy", "refresh"]:
             self.dailys_repo.save_json()
             self.dailys_repo = None
             await self.get_dailys_repo(event.server.hallo)
-            return await event.reply(event.create_response("Dailys repository reloaded."))
-        return await event.reply(event.create_response("Dailys system does not understand this command."))
+            return event.create_response("Dailys repository reloaded.")
+        return event.create_response("Dailys system does not understand this command.")
 
     async def passive_run(self, event: Event, hallo_obj: 'Hallo') -> ServerEvent | None:
         repo = await self.get_dailys_repo(hallo_obj)
