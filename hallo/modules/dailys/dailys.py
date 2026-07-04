@@ -61,8 +61,7 @@ class Dailys(Function):
         )
 
     async def run(self, event: EventMessage) -> EventMessage:
-        evt_cmd = event.text.strip().removeprefix("dailys").strip().lower()
-        if evt_cmd in ["reload", "redeploy", "refresh"]:
+        if event.command_args in ["reload", "redeploy", "refresh"]:
             self.dailys_repo.save_json()
             self.dailys_repo = None
             await self.get_dailys_repo(event.server.hallo)

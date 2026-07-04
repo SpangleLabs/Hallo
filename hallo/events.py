@@ -511,8 +511,8 @@ class EventMessage(ChannelUserTextEvent):
         ChannelUserTextEvent.__init__(
             self, server, channel, user, text, inbound=inbound
         )
-        self.command_name = None
-        self.command_args = None
+        self.command_name: str | None = None
+        self.command_args: str | None = None
         self.is_prefixed, self.command_text = self.check_prefix()
         self.formatting = EventMessage.Formatting.PLAIN
         self.menu_buttons = menu_buttons
