@@ -3,6 +3,7 @@ from datetime import timedelta, time, date
 from typing import TYPE_CHECKING, Type
 
 from hallo.events import EventMessage, EventMinute, Event
+from hallo.inc.commons import Commons
 from hallo.modules.dailys.dailys_field import DailysField, DailysException
 from hallo.modules.dailys.field_sleep import DailysSleepField
 from hallo.modules.dailys.field_mood_models import MoodTime, MoodDay, MoodTriggeredCache, MoodTimeList
@@ -86,9 +87,9 @@ class DailysMoodField(DailysField):
     async def passive_trigger(self, evt: Event) -> None:
         msg_date = evt.get_send_time().date()
         mood_day = await self.get_current_mood_data(msg_date)
-        if isinstance(evt, EventMinute):
+        if Commons.isinstance(evt, EventMinute):
             return await self._passive_minute(evt, mood_day)
-        if isinstance(evt, EventMessage):
+        if Commons.isinstance(evt, EventMessage):
             return await self._passive_message(evt, mood_day)
         return None
 

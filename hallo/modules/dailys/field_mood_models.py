@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod
 from datetime import time, datetime, date, timedelta
 from typing import Optional
 
+from hallo.inc.commons import Commons
+
 
 @functools.total_ordering
 class MoodTime:
@@ -25,7 +27,7 @@ class MoodTime:
             return MoodTime(datetime.strptime(time_str, "%H:%M:%S").time())
 
     def __eq__(self, other: 'MoodTime') -> bool:
-        return isinstance(other, MoodTime) and self.mood_time == other.mood_time
+        return Commons.isinstance(other, MoodTime) and self.mood_time == other.mood_time
 
     def __hash__(self) -> int:
         return hash(self.mood_time)
@@ -33,8 +35,11 @@ class MoodTime:
     def __str__(self) -> str:
         return str(self.mood_time)
 
+    def __repr__(self) -> str:
+        return f"MoodTime({self.mood_time})"
+
     def __lt__(self, other: 'MoodTime') -> bool:
-        if not isinstance(other, MoodTime):
+        if not Commons.isinstance(other, MoodTime):
             return NotImplemented
         if self.is_wake():
             return not other.is_wake()
@@ -84,7 +89,7 @@ class MoodDay:
 
     def is_full(self, mood_times: list[MoodTime]) -> bool:
         return all(
-            mood_time in self.mood_entries and isinstance(self.mood_entries[mood_time], MoodMeasurement)
+            mood_time in self.mood_entries and Commons.isinstance(self.mood_entries[mood_time], MoodMeasurement)
             for mood_time in mood_times
         )
 
@@ -119,7 +124,7 @@ class MoodDay:
 
     def list_unanswered_requests(self) -> list['MoodRequest']:
         return sorted(
-            [m for m in self.mood_entries.values() if isinstance(m, MoodRequest)],
+            [m for m in self.mood_entries.values() if Commons.isinstance(m, MoodRequest)],
             key=lambda x: x.mood_time
         )
 

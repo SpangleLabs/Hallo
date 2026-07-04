@@ -6,7 +6,7 @@ import json
 import random
 from collections.abc import Awaitable
 from datetime import timedelta
-from typing import TypeVar, Callable, Generic, Type
+from typing import TypeVar, Callable, Generic, Type, Any
 
 import aiohttp
 from prometheus_client import Gauge
@@ -404,6 +404,38 @@ class Commons(object):
         Escapes a string to ensure it can be used in html without issues
         """
         return string.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+    @staticmethod
+    def class_module_name(klass: Type) -> str | None:
+        """
+        Gets the full name of a class including the module it is from
+        """
+        module = inspect.getmodule(klass)
+        if module is None:
+            return None
+        return module.__name__ + "." + klass.__name__
+
+    @staticmethod
+    def is_hallo_module_class(klass: Type) -> bool:
+        """
+        Defines whether a class is from a module defined in this project. Whether it's a part of Hallo
+        """
+        full_name = Commons.class_module_name(klass)
+        if full_name is None:
+            return False
+        return full_name.startswith("hallo.")
+
+    @staticmethod
+    def isinstance(obj: Any, klass: Type) -> bool:
+        """
+        Due to the way that Hallo imports and re-loads modules, `isinstance()` cannot be trusted.
+        Use this method instead, to try and do some class checking.
+        """
+        obj_klass = type(obj)
+        if Commons.is_hallo_module_class(obj_klass):
+            if Commons.is_hallo_module_class(klass):
+                return Commons.class_module_name(obj_klass) == Commons.class_module_name(obj_klass)
+        return isinstance(obj, klass)
 
 
 class CachedObject(Generic[S]):
