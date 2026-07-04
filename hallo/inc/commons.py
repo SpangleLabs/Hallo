@@ -434,7 +434,7 @@ class Commons(object):
         obj_klass = type(obj)
         if Commons.is_hallo_module_class(obj_klass):
             if Commons.is_hallo_module_class(klass):
-                return Commons.class_module_name(obj_klass) == Commons.class_module_name(obj_klass)
+                return Commons.class_module_name(obj_klass) == Commons.class_module_name(klass)
         return isinstance(obj, klass)
 
 
