@@ -1,6 +1,8 @@
 from datetime import timedelta, date, datetime
 from typing import TYPE_CHECKING, Type, Any
 
+import isodate
+
 from hallo.events import EventMessage, Event
 from hallo.modules.dailys.dailys_field import DailysField
 
@@ -66,6 +68,17 @@ class DailysSleepField(DailysField):
         current_data[self.json_key_wake_time] = time_str
         await self.save_data(current_data, sleep_date)
         await self.message_channel("Good morning!")
+        # Check how long they were sleeping
+        status_resp = await self.spreadsheet.read_path("/views/sleep_status.json")
+        if not status_resp["is_sleeping"]:
+            await self.message_channel("Weird, the sleep status endpoint says you're still asleep")
+        else:
+            time_asleep_str = status_resp["time_asleep"]
+            time_asleep = isodate.parse_duration(time_asleep_str)
+            total_minutes = time_asleep.total_seconds() // 60
+            sleep_hours = total_minutes // 60
+            sleep_minutes = total_minutes - (60 * sleep_hours)
+            await self.message_channel(f"You were asleep for {sleep_hours} hours and {sleep_minutes} minutes")
         return
 
     async def parse_sleep_message(
