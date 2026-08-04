@@ -48,13 +48,14 @@ class DailysSleepField(DailysField):
     async def parse_wake_message(
             self,
             evt_time: datetime,
-            current_data: dict | dict[Any, Any],
-            yesterday_data: dict | dict[Any, Any],
+            current_data: dict,
+            yesterday_data: dict,
     ):
         time_str = evt_time.isoformat()
+        sleep_date = evt_time.date()
         yesterday_date = evt_time.date() - timedelta(1)
         # If today's data is blank, write in yesterday's sleep data
-        if len(current_data) == 0:
+        if current_data == {}:
             current_data = yesterday_data
             sleep_date = yesterday_date
         # If you already woke in this data, why are you waking again?
@@ -62,50 +63,49 @@ class DailysSleepField(DailysField):
             await self.message_channel("Didn't you already wake up?")
             return
         # If not, add a wake time to sleep data
-        else:
-            current_data[self.json_key_wake_time] = time_str
-            await self.save_data(current_data, evt_time.date())
-            await self.message_channel("Good morning!")
-            return
+        current_data[self.json_key_wake_time] = time_str
+        await self.save_data(current_data, sleep_date)
+        await self.message_channel("Good morning!")
+        return
 
     async def parse_sleep_message(
             self,
             evt_time: datetime,
-            current_data: dict | dict[Any, Any],
-            yesterday_data: dict | dict[Any, Any],
+            current_data: dict,
+            yesterday_data: dict,
     ):
         time_str = evt_time.isoformat()
+        sleep_date = evt_time.date()
         yesterday_date = evt_time.date() - timedelta(1)
         # If it's before 4pm, it's probably yesterday's sleep.
         if evt_time.hour <= 16:
             current_data = yesterday_data
             sleep_date = yesterday_date
-        # Did they already go to sleep?
-        if self.json_key_sleep_time in current_data:
-            # Did they already wake? If not, they're updating their sleep time.
-            if self.json_key_wake_time not in current_data:
-                current_data[self.json_key_sleep_time] = time_str
-                await self.save_data(current_data, evt_time.date())
-                await self.message_channel("Good night again!")
-                return
-            # Move the last wake time to interruptions
-            interruption = dict()
-            interruption[self.json_key_wake_time] = current_data.pop(
-                self.json_key_wake_time
-            )
-            interruption[self.json_key_sleep_time] = time_str
-            if self.json_key_interruptions not in current_data:
-                current_data[self.json_key_interruptions] = []
-            current_data[self.json_key_interruptions].append(interruption)
-            await self.save_data(current_data, evt_time.date())
-            await self.message_channel("Oh, going back to sleep? Sleep well!")
-            return
-        # Otherwise they're headed to sleep
-        else:
+        # If they haven't gone to sleep yet, record a sleep
+        if self.json_key_sleep_time not in current_data:
             current_data[self.json_key_sleep_time] = time_str
-            await self.save_data(current_data, evt_time.date())
+            await self.save_data(current_data, sleep_date)
             await self.message_channel("Goodnight!")
             return
+        # Otherwise, they have already gone to sleep
+        # If they haven't woken yet, then they're updating their sleep time
+        if self.json_key_wake_time not in current_data:
+            current_data[self.json_key_sleep_time] = time_str
+            await self.save_data(current_data, sleep_date)
+            await self.message_channel("Good night again!")
+            return
+        # Otherwise, they have slept and woke, so this was actually an interruption, not an initial sleep
+        # Move the last wake time to interruptions
+        interruption = {
+            self.json_key_wake_time: current_data.pop(self.json_key_wake_time),
+            self.json_key_sleep_time: time_str,
+        }
+        if self.json_key_interruptions not in current_data:
+            current_data[self.json_key_interruptions] = []
+        current_data[self.json_key_interruptions].append(interruption)
+        await self.save_data(current_data, sleep_date)
+        await self.message_channel("Oh, going back to sleep? Sleep well!")
+        return
 
     def to_json(self) -> dict:
         json_obj = dict()
