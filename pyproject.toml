@@ -22,7 +22,7 @@ cryptg = "^0.6.0" # Speeds up telethon handling
 
 
 [tool.poetry.dev-dependencies]
-pytest = "6.2.5"
+pytest = "9.0.3"
 requests-mock = "1.9.3"
 taskipy = "^1.8.1"
 
